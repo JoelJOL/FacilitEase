@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FacilitEase", "FacilitEase\FacilitEase.csproj", "{02943D89-BBF7-4C99-BC10-95394C285ED4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{02943D89-BBF7-4C99-BC10-95394C285ED4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02943D89-BBF7-4C99-BC10-95394C285ED4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02943D89-BBF7-4C99-BC10-95394C285ED4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02943D89-BBF7-4C99-BC10-95394C285ED4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D191A643-019A-4E70-9033-526B8C5C35F0}
+	EndGlobalSection
+EndGlobal
