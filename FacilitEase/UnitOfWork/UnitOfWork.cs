@@ -1,14 +1,22 @@
-﻿using System;
+﻿using FacilitEase.Data;
 
-/// <summary>
-/// Summary description for Class1
-/// </summary>
-public class Class1
+namespace FacilitEase.UnitOfWork
 {
-	public Class1()
-	{
-		//
-		// TODO: Add constructor logic here
-		//
-	}
+    public class UnitOfwork : IUnitOfWork
+    {
+        private readonly AppDbContext _context;
+        public UnitOfwork(AppDbContext context)
+        {
+            _context = context;
+        }
+        public int Complete()
+        {
+            return _context.SaveChanges();
+        }
+
+        public void Dispose()
+        {
+            _context.Dispose();
+        }
+    }
 }

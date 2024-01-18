@@ -1,39 +1,39 @@
-﻿using System;
+﻿using FacilitEase.Data;
 
-/// <summary>
-/// Summary description for Class1
-/// </summary>
-public class Repository<T> : IRepository<T> where T : class
+namespace FacilitEase.Repositories
 {
-    protected readonly AppDbContext Context;
-
-    public Repository(AppDbContext context)
+    public class Repository<T> : IRepository<T> where T : class
     {
-        Context = context;
-    }
+        protected readonly AppDbContext Context;
 
-    public IEnumerable<T> GetAll()
-    {
-        return Context.Set<T>().ToList();
-    }
+        public Repository(AppDbContext context)
+        {
+            Context = context;
+        }
 
-    public T GetById(int id)
-    {
-        return Context.Set<T>().Find(id);
-    }
+        public IEnumerable<T> GetAll()
+        {
+            return Context.Set<T>().ToList();
+        }
 
-    public void Add(T entity)
-    {
-        Context.Set<T>().Add(entity);
-    }
+        public T GetById(int id)
+        {
+            return Context.Set<T>().Find(id);
+        }
 
-    public void Update(T entity)
-    {
-        Context.Set<T>().Update(entity);
-    }
+        public void Add(T entity)
+        {
+            Context.Set<T>().Add(entity);
+        }
 
-    public void Delete(T entity)
-    {
-        Context.Set<T>().Remove(entity);
+        public void Update(T entity)
+        {
+            Context.Set<T>().Update(entity);
+        }
+
+        public void Delete(T entity)
+        {
+            Context.Set<T>().Remove(entity);
+        }
     }
 }
