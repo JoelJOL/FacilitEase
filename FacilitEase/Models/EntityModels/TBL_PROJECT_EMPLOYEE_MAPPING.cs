@@ -1,6 +1,6 @@
 ﻿namespace FacilitEase.Models.EntityModels
 {
-    public class DummyEntityModel
+    public class TBL_PROJECT_EMPLOYEE_MAPPING
     {
     }
 }
