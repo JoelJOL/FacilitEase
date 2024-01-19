@@ -1,6 +1,6 @@
 ﻿namespace FacilitEase.Data
 {
-    public class DummyData
+    public class DummyDatadafsdf
     {
     }
 }
