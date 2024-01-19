@@ -27,7 +27,7 @@ namespace FacilitEase.Models.EntityModels
         [Required]
         public DateTime UpdatedDate { get; set; }
 
-        [ForeignKey("ProjectId")]
-        public TBL_PROJECT? Project { get; set; }
+       /* [ForeignKey("ProjectId")]
+        public TBL_PROJECT? Project { get; set; }*/
     }
 }
