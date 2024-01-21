@@ -21,7 +21,7 @@ public class TicketService : ITicketService
     {
         try
         {
-            var ticket = _ticketRepository.GetById(ticketId);
+            var ticket = _unitOfWork.TicketRepository.GetById(ticketId);
 
             if (ticket == null)
                 return false;
@@ -30,8 +30,9 @@ public class TicketService : ITicketService
 
             ticket.StatusId = newStatusId;
 
-            _ticketRepository.Update(ticket);
-            await _unitOfWork.CompleteAsync();
+            /*_ticketRepository.Update(ticket);*/
+            _unitOfWork.TicketRepository.Update(ticket);
+            _unitOfWork.Complete();
 
             return true;
         }

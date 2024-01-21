@@ -6,7 +6,7 @@ namespace FacilitEase.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<TBL_STATUS> Statuses { get; set; }
-        public DbSet<TBL_TICKET> Tickets { get; set; }
+        public DbSet<TBL_STATUS> TBL_STATUS { get; set; }
+        public DbSet<TBL_TICKET> TBL_TICKET { get; set; }
     }
 }
