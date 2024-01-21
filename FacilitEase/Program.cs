@@ -1,4 +1,5 @@
 using FacilitEase.Data;
+using FacilitEase.Services;
 using FacilitEase.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +12,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfwork>();
-
+builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

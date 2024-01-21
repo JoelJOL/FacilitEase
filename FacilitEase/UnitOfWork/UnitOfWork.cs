@@ -1,4 +1,6 @@
 ﻿using FacilitEase.Data;
+using FacilitEase.Repositories;
+using FacilitEase.Services;
 
 namespace FacilitEase.UnitOfWork
 {
@@ -8,7 +10,12 @@ namespace FacilitEase.UnitOfWork
         public UnitOfwork(AppDbContext context)
         {
             _context = context;
+            Tickets = new TicketRepository(_context);
+            Employees = new EmployeeRepository(_context);
         }
+        public ITicketRepository Tickets { get; }
+
+        public IEmployeeRepository Employees { get; }
         public int Complete()
         {
             return _context.SaveChanges();
