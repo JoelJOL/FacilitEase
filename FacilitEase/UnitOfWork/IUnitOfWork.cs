@@ -1,8 +1,11 @@
-﻿namespace FacilitEase.UnitOfWork
+﻿// IUnitOfWork.cs
+using System;
+using System.Threading.Tasks;
+
+public interface IUnitOfWork : IDisposable
 {
-    public interface IUnitOfWork
-    {
-        int Complete();
-        void Dispose();
-    }
+    int Complete();
+    Task<int> CompleteAsync();
+
+    void Dispose();
 }
