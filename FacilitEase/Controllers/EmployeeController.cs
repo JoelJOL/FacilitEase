@@ -1,7 +1,8 @@
 ﻿// EmployeeController.cs
 using FacilitEase.Models.EntityModels;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-
+[EnableCors("AllowAngularDev")]
 [Route("api/[controller]")]
 [ApiController]
 public class EmployeeController : ControllerBase
@@ -32,9 +33,10 @@ public class EmployeeController : ControllerBase
                 EmployeeCode = employeeInput.EmployeeCode,
                 FirstName = employeeInput.FirstName,
                 LastName = employeeInput.LastName,
-               /* DOB = employeeInput.DOB,*/
+                DOB = employeeInput.DOB,
                 Email = employeeInput.Email,
                 Gender = employeeInput.Gender,
+                ManagerId = employeeInput.ManagerId,
                 // Map other properties as needed
             };
 

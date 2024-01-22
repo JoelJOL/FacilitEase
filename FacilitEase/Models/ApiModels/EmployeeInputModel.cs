@@ -16,15 +16,18 @@ public class EmployeeInputModel
     [Required]
     public string LastName { get; set; }
 
-/*    [JsonConverter(typeof(DateOnlyConverter))]*/
-    /*public DateOnly DOB { get; set; }
-*/
+
+    public string DOB { get; set; }
+
     [Required]
     [EmailAddress]
     public string Email { get; set; }
 
     [Required]
     public string Gender { get; set; }
+
+    [Required]
+    public int ManagerId { get; set; }
 
     // Other properties as needed
 }
