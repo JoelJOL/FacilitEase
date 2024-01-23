@@ -14,17 +14,30 @@ public class EmployeeService : IEmployeeService
         _unitOfWork = unitOfWork;
     }
 
-    public void AddEmployee(TBL_EMPLOYEE employee)
+    public void AddEmployee(EmployeeInputModel employeeInput)
     {
-        if (employee == null)
+        if (employeeInput == null)
         {
-            throw new ArgumentNullException(nameof(employee), "Employee data is null.");
+            throw new ArgumentNullException(nameof(employeeInput), "Employee input data is null.");
         }
 
         try
         {
+            // Map the input model to your entity model
+            var employeeEntity = new TBL_EMPLOYEE
+            {
+                EmployeeCode = employeeInput.EmployeeCode,
+                FirstName = employeeInput.FirstName,
+                LastName = employeeInput.LastName,
+                DOB = employeeInput.DOB,
+                Email = employeeInput.Email,
+                Gender = employeeInput.Gender,
+                ManagerId = employeeInput.ManagerId,
+                // Map other properties as needed
+            };
+
             // Add additional business logic if needed before calling the repository
-            _unitOfWork.EmployeeRepository.Add(employee);
+            _unitOfWork.EmployeeRepository.Add(employeeEntity);
             _unitOfWork.Complete();
         }
         catch (Exception ex)

@@ -26,21 +26,7 @@ public class EmployeeController : ControllerBase
 
         try
         {
-            
-            // Map the input model to your entity model before passing it to the service
-            var employeeEntity = new TBL_EMPLOYEE
-            {
-                EmployeeCode = employeeInput.EmployeeCode,
-                FirstName = employeeInput.FirstName,
-                LastName = employeeInput.LastName,
-                DOB = employeeInput.DOB,
-                Email = employeeInput.Email,
-                Gender = employeeInput.Gender,
-                ManagerId = employeeInput.ManagerId,
-                // Map other properties as needed
-            };
-
-            _employeeService.AddEmployee(employeeEntity);
+            _employeeService.AddEmployee(employeeInput);
             return Ok("Employee added successfully.");
         }
         catch (Exception ex)
