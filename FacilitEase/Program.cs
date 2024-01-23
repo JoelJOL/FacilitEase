@@ -11,7 +11,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularDev",
+        builder => builder.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader());
+});
 
 
 builder.Services.AddControllers();
@@ -36,6 +42,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.UseCors("AllowAngularDev");
 app.MapControllers();
 
 app.Run();

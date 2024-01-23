@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using FacilitEase.Services;
 using FacilitEase.Models.ApiModels;
+using Microsoft.AspNetCore.Cors;
 
 namespace FacilitEase.Controllers
 {
+    [EnableCors("AllowAngularDev")]
     [Route("api/tickets")]
     [ApiController]
     public class TicketController : ControllerBase
