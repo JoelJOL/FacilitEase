@@ -2,10 +2,12 @@
 using System.Threading.Tasks;
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Services;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FacilitEase.Controllers
 {
+    [EnableCors("AllowAngularDev")]
     [Route("api/[controller]")]
     [ApiController]
     public class ManagerController : ControllerBase
