@@ -16,18 +16,18 @@ public class EmployeeController : ControllerBase
 
     // POST api/employee
     // POST api/employee
-    [HttpPost]
-    public IActionResult AddEmployee([FromBody] EmployeeInputModel employeeInput)
+    [HttpPost("AddEmployees")]
+    public IActionResult AddEmployees([FromBody] IEnumerable<EmployeeInputModel> employeeInputs)
     {
-        if (employeeInput == null)
+        if (employeeInputs == null || !employeeInputs.Any())
         {
-            return BadRequest("Employee data is null.");
+            return BadRequest("Employee data is null or empty.");
         }
 
         try
         {
-            _employeeService.AddEmployee(employeeInput);
-            return Ok("Employee added successfully.");
+            _employeeService.AddEmployees(employeeInputs);
+            return Ok("Employees added successfully.");
         }
         catch (Exception ex)
         {

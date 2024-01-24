@@ -15,8 +15,6 @@ namespace FacilitEase.Repositories
             // This implementation will call the AddRange method from the base class (generic repository)
             base.AddRange(employees);
         }
-        // Additional methods specific to EmployeeRepository if needed
-
 
     }
 }

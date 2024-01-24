@@ -14,17 +14,20 @@ public class EmployeeService : IEmployeeService
         _unitOfWork = unitOfWork;
     }
 
-    public void AddEmployees(IEnumerable<EmployeeInputModel> employeeInputs)
+    public void AddEmployees(IEnumerable<EmployeeInputModel> employeeInputs, params EmployeeInputModel[] additionalEmployeeInputs)
     {
-        if (employeeInputs == null)
+        if (employeeInputs == null || !employeeInputs.Any())
         {
-            throw new ArgumentNullException(nameof(employeeInputs), "Employee input data is null.");
+            throw new ArgumentException("Employee input data is null or empty.", nameof(employeeInputs));
         }
 
         try
         {
+            // Combine the two collections if needed
+            var allEmployeeInputs = employeeInputs.Concat(additionalEmployeeInputs);
+
             // Map the input models to your entity models
-            var employeeEntities = employeeInputs.Select(employeeInput => new TBL_EMPLOYEE
+            var employeeEntities = allEmployeeInputs.Select(employeeInput => new TBL_EMPLOYEE
             {
                 EmployeeCode = employeeInput.EmployeeCode,
                 FirstName = employeeInput.FirstName,
@@ -50,10 +53,10 @@ public class EmployeeService : IEmployeeService
         }
     }
 
-    public void AddEmployee(EmployeeInputModel employeeInput)
-    {
-        AddEmployees(new List<EmployeeInputModel> { employeeInput });
-    }
+    /*  public void AddEmployee(EmployeeInputModel employeeInput)
+      {
+          AddEmployees(new List<EmployeeInputModel> { employeeInput });
+      }*/
 
 
     public void DeleteEmployee(int id)
