@@ -1,4 +1,5 @@
 ﻿using FacilitEase.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace FacilitEase.Repositories
 {
@@ -34,6 +35,11 @@ namespace FacilitEase.Repositories
         public void Delete(T entity)
         {
             Context.Set<T>().Remove(entity);
+        }
+
+        public void AddRange(IEnumerable<T> entities)
+        {
+            Context.AddRange(entities);
         }
     }
 }

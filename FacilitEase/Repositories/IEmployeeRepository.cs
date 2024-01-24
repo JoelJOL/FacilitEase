@@ -5,5 +5,5 @@ using System.Collections.Generic;
 
 public interface IEmployeeRepository : IRepository<TBL_EMPLOYEE>
 {
-   
+    void AddRange(IEnumerable<TBL_EMPLOYEE> employees);
 }

@@ -14,17 +14,17 @@ public class EmployeeService : IEmployeeService
         _unitOfWork = unitOfWork;
     }
 
-    public void AddEmployee(EmployeeInputModel employeeInput)
+    public void AddEmployees(IEnumerable<EmployeeInputModel> employeeInputs)
     {
-        if (employeeInput == null)
+        if (employeeInputs == null)
         {
-            throw new ArgumentNullException(nameof(employeeInput), "Employee input data is null.");
+            throw new ArgumentNullException(nameof(employeeInputs), "Employee input data is null.");
         }
 
         try
         {
-            // Map the input model to your entity model
-            var employeeEntity = new TBL_EMPLOYEE
+            // Map the input models to your entity models
+            var employeeEntities = employeeInputs.Select(employeeInput => new TBL_EMPLOYEE
             {
                 EmployeeCode = employeeInput.EmployeeCode,
                 FirstName = employeeInput.FirstName,
@@ -34,21 +34,27 @@ public class EmployeeService : IEmployeeService
                 Gender = employeeInput.Gender,
                 ManagerId = employeeInput.ManagerId,
                 // Map other properties as needed
-            };
+            }).ToList();
 
             // Add additional business logic if needed before calling the repository
-            _unitOfWork.EmployeeRepository.Add(employeeEntity);
+            _unitOfWork.EmployeeRepository.AddRange(employeeEntities);
             _unitOfWork.Complete();
         }
         catch (Exception ex)
         {
             // Log the exception details or print to console for debugging
-            Debug.WriteLine($"Error in AddEmployee: {ex.Message}");
+            Debug.WriteLine($"Error in AddEmployees: {ex.Message}");
             // Log or print the inner exception details
             Debug.WriteLine($"Inner exception: {ex.InnerException?.Message}");
             throw; // Re-throw the exception to propagate it up the call stack
         }
     }
+
+    public void AddEmployee(EmployeeInputModel employeeInput)
+    {
+        AddEmployees(new List<EmployeeInputModel> { employeeInput });
+    }
+
 
     public void DeleteEmployee(int id)
     {
@@ -74,6 +80,7 @@ public class EmployeeService : IEmployeeService
             throw; // Re-throw the exception to propagate it up the call stack
         }
     }
+
 
 
 }
