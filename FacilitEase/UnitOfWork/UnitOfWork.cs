@@ -13,10 +13,13 @@ public class UnitOfWork : IUnitOfWork
         _context = context;
         Employees = new EmployeeRepository(_context);
         Tickets = new TicketRepository(_context);
+        Department = new DepartmentRepository(_context);
     }
 
     public IEmployeeRepository Employees { get; }
     public ITicketRepository Tickets { get; }
+    public IL3AdminRepository Ticket { get; }
+    public IDepartmentRepository Department { get; }
 
     public int Complete()
     {

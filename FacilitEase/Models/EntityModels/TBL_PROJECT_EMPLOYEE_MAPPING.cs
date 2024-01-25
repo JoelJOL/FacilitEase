@@ -1,4 +1,6 @@
-﻿namespace FacilitEase.Models.EntityModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace FacilitEase.Models.EntityModels
 {
     public class TBL_PROJECT_EMPLOYEE_MAPPING
     {
