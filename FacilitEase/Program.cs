@@ -1,4 +1,5 @@
 using FacilitEase.Data;
+using FacilitEase.UnitOfWork;
 using FacilitEase.Repositories;
 using FacilitEase.Services;
 using Microsoft.EntityFrameworkCore;
@@ -16,9 +17,6 @@ builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
-
-
-
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

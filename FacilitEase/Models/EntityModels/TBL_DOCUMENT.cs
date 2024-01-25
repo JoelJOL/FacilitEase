@@ -15,9 +15,6 @@ namespace FacilitEase.Models.EntityModels
         [Required]
         public int TicketId { get; set; }
 
-        /*[ForeignKey("TicketId")]
-        public TBL_TICKET Ticket { get; set; }*/
-
         [Required]
         public int CreatedBy { get; set; }
 

@@ -1,9 +1,9 @@
-﻿using FacilitEase.Models.ApiModels;
+﻿using FacilitEase.Models.EntityModels;
+using FacilitEase.Models.ApiModels;
 
 namespace FacilitEase.Repositories
 {
-    public interface ITicketRepository
+    public interface ITicketRepository : IRepository<TBL_TICKET>
     {
-        
     }
 }

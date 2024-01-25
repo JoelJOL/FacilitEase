@@ -10,6 +10,5 @@ public interface IUnitOfWork : IDisposable
     public ITicketRepository Tickets { get; }
     int Complete();
     Task<int> CompleteAsync();
-
     void Dispose();
 }
