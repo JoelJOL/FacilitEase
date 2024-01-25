@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Net.NetworkInformation;
+using System.Text.Json.Serialization;
 
 namespace FacilitEase.Models.EntityModels
 {
@@ -6,7 +8,7 @@ namespace FacilitEase.Models.EntityModels
     {
         [Key]
         public int Id { get; set; }
-        public string TicketName { get; set; }
+        public string? TicketName { get; set; }
         public string? TicketDescription { get; set; }
         public DateTime SubmittedDate { get; set; }
         public int PriorityId { get; set; }
@@ -19,4 +21,5 @@ namespace FacilitEase.Models.EntityModels
         public int CreatedBy { get; set; }
         public int UpdatedBy { get; set; }
     }
+
 }
