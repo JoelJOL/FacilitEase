@@ -35,7 +35,6 @@ namespace FacilitEase.Data
         public DbSet<TBL_ASSET_EMPLOYEE_MAPPING> TBL_ASSET_EMPLOYEE_MAPPING { get; set; }
         public DbSet<TBL_COMMENT> TBL_COMMENT { get; set; }
         public DbSet<TBL_NOTIFICATION> TBL_NOTIFICATION { get; set; }
-
     }
 
 }

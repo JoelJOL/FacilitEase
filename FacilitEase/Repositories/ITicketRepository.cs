@@ -5,5 +5,6 @@ namespace FacilitEase.Repositories
 {
     public interface ITicketRepository : IRepository<TBL_TICKET>
     {
+
     }
 }

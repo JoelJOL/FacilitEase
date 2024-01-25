@@ -7,10 +7,7 @@ using FacilitEase.Repositories;
 
 public class UnitOfWork : IUnitOfWork
 {
-    public class UnitOfWork : IUnitOfWork
-    {
-        private readonly AppDbContext _context;
-
+    private readonly AppDbContext _context;
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
@@ -26,6 +23,7 @@ public class UnitOfWork : IUnitOfWork
             Employees = new EmployeeRepository(_context);
             Tickets = new TicketRepository(_context);
             Department = new DepartmentRepository(_context);
+            TicketRepository = new TicketRepository(_context);
         }
 
 
@@ -41,6 +39,7 @@ public class UnitOfWork : IUnitOfWork
         public ITicketRepository Tickets { get; }
         public IDepartmentRepository Department { get; }
         public IEmployeeRepository EmployeeRepository { get; set; }
+        public ITicketRepository TicketRepository { get; set; }
 
         public int Complete()
         {
@@ -77,7 +76,6 @@ public class UnitOfWork : IUnitOfWork
     {
         return await _context.SaveChangesAsync();
     }
-
     public void Dispose()
     {
         _context.Dispose();

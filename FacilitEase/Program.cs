@@ -1,10 +1,10 @@
-using FacilitEase.Data;
 using FacilitEase.Repositories;
 using FacilitEase.Services;
 using FacilitEase.UnitOfWork;
 using FacilitEase.Repositories;
 using FacilitEase.Services;
 using Microsoft.EntityFrameworkCore;
+using FacilitEase.Models.EntityModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,9 +35,11 @@ builder.Services.AddScoped<IPriorityService, PriorityService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IL3AdminService, L3AdminService>();
+builder.Services.AddScoped<IRepository<TBL_TICKET>, Repository<TBL_TICKET>>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
 
@@ -52,7 +54,7 @@ app.UseCors("AllowAngularDev");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-app.UseCors("AllowAngularDev");
+
 app.MapControllers();
 
 app.Run();

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 ﻿using FacilitEase.Models.EntityModels;
 using FacilitEase.Models.ApiModels;
 
@@ -17,5 +18,6 @@ namespace FacilitEase.Services
         void AssignTicketToAgent(int ticketId, int agentId);
         List<TicketApiModel> GetAssignedTickets();
         List<TicketApiModel> GetEscalatedTickets();
+      Task<bool> ChangeTicketStatus(int ticketId, TicketStatusChangeRequest request);
     }
 }

@@ -1,10 +1,3 @@
-﻿using FacilitEase.Repositories;
-using FacilitEase.Models.ApiModels;
-using FacilitEase.Repositories;
-using System;
-using System.Threading.Tasks;
-
-
 namespace FacilitEase.UnitOfWork
 {
     public interface IUnitOfWork : IDisposable
@@ -18,6 +11,7 @@ namespace FacilitEase.UnitOfWork
         IStatusRepository Status { get; }
         IEmployeeRepository Employee { get; }
         IL3AdminRepository Ticket { get; }
+        ITicketRepository TicketRepository { get; }
         Task<int> CompleteAsync();
         int Complete();
         void Dispose();

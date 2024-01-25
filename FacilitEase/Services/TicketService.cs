@@ -18,13 +18,16 @@ namespace FacilitEase.Services
         private readonly IDocumentRepository _documentRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppDbContext _context;
-        public TicketService(AppDbContext dbContext, ITicketRepository ticketRepository, IDocumentRepository documentRepository,IUnitOfWork unitOfWork, AppDbContext context)
+        private readonly IRepository<TBL_TICKET> _ticketRepository1;
+        
+        public TicketService(AppDbContext dbContext, ITicketRepository ticketRepository, IDocumentRepository documentRepository,IUnitOfWork unitOfWork, AppDbContext context, IRepository<TBL_TICKET> ticketRepository1)
         {
             _dbContext = dbContext;
             _ticketRepository = ticketRepository;
             _documentRepository = documentRepository;
              _unitOfWork = unitOfWork;
             _context = context;
+            _ticketRepository1 = ticketRepository1;
         }
 
         public void CreateTicketWithDocuments(TicketDto ticketDto)
@@ -462,10 +465,33 @@ namespace FacilitEase.Services
 
             return escalatedTickets;
         }
-        
+        public async Task<bool> ChangeTicketStatus(int ticketId, TicketStatusChangeRequest request)
+    {
+        try
+        {
+            var ticket = _unitOfWork.TicketRepository.GetById(ticketId);
+
+            if (ticket == null)
+                return false;
+
+            var newStatusId = request.IsApproved ? 3 : 2; // Set status based on IsApproved flag
+
+            ticket.StatusId = newStatusId;
+
+            /*_ticketRepository.Update(ticket);*/
+            _unitOfWork.TicketRepository.Update(ticket);
+            _unitOfWork.Complete();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            // Handle exceptions appropriately
+            return false;
+        }
+    }
     }
 
 } 
 
 
-     
