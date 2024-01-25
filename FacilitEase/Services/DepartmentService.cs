@@ -4,7 +4,7 @@ using FacilitEase.Models.EntityModels;
 
 namespace FacilitEase.Services
 {
-    public class DepartmentService : IDepartmentService
+    public class DepartmentService:IDepartmentService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly object employeeDto;
@@ -13,7 +13,6 @@ namespace FacilitEase.Services
         {
             _unitOfWork = unitOfWork;
         }
-
         public IEnumerable<DepartmentDto> GetDepartments()
         {
 
@@ -61,5 +60,11 @@ namespace FacilitEase.Services
             };
         }
 
+        public IEnumerable<TBL_DEPARTMENT> GetAllDepartments()
+        {
+
+            var dept = _unitOfWork.Department.GetAll();
+            return (dept);
+        }
     }
 }

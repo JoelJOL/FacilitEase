@@ -2,11 +2,12 @@
 
 namespace FacilitEase.Models.EntityModels
 {
-    public class TBL_PROJECT_EMPLOYEE_MAPPING
+    public class TBL_BUDGET_CODE_GENERATION
     {
-        public int Id { get; set; }
-        public int ProjectId { get; set; }
-        public int EmployeeId { get; set; }
+        [Key]
+        public int BudgetCode { get; set; }
+        public float BudgetAmount { get; set; }
+        public int DepartmentId { get; set; }
         public int CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
         public int UpdatedBy { get; set; }

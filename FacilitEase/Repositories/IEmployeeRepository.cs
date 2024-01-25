@@ -2,7 +2,8 @@
 
 namespace FacilitEase.Repositories
 {
-    public interface IEmployeeRepository:IRepository<TBL_EMPLOYEE>
+
+    public interface IEmployeeRepository: IRepository<TBL_EMPLOYEE>,IRepository<ManagerSubordinateEmployee
     {
     }
 }
