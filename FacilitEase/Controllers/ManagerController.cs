@@ -13,11 +13,13 @@ namespace FacilitEase.Controllers
     {
         private readonly ITicketService _ticketService;
         private readonly IEmployeeService _employeeService;
+        private readonly IManagerService _managerService;
 
-        public ManagerController(ITicketService ticketService,IEmployeeService employeeService)
+        public ManagerController(ITicketService ticketService,IEmployeeService employeeService,IManagerService managerService)
         {
             _ticketService = ticketService;
             _employeeService = employeeService;
+             _managerService = managerService;
         }
         [HttpGet("GetTicketByManager/{managerId}")]
         public IActionResult GetTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize)
@@ -118,7 +120,12 @@ namespace FacilitEase.Controllers
                 return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
         }
+         [HttpGet]
+        public async Task<ActionResult<IEnumerable<ManagerAPI>>> GetManagers()
+        {
+            var managers = await _managerService.GetManagersAsync();
+            return Ok(managers);
         }
         }
-
+        }
 

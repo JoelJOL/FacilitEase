@@ -1,9 +1,9 @@
-﻿using FacilitEase.Models.EntityModels;
+using FacilitEase.Models.EntityModels;
+using FacilitEase.Repositories;
+using System.Collections.Generic;
 
-namespace FacilitEase.Repositories
+public interface IEmployeeRepository : IRepository<TBL_EMPLOYEE>,IRepository<ManagerSubordinateEmployee
 {
+    void AddRange(IEnumerable<TBL_EMPLOYEE> employees);
 
-    public interface IEmployeeRepository: IRepository<TBL_EMPLOYEE>,IRepository<ManagerSubordinateEmployee
-    {
-    }
 }

@@ -1,5 +1,3 @@
-﻿
-
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Services;
 using Microsoft.AspNetCore.Cors;
@@ -17,16 +15,19 @@ namespace FacilitEase.Controllers
         private readonly ICategoryService _categoryService;
         private readonly IPriorityService _priorityService;
         private readonly ITicketService _ticketService;
+        private readonly IEmployeeService _employeeService;
 
         public EmployeeController(IDepartmentService departmentService,
             ICategoryService categoryService,
             IPriorityService priorityService,
-            ITicketService ticketService)
+            ITicketService ticketService,
+            IEmployeeService employeeService)
         {
             _departmentService = departmentService;
             _categoryService = categoryService;
             _priorityService = priorityService;
             _ticketService = ticketService;
+             _employeeService = employeeService;
         }
 
         [HttpGet("departments")]
@@ -62,6 +63,35 @@ namespace FacilitEase.Controllers
 
             return Ok("Ticket created successfully");
         }
+        [HttpPost("AddEmployees")]
+    public IActionResult AddEmployees([FromBody] IEnumerable<EmployeeInputModel> employeeInputs)
+    {
+        if (employeeInputs == null || !employeeInputs.Any())
+        {
+            return BadRequest("Employee data is null or empty.");
+        }
 
+        try
+        {
+            _employeeService.AddEmployees(employeeInputs);
+            return Ok("Employees added successfully.");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+    [HttpDelete("{id}")]
+    public IActionResult DeleteEmployee(int id)
+    {
+        try
+        {
+            _employeeService.DeleteEmployee(id);
+            return Ok($"Employee with ID {id} deleted successfully.");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
 }

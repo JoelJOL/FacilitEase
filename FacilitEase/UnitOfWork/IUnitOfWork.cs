@@ -18,7 +18,6 @@ namespace FacilitEase.UnitOfWork
         IStatusRepository Status { get; }
         IEmployeeRepository Employee { get; }
         IL3AdminRepository Ticket { get; }
-        
         Task<int> CompleteAsync();
         int Complete();
         void Dispose();

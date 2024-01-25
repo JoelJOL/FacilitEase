@@ -12,8 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DB_STRING")));
-
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularDev",
@@ -22,6 +21,10 @@ builder.Services.AddCors(options =>
                           .AllowAnyHeader());
 });
 
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+// Startup.cs
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<IManagerRepository, ManagerRepository>();
 builder.Services.AddScoped<IUnitOfWork, IUnitOfwork>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
@@ -29,10 +32,8 @@ builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IPriorityService, PriorityService>();
-
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-
 builder.Services.AddScoped<IL3AdminService, L3AdminService>();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -51,7 +52,7 @@ app.UseCors("AllowAngularDev");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
+app.UseCors("AllowAngularDev");
 app.MapControllers();
 
 app.Run();

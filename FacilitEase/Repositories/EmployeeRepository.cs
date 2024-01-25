@@ -10,5 +10,11 @@ namespace FacilitEase.Repositories
         {
             _context = context;
         }
+        public void AddRange(IEnumerable<TBL_EMPLOYEE> employees)
+        {
+            // This implementation will call the AddRange method from the base class (generic repository)
+            base.AddRange(employees);
+        }
+
     }
 }
