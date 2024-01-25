@@ -2,6 +2,8 @@ using FacilitEase.Data;
 using FacilitEase.Repositories;
 using FacilitEase.Services;
 using FacilitEase.UnitOfWork;
+using FacilitEase.Repositories;
+using FacilitEase.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,10 +21,16 @@ builder.Services.AddCors(options =>
                           .AllowAnyHeader());
 });
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+
 builder.Services.AddScoped<IL3AdminService, L3AdminService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -34,6 +42,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors("AllowAngularDev");
 
 app.UseHttpsRedirection();
 

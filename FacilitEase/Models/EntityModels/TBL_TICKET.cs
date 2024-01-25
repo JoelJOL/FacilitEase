@@ -61,5 +61,8 @@ namespace FacilitEase.Models.EntityModels
         public DateTime CreatedDate { get; set; }
 
         public DateTime UpdatedDate { get; set; }
+
+        public int? ControllerId { get; set; }
+
     }
 }

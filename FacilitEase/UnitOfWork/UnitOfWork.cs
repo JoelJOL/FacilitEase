@@ -1,32 +1,37 @@
-﻿using FacilitEase.Data;
+using FacilitEase.Services;
+using System;
+using System.Threading.Tasks;
+using FacilitEase.Data;
 using FacilitEase.Repositories;
 
-namespace FacilitEase.UnitOfWork
+public class UnitOfWork : IUnitOfWork
 {
-    public class UnitOfWork : IUnitOfWork
+    private readonly AppDbContext _context;
+
+    public UnitOfWork(AppDbContext context)
     {
-      
-        private readonly AppDbContext _context;
+        _context = context;
+        Employees = new EmployeeRepository(_context);
+        Tickets = new TicketRepository(_context);
+        Department = new DepartmentRepository(_context);
+    }
 
-        public UnitOfWork(AppDbContext context)
-        {
-            _context = context;
-            Ticket = new L3AdminRepository(_context);
-            Department = new DepartmentRepository(_context);
-            Employee = new EmployeeRepository(_context);
-        }
+    public IEmployeeRepository Employees { get; }
+    public ITicketRepository Tickets { get; }
+    public IL3AdminRepository Ticket { get; }
+    public IDepartmentRepository Department { get; }
 
-        public IL3AdminRepository Ticket { get; }
-        public IDepartmentRepository Department { get; }
-        public IEmployeeRepository Employee { get; }
-        public int Complete()
-        {
-            return _context.SaveChanges();
-        }
+    public int Complete()
+    {
+        return _context.SaveChanges();
+    }
+    public async Task<int> CompleteAsync()
+    {
+        return await _context.SaveChangesAsync();
+    }
 
-        public void Dispose()
-        {
-            _context.Dispose();
-        }
+    public void Dispose()
+    {
+        _context.Dispose();
     }
 }
