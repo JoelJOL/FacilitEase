@@ -1,4 +1,4 @@
-using FacilitEase.Repositories;
+using FacilitEase.Data;
 using FacilitEase.Services;
 using FacilitEase.UnitOfWork;
 using FacilitEase.Repositories;
@@ -12,6 +12,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("Employee_API_CRUDContext")));
+
+
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+=======
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddCors(options =>
 {
@@ -36,9 +42,10 @@ builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IL3AdminService, L3AdminService>();
 builder.Services.AddScoped<IRepository<TBL_TICKET>, Repository<TBL_TICKET>>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(); ;
 
 
 var app = builder.Build();
@@ -50,6 +57,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseCors("AllowAngularDev");
+
+app.UseCors("AllowLocalhost");
 
 app.UseHttpsRedirection();
 
