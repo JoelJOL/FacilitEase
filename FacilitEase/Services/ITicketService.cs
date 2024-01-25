@@ -11,6 +11,10 @@ namespace FacilitEase.Services
         public void TicketDecision(int ticketId, int statusId);
         public void ChangePriority(int ticketId, int newPriorityId);
         public void SendForApproval(int ticketId , int managerId);
-
+        List<TicketApiModel> GetTickets();
+        List<TicketApiModel> GetUnassignedTickets();
+        void AssignTicketToAgent(int ticketId, int agentId);
+        List<TicketApiModel> GetAssignedTickets();
+        List<TicketApiModel> GetEscalatedTickets();
     }
 }

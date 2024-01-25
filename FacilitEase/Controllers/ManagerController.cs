@@ -12,10 +12,12 @@ namespace FacilitEase.Controllers
     public class ManagerController : ControllerBase
     {
         private readonly ITicketService _ticketService;
+        private readonly IEmployeeService _employeeService;
 
-        public ManagerController(ITicketService ticketService)
+        public ManagerController(ITicketService ticketService,IEmployeeService employeeService)
         {
             _ticketService = ticketService;
+            _employeeService = employeeService;
         }
         [HttpGet("GetTicketByManager/{managerId}")]
         public IActionResult GetTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize)
@@ -100,7 +102,23 @@ namespace FacilitEase.Controllers
                 return BadRequest($"An error occurred: {ex.Message}");
             }
         }
+        [HttpGet("{managerId}/subordinates")]
+        public ActionResult<List<ManagerSubordinateEmployee>> GetSubordinateEmployees(int managerId)
+        {
+            try
+            {
+                var subordinates = _employeeService.GetSubordinates(managerId);
+               
+
+                return Ok(subordinates);
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions and return an appropriate response
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
+        }
+        }
+        }
 
 
-    }
-}

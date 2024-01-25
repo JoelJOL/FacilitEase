@@ -4,7 +4,6 @@ namespace FacilitEase.Models.EntityModels
 {
     public class TBL_LOGIN
     {
-       
         public int Id {  get; set; }
         public int UserId { get; set; }
         public DateTime LoginTime { get; set; }
