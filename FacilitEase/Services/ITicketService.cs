@@ -5,6 +5,7 @@ namespace FacilitEase.Services
 {
     public interface ITicketService
     {
+        void CreateTicketWithDocuments(TicketDto ticket);
         public IEnumerable<ManagerEmployeeTickets> GetTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize);
         public ManagerEmployeeTicketDetailed ViewTicketDetails(int ticketId);
         public IEnumerable<ManagerEmployeeTickets> GetApprovalTicket(int employeeId);

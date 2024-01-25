@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+
 namespace FacilitEase.Data
 {
     public class AppDbContext : DbContext
@@ -35,6 +36,6 @@ namespace FacilitEase.Data
         public DbSet<TBL_COMMENT> TBL_COMMENT { get; set; }
         public DbSet<TBL_NOTIFICATION> TBL_NOTIFICATION { get; set; }
 
-
     }
+
 }

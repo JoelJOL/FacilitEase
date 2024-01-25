@@ -1,15 +1,26 @@
+﻿using FacilitEase.Repositories;
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Repositories;
 using System;
 using System.Threading.Tasks;
 
-public interface IUnitOfWork : IDisposable
+
+namespace FacilitEase.UnitOfWork
 {
-    public IEmployeeRepository Employees { get; }
-    public ITicketRepository Tickets { get; }
-    IL3AdminRepository Ticket { get; }
-    IDepartmentRepository Department { get; }
-    int Complete();
-    Task<int> CompleteAsync();
-    void Dispose();
+    public interface IUnitOfWork : IDisposable
+    {
+        IDepartmentRepository Departments { get; }
+        ICategoryRepository Category { get; }
+        ITicketRepository Ticket { get; }
+        IPriorityRepository Priority { get; }
+        IDocumentRepository Document { get; }
+        IUserRepository User { get; }
+        IStatusRepository Status { get; }
+        IEmployeeRepository Employee { get; }
+        IL3AdminRepository Ticket { get; }
+        
+        Task<int> CompleteAsync();
+        int Complete();
+        void Dispose();
+    }
 }

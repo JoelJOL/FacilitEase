@@ -1,24 +1,63 @@
 ﻿using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
-using FacilitEase.UnitOfWork;
-using System.Linq.Dynamic.Core;
-using Microsoft.EntityFrameworkCore;
+using FacilitEase.Models.EntityModels;
 using FacilitEase.Repositories;
-using System.Collections.Generic;
+using FacilitEase.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq.Dynamic.Core;
+using FacilitEase.Repositories;
 using System.Linq;
 
 namespace FacilitEase.Services
 {
     public class TicketService : ITicketService
     {
+        private readonly AppDbContext _dbContext;
+        private readonly ITicketRepository _ticketRepository;
+        private readonly IDocumentRepository _documentRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppDbContext _context;
-
-        public TicketService(IUnitOfWork unitOfWork, AppDbContext context)
+        public TicketService(AppDbContext dbContext, ITicketRepository ticketRepository, IDocumentRepository documentRepository,IUnitOfWork unitOfWork, AppDbContext context)
         {
-            _unitOfWork = unitOfWork;
+            _dbContext = dbContext;
+            _ticketRepository = ticketRepository;
+            _documentRepository = documentRepository;
+             _unitOfWork = unitOfWork;
             _context = context;
         }
+
+        public void CreateTicketWithDocuments(TicketDto ticketDto)
+        {
+            
+                    
+                    var ticketEntity = new TBL_TICKET
+                    {
+                        TicketName = ticketDto.TicketName,
+                        TicketDescription = ticketDto.TicketDescription,
+                        PriorityId = ticketDto.PriorityId,
+                        CategoryId = ticketDto.CategoryId,
+                    };
+            _dbContext.Add(ticketEntity);
+
+                    _dbContext.SaveChanges();
+
+                    
+                    foreach (var documentLink in ticketDto.DocumentLink)
+                    {
+                        var documentEntity = new TBL_DOCUMENT
+                        {
+                            DocumentLink = documentLink,
+                            TicketId = ticketEntity.Id ,
+                        };
+
+                        _documentRepository.Add(documentEntity);
+                    }
+
+                    _dbContext.SaveChanges();
+
+            }
+        
         public void ChangePriority(int ticketId, int newPriorityId)
         {
             var ticket = _unitOfWork.Tickets.GetById(ticketId);
@@ -32,8 +71,6 @@ namespace FacilitEase.Services
             }
             _unitOfWork.Complete();
         }
-
-
         public void SendForApproval(int ticketId, int managerId)
         {
             var ticket = _unitOfWork.Tickets.GetById(ticketId);
@@ -425,5 +462,10 @@ namespace FacilitEase.Services
 
             return escalatedTickets;
         }
+        
     }
-}
+
+} 
+
+
+     
