@@ -5,7 +5,7 @@ namespace FacilitEase.Services
 {
     public interface ITicketService
     {
-        public IEnumerable<ManagerEmployeeTickets> GetTicketByManager(int employeeId);
+        public IEnumerable<ManagerEmployeeTickets> GetTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize);
         public ManagerEmployeeTicketDetailed ViewTicketDetails(int ticketId);
         public IEnumerable<ManagerEmployeeTickets> GetApprovalTicket(int employeeId);
         public void TicketDecision(int ticketId, int statusId);

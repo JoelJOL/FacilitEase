@@ -1,11 +1,14 @@
 ﻿using FacilitEase.Models.ApiModels;
 using FacilitEase.Services;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 
 namespace FacilitEase.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [EnableCors("AllowAngularDev")]
     public class ManagerController : ControllerBase
     {
         private readonly ITicketService _ticketService;
@@ -15,11 +18,11 @@ namespace FacilitEase.Controllers
             _ticketService = ticketService;
         }
         [HttpGet("GetTicketByManager/{managerId}")]
-        public IActionResult GetTicketByManager(int managerId)
+        public IActionResult GetTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize)
         {
             try
             {
-                var tickets = _ticketService.GetTicketByManager(managerId);
+                var tickets = _ticketService.GetTicketByManager(managerId, sortField,sortOrder, pageIndex,pageSize);
                 return Ok(tickets);
             }
             catch (Exception ex)

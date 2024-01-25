@@ -5,8 +5,6 @@ namespace FacilitEase.Repositories
 {
     public interface ITicketRepository : IRepository<TBL_TICKET>
     {
-        IEnumerable<ManagerEmployeeTickets> GetApprovalTicket(int managerId);
-        IEnumerable<ManagerEmployeeTickets> GetTicketByManager(int managerId);
-        ManagerEmployeeTicketDetailed ViewTicketDetails(int ticketId);
+
     }
 }
