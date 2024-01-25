@@ -1,76 +1,59 @@
-﻿using FacilitEase.Models.ApiModels;
+﻿using FacilitEase.Data;
+using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
+using FacilitEase.Repositories;
 using FacilitEase.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
 
 namespace FacilitEase.Services
 {
     public class TicketService : ITicketService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly object employeeDto;
-
-        public TicketService(IUnitOfWork unitOfWork)
+        private readonly AppDbContext _dbContext;
+ 
+        private readonly ITicketRepository _ticketRepository;
+        private readonly IDocumentRepository _documentRepository;
+        public TicketService(AppDbContext dbContext, ITicketRepository ticketRepository, IDocumentRepository documentRepository)
         {
-            _unitOfWork = unitOfWork;
+            _dbContext = dbContext;
+            _ticketRepository = ticketRepository;
+            _documentRepository = documentRepository;
         }
 
-        public IEnumerable<TicketDto> GetTickets()
+        public void CreateTicketWithDocuments(TicketDto ticketDto)
         {
+            
+                    
+                    var ticketEntity = new TBL_TICKET
+                    {
+                        TicketName = ticketDto.TicketName,
+                        TicketDescription = ticketDto.TicketDescription,
+                        PriorityId = ticketDto.PriorityId,
+                        CategoryId = ticketDto.CategoryId,
+                    };
+            _dbContext.Add(ticketEntity);
 
-            var tickets = _unitOfWork.Ticket.GetAll();
-            return MapToTicketDtoList(tickets);
-        }
+                    _dbContext.SaveChanges();
 
+                    
+                    foreach (var documentLink in ticketDto.DocumentLink)
+                    {
+                        var documentEntity = new TBL_DOCUMENT
+                        {
+                            DocumentLink = documentLink,
+                            TicketId = ticketEntity.Id ,
+                        };
 
-        private IEnumerable<TicketDto> MapToTicketDtoList(IEnumerable<TBL_TICKET> tickets)
-        {
-            return tickets.Select(MapToTicketDto);
-        }
+                        _documentRepository.Add(documentEntity);
+                    }
 
-        private TicketDto MapToTicketDto(TBL_TICKET tickets)
-        {
-            return new TicketDto
-            {
-                Id = tickets.Id,
-                TicketDescription = tickets.TicketDescription,
-                AssignedTo = tickets.AssignedTo,
-                CategoryId = tickets.CategoryId,
-                PriorityId = tickets.PriorityId,
-                SubmittedDate = tickets.SubmittedDate,
-                StatusId = tickets.StatusId,
-                UserId = tickets.UserId,
-                CreatedBy = tickets.CreatedBy,
-                CreatedDate = tickets.CreatedDate,
-                UpdatedBy = tickets.UpdatedBy,
-                UpdatedDate = tickets.UpdatedDate,
-            };
-        }
-        public void CreateTicket(TicketDto ticketDto)
-        {
+                    _dbContext.SaveChanges();
 
-            var ticketEntity = MapToTBL_TICKET(ticketDto);
-            _unitOfWork.Ticket.Add(ticketEntity);
-            _unitOfWork.Complete();
-        }
-
-        private TBL_TICKET MapToTBL_TICKET(TicketDto ticketDto)
-        {
-
-            return new TBL_TICKET
-            {
-                Id = ticketDto.Id,
-                TicketDescription = ticketDto.TicketDescription,
-                AssignedTo = ticketDto.AssignedTo,
-                CategoryId = ticketDto.CategoryId,
-                PriorityId = ticketDto.PriorityId,
-                SubmittedDate = ticketDto.SubmittedDate,
-                StatusId = ticketDto.StatusId,
-                UserId = ticketDto.UserId,
-                CreatedBy = ticketDto.CreatedBy,
-                CreatedDate = ticketDto.CreatedDate,
-                UpdatedBy = ticketDto.UpdatedBy,
-                UpdatedDate = ticketDto.UpdatedDate,
-            };
+            }
         }
     }
-}
+
+
+

@@ -1,4 +1,5 @@
 using FacilitEase.Data;
+using FacilitEase.Repositories;
 using FacilitEase.Services;
 using FacilitEase.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
@@ -16,10 +17,14 @@ builder.Services.AddCors(options =>
                           .AllowAnyMethod()
                           .AllowAnyHeader());
 });
-builder.Services.AddScoped<IUnitOfWork, UnitOfwork>();
+builder.Services.AddScoped<IUnitOfWork, IUnitOfwork>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
+builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IPriorityService, PriorityService>();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

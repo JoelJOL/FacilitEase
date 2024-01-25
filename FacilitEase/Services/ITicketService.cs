@@ -4,7 +4,6 @@ namespace FacilitEase.Services
 {
     public interface ITicketService
     {
-        IEnumerable<TicketDto> GetTickets();
-        void CreateTicket(TicketDto ticketDto);
+        void CreateTicketWithDocuments(TicketDto ticket);
     }
 }

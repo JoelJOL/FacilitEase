@@ -1,4 +1,6 @@
-﻿using FacilitEase.Models.ApiModels;
+﻿
+
+using FacilitEase.Models.ApiModels;
 using FacilitEase.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +17,11 @@ namespace FacilitEase.Controllers
         private readonly ICategoryService _categoryService;
         private readonly IPriorityService _priorityService;
         private readonly ITicketService _ticketService;
-        public EmployeeController(IDepartmentService departmentService, ICategoryService categoryService, IPriorityService priorityService, ITicketService ticketService)
+
+        public EmployeeController(IDepartmentService departmentService,
+            ICategoryService categoryService,
+            IPriorityService priorityService,
+            ITicketService ticketService)
         {
             _departmentService = departmentService;
             _categoryService = categoryService;
@@ -28,19 +34,6 @@ namespace FacilitEase.Controllers
         {
             var departments = _departmentService.GetDepartments();
             return Ok(departments);
-        }
-
-        [HttpPost("departments")]
-        public IActionResult CreateDepartment([FromBody] DepartmentDto departmentDto)
-        {
-            if (departmentDto == null)
-            {
-                return BadRequest("DepartmentDto cannot be null");
-            }
-
-            _departmentService.CreateDepartment(departmentDto);
-
-            return CreatedAtAction(nameof(GetDepartments), new { }, departmentDto);
         }
 
         [HttpGet("categories")]
@@ -56,17 +49,19 @@ namespace FacilitEase.Controllers
             var priority = _priorityService.GetPriority();
             return Ok(priority);
         }
-        [HttpPost("tickets")]
-        public IActionResult CreateTicket([FromBody] TicketDto ticketDto)
+
+        [HttpPost("raiseticket")]
+        public IActionResult CreateTicket([FromBody] TicketDto ticketApiModel)
         {
-            if (ticketDto == null)
+            if (ticketApiModel == null)
             {
-                return BadRequest("DepartmentDto cannot be null");
+                return BadRequest("Invalid ticket data");
             }
 
-            _ticketService.CreateTicket(ticketDto);
+            _ticketService.CreateTicketWithDocuments(ticketApiModel);
 
-            return Ok();
+            return Ok("Ticket created successfully");
         }
+
     }
 }
