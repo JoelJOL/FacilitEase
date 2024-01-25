@@ -1,10 +1,13 @@
-﻿// IEmployeeService.cs
-using FacilitEase.Models.EntityModels;
+﻿using FacilitEase.Models.ApiModels;
 
-public interface IEmployeeService
+namespace FacilitEase.Services
 {
-    /* void AddEmployee(TBL_EMPLOYEE employee);*/
-    void AddEmployees(IEnumerable<EmployeeInputModel> employeeInputs1, params EmployeeInputModel[] employeeInputs);
-
-    void DeleteEmployee(int id);
+    public interface IEmployeeService
+    {
+        List<ManagerSubordinateEmployee> GetSubordinates(int managerId);
+        IEnumerable<AgentApiModel> GetAgents(int departmentId);
+        IEnumerable<AgentDetailsModel> GetAgentsByDepartment(int departmentId);
+      void AddEmployees(IEnumerable<EmployeeInputModel> employeeInputs1, params EmployeeInputModel[] employeeInputs);
+      void DeleteEmployee(int id);
+    }
 }
