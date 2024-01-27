@@ -1,3 +1,5 @@
+using FacilitEase.Repositories;
+
 namespace FacilitEase.UnitOfWork
 {
     public interface IUnitOfWork : IDisposable
@@ -10,8 +12,11 @@ namespace FacilitEase.UnitOfWork
         IUserRepository User { get; }
         IStatusRepository Status { get; }
         IEmployeeRepository Employee { get; }
-        IL3AdminRepository Ticket { get; }
+        IEmployeeRepository EmployeeRepository { get; }
+        IL3AdminRepository L3Admin { get; }
         ITicketRepository TicketRepository { get; }
+        
+
         Task<int> CompleteAsync();
         int Complete();
         void Dispose();

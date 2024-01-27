@@ -13,169 +13,43 @@ namespace FacilitEase.Services
 {
     public class TicketService : ITicketService
     {
-        private readonly AppDbContext _dbContext;
         private readonly ITicketRepository _ticketRepository;
         private readonly IDocumentRepository _documentRepository;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly AppDbContext _context;
-        private readonly IRepository<TBL_TICKET> _ticketRepository1;
-        
-        public TicketService(AppDbContext dbContext, ITicketRepository ticketRepository, IDocumentRepository documentRepository,IUnitOfWork unitOfWork, AppDbContext context, IRepository<TBL_TICKET> ticketRepository1)
+        private readonly IUnitOfWork _unitOfWork;//Avinash Abhijith
+        private readonly AppDbContext _context;//Abhijith
+
+        public TicketService(AppDbContext context, ITicketRepository ticketRepository, IDocumentRepository documentRepository, IUnitOfWork unitOfWork)
         {
-            _dbContext = dbContext;
+            _context = context;
             _ticketRepository = ticketRepository;
             _documentRepository = documentRepository;
-             _unitOfWork = unitOfWork;
-            _context = context;
-            _ticketRepository1 = ticketRepository1;
+            _unitOfWork = unitOfWork;//Avinash
         }
-
-        public void CreateTicketWithDocuments(TicketDto ticketDto)
+        //Avinash
+        public async Task<bool> ChangeTicketStatus(int ticketId, TicketStatusChangeRequest request)
         {
-            
-                    
-                    var ticketEntity = new TBL_TICKET
-                    {
-                        TicketName = ticketDto.TicketName,
-                        TicketDescription = ticketDto.TicketDescription,
-                        PriorityId = ticketDto.PriorityId,
-                        CategoryId = ticketDto.CategoryId,
-                    };
-            _dbContext.Add(ticketEntity);
-
-                    _dbContext.SaveChanges();
-
-                    
-                    foreach (var documentLink in ticketDto.DocumentLink)
-                    {
-                        var documentEntity = new TBL_DOCUMENT
-                        {
-                            DocumentLink = documentLink,
-                            TicketId = ticketEntity.Id ,
-                        };
-
-                        _documentRepository.Add(documentEntity);
-                    }
-
-                    _dbContext.SaveChanges();
-
-            }
-        
-        public void ChangePriority(int ticketId, int newPriorityId)
-        {
-            var ticket = _unitOfWork.Tickets.GetById(ticketId);
-            if (ticket == null)
+            try
             {
-                throw new InvalidOperationException($"Ticket with ID {ticketId} not found.");
-            }
-            else
-            {
-                ticket.PriorityId = newPriorityId;
-            }
-            _unitOfWork.Complete();
-        }
-        public void SendForApproval(int ticketId, int managerId)
-        {
-            var ticket = _unitOfWork.Tickets.GetById(ticketId);
-            if (ticket == null)
-            {
-                throw new InvalidOperationException($"Ticket with ID {ticketId} not found.");
-            } 
-            else
-            {
-                var manager = _unitOfWork.Employees.GetById(managerId);
-                if (manager?.ManagerId != null)
-                {
-                    ticket.ControllerId = manager.ManagerId;
-                }
-                else
-                {
-                    throw new InvalidOperationException("ManagerId is null or invalid.");
-                }
-            }
-            _unitOfWork.Complete();
-            
+                var ticket = _unitOfWork.TicketRepository.GetById(ticketId);
 
-        }
+                if (ticket == null)
+                    return false;
 
-        public void TicketDecision(int ticketId, int statusId)
-        {
-            var ticket = _unitOfWork.Tickets.GetById(ticketId);
-            if (ticket == null)
-            {
-                throw new InvalidOperationException($"Ticket with ID {ticketId} not found.");
+                var newStatusId = request.IsApproved ? 3 : 2; // Set status based on IsApproved flag
+
+                ticket.StatusId = newStatusId;
+
+                /*_ticketRepository.Update(ticket);*/
+                _unitOfWork.TicketRepository.Update(ticket);
+                _unitOfWork.Complete();
+
+                return true;
             }
-            else 
-            { 
-                ticket.StatusId = statusId;
-            }
-            _unitOfWork.Complete();
-
-
-        }
-        public IEnumerable<ManagerEmployeeTickets> GetApprovalTicket(int managerId)
-        {
-            var tickets = _context.TBL_TICKET
-            .Where(ticket => ticket.ControllerId == managerId)
-            .Select(ticket => new ManagerEmployeeTickets
+            catch (Exception ex)
             {
-                Id = ticket.Id,
-                TicketName = ticket.TicketName,
-                EmployeeName = _context.TBL_USER
-                    .Where(user => user.Id == ticket.UserId)
-                    .Select(user => _context.TBL_EMPLOYEE
-                    .Where(employee => employee.Id == user.EmployeeId)
-                    .Select(employee => $"{employee.FirstName} {employee.LastName}")
-                    .FirstOrDefault())
-                .FirstOrDefault(),
-                AssignedTo = _context.TBL_EMPLOYEE
-                .Where(employee => employee.Id == ticket.AssignedTo)
-                .Select(employee => $"{employee.FirstName} {employee.LastName}")
-                    .FirstOrDefault(),
-                SubmittedDate = ticket.SubmittedDate,
-                Priority = _context.TBL_PRIORITY
-                .Where(priority => priority.Id == ticket.PriorityId)
-                .Select(priority => $"{priority.PriorityName}")
-                .FirstOrDefault(),
-                Status = _context.TBL_STATUS
-                .Where(status => status.Id == ticket.StatusId)
-                .Select(status => $"{status.StatusName}")
-                .FirstOrDefault(),
-            })
-            .ToList();
-        public List<TicketApiModel> GetTickets()
-        {
-            var tickets = _context.TBL_TICKET
-                .Select(ticket => new TicketApiModel
-                {
-                    TicketId = ticket.Id,
-                    TicketName = ticket.TicketName,
-                    TicketDescription = ticket.TicketDescription,
-                    RaisedBy = _context.TBL_EMPLOYEE
-                        .Where(employee => employee.Id == _context.TBL_USER
-                            .Where(user => user.Id == ticket.UserId)
-                            .Select(user => user.EmployeeId)
-                            .FirstOrDefault())
-                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
-                        .FirstOrDefault(),
-                    AssignedTo = _context.TBL_EMPLOYEE
-                        .Where(employee => employee.Id == ticket.AssignedTo)
-                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
-                        .FirstOrDefault(),
-                    RaisedDateTime = ticket.SubmittedDate,
-                    Priority = _context.TBL_PRIORITY
-                        .Where(priority => priority.Id == ticket.PriorityId)
-                        .Select(priority => priority.PriorityName)
-                        .FirstOrDefault(),
-                    Status = _context.TBL_STATUS
-                        .Where(status => status.Id == ticket.StatusId)
-                        .Select(status => status.StatusName)
-                        .FirstOrDefault()
-                    // Add other properties as needed
-                })
-                .ToList();
-
-            return tickets;
+                // Handle exceptions appropriately
+                return false;
+            }
         }
         public IEnumerable<ManagerEmployeeTickets> GetTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize)
         {
@@ -241,50 +115,6 @@ namespace FacilitEase.Services
 
             return tickets;
         }
-
-        public IEnumerable<ManagerEmployeeTickets> GetTicketByManager2(int managerId)
-        {
-            var tickets = _context.TBL_TICKET
-        .Where(ticket =>
-            _context.TBL_USER
-                .Where(user => user.Id == ticket.UserId)
-        .Join(
-                    _context.TBL_EMPLOYEE,
-                    user => user.EmployeeId,
-                    employee => employee.Id,
-                    (user, employee) => employee.ManagerId == managerId
-                )
-                .Any()
-        )
-        .Select(ticket => new ManagerEmployeeTickets
-        {
-            Id = ticket.Id,
-            TicketName = ticket.TicketName,
-            EmployeeName = _context.TBL_USER
-                    .Where(user => user.Id == ticket.UserId)
-                    .Select(user => _context.TBL_EMPLOYEE
-                    .Where(employee => employee.Id == user.EmployeeId)
-                    .Select(employee => $"{employee.FirstName} {employee.LastName}")
-                    .FirstOrDefault())
-                .FirstOrDefault(),
-            AssignedTo = _context.TBL_EMPLOYEE
-                .Where(employee => employee.Id == ticket.AssignedTo)
-                .Select(employee => $"{employee.FirstName} {employee.LastName}")
-                    .FirstOrDefault(),
-            SubmittedDate = ticket.SubmittedDate,
-            Priority = _context.TBL_PRIORITY
-                .Where(priority => priority.Id == ticket.PriorityId)
-                .Select(priority => $"{priority.PriorityName}")
-                .FirstOrDefault(),
-            Status = _context.TBL_STATUS
-                .Where(status => status.Id == ticket.StatusId)
-                .Select(status => $"{status.StatusName}")
-                .FirstOrDefault(),
-        })
-            .ToList();
-
-            return tickets;
-        }
         public ManagerEmployeeTicketDetailed ViewTicketDetails(int ticketId)
         {
             var ticket = _context.TBL_TICKET
@@ -323,7 +153,149 @@ namespace FacilitEase.Services
 
             return ticket;
         }
+        public IEnumerable<ManagerEmployeeTickets> GetApprovalTicket(int managerId)
+        {
+            var tickets = _context.TBL_TICKET
+            .Where(ticket => ticket.ControllerId == managerId)
+            .Select(ticket => new ManagerEmployeeTickets
+            {
+                Id = ticket.Id,
+                TicketName = ticket.TicketName,
+                EmployeeName = _context.TBL_USER
+                    .Where(user => user.Id == ticket.UserId)
+                    .Select(user => _context.TBL_EMPLOYEE
+                    .Where(employee => employee.Id == user.EmployeeId)
+                    .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                    .FirstOrDefault())
+                .FirstOrDefault(),
+                AssignedTo = _context.TBL_EMPLOYEE
+                .Where(employee => employee.Id == ticket.AssignedTo)
+                .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                    .FirstOrDefault(),
+                SubmittedDate = ticket.SubmittedDate,
+                Priority = _context.TBL_PRIORITY
+                .Where(priority => priority.Id == ticket.PriorityId)
+                .Select(priority => $"{priority.PriorityName}")
+                .FirstOrDefault(),
+                Status = _context.TBL_STATUS
+                .Where(status => status.Id == ticket.StatusId)
+                .Select(status => $"{status.StatusName}")
+                .FirstOrDefault(),
+            })
+            .ToList();
 
+            return tickets;
+        }
+        public void TicketDecision(int ticketId, int statusId)
+        {   
+            var ticket = _unitOfWork.Ticket.GetById(ticketId);
+            if (ticket == null)
+            {
+                throw new InvalidOperationException($"Ticket with ID {ticketId} not found.");
+            }
+            else
+            {
+                ticket.StatusId = statusId;
+            }
+            _unitOfWork.Complete();
+        }
+        public void ChangePriority(int ticketId, int newPriorityId)
+        {
+            var ticket = _unitOfWork.Ticket.GetById(ticketId);
+            if (ticket == null)
+            {
+                throw new InvalidOperationException($"Ticket with ID {ticketId} not found.");
+            }
+            else
+            {
+                ticket.PriorityId = newPriorityId;
+            }
+            _unitOfWork.Complete();
+        }
+        public void SendForApproval(int ticketId, int managerId)
+        {
+            var ticket = _unitOfWork.Ticket.GetById(ticketId);
+            if (ticket == null)
+            {
+                throw new InvalidOperationException($"Ticket with ID {ticketId} not found.");
+            }
+            else
+            {
+                var manager = _unitOfWork.Employee.GetById(managerId);
+                if (manager?.ManagerId != null)
+                {
+                    ticket.ControllerId = manager.ManagerId;
+                }
+                else
+                {
+                    throw new InvalidOperationException("ManagerId is null or invalid.");
+                }
+            }
+            _unitOfWork.Complete();
+        }
+        public void CreateTicketWithDocuments(TicketDto ticketDto)
+        {
+
+            var ticketEntity = new TBL_TICKET
+            {
+                TicketName = ticketDto.TicketName,
+                TicketDescription = ticketDto.TicketDescription,
+                PriorityId = ticketDto.PriorityId,
+                CategoryId = ticketDto.CategoryId,
+            };
+            _context.Add(ticketEntity);
+
+            _context.SaveChanges();
+
+
+            foreach (var documentLink in ticketDto.DocumentLink)
+            {
+                var documentEntity = new TBL_DOCUMENT
+                {
+                    DocumentLink = documentLink,
+                    TicketId = ticketEntity.Id,
+                };
+
+                _documentRepository.Add(documentEntity);
+            }
+
+            _context.SaveChanges();
+
+        }
+        public List<TicketApiModel> GetTickets()
+        {
+            var tickets = _context.TBL_TICKET
+                .Select(ticket => new TicketApiModel
+                {
+                    TicketId = ticket.Id,
+                    TicketName = ticket.TicketName,
+                    TicketDescription = ticket.TicketDescription,
+                    RaisedBy = _context.TBL_EMPLOYEE
+                        .Where(employee => employee.Id == _context.TBL_USER
+                            .Where(user => user.Id == ticket.UserId)
+                            .Select(user => user.EmployeeId)
+                            .FirstOrDefault())
+                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                        .FirstOrDefault(),
+                    AssignedTo = _context.TBL_EMPLOYEE
+                        .Where(employee => employee.Id == ticket.AssignedTo)
+                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                        .FirstOrDefault(),
+                    RaisedDateTime = ticket.SubmittedDate,
+                    Priority = _context.TBL_PRIORITY
+                        .Where(priority => priority.Id == ticket.PriorityId)
+                        .Select(priority => priority.PriorityName)
+                        .FirstOrDefault(),
+                    Status = _context.TBL_STATUS
+                        .Where(status => status.Id == ticket.StatusId)
+                        .Select(status => status.StatusName)
+                        .FirstOrDefault()
+                    // Add other properties as needed
+                })
+                .ToList();
+
+            return tickets;
+        }
         public List<TicketApiModel> GetUnassignedTickets()
         {
             var unassignedTickets = _context.TBL_TICKET
@@ -355,7 +327,6 @@ namespace FacilitEase.Services
 
             return unassignedTickets;
         }
-
         public void AssignTicketToAgent(int ticketId, int agentId)
         {
             // Find the agent by ID
@@ -465,33 +436,6 @@ namespace FacilitEase.Services
 
             return escalatedTickets;
         }
-        public async Task<bool> ChangeTicketStatus(int ticketId, TicketStatusChangeRequest request)
-    {
-        try
-        {
-            var ticket = _unitOfWork.TicketRepository.GetById(ticketId);
 
-            if (ticket == null)
-                return false;
-
-            var newStatusId = request.IsApproved ? 3 : 2; // Set status based on IsApproved flag
-
-            ticket.StatusId = newStatusId;
-
-            /*_ticketRepository.Update(ticket);*/
-            _unitOfWork.TicketRepository.Update(ticket);
-            _unitOfWork.Complete();
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            // Handle exceptions appropriately
-            return false;
-        }
     }
-    }
-
-} 
-
-
+}

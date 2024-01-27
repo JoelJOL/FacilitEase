@@ -27,7 +27,7 @@ namespace FacilitEase.Controllers
             _categoryService = categoryService;
             _priorityService = priorityService;
             _ticketService = ticketService;
-             _employeeService = employeeService;
+            _employeeService = employeeService;
         }
 
         [HttpGet("departments")]
@@ -64,34 +64,35 @@ namespace FacilitEase.Controllers
             return Ok("Ticket created successfully");
         }
         [HttpPost("AddEmployees")]
-    public IActionResult AddEmployees([FromBody] IEnumerable<EmployeeInputModel> employeeInputs)
-    {
-        if (employeeInputs == null || !employeeInputs.Any())
+        public IActionResult AddEmployees([FromBody] IEnumerable<EmployeeInputModel> employeeInputs)
         {
-            return BadRequest("Employee data is null or empty.");
-        }
+            if (employeeInputs == null || !employeeInputs.Any())
+            {
+                return BadRequest("Employee data is null or empty.");
+            }
 
-        try
-        {
-            _employeeService.AddEmployees(employeeInputs);
-            return Ok("Employees added successfully.");
+            try
+            {
+                _employeeService.AddEmployees(employeeInputs);
+                return Ok("Employees added successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
-        catch (Exception ex)
+        [HttpDelete("{id}")]
+        public IActionResult DeleteEmployee(int id)
         {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
-    }
-    [HttpDelete("{id}")]
-    public IActionResult DeleteEmployee(int id)
-    {
-        try
-        {
-            _employeeService.DeleteEmployee(id);
-            return Ok($"Employee with ID {id} deleted successfully.");
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
+            try
+            {
+                _employeeService.DeleteEmployee(id);
+                return Ok($"Employee with ID {id} deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
     }
 }

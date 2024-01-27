@@ -63,7 +63,7 @@ namespace FacilitEase.Services
         public IEnumerable<TBL_DEPARTMENT> GetAllDepartments()
         {
 
-            var dept = _unitOfWork.Department.GetAll();
+            var dept = _unitOfWork.Departments.GetAll();
             return (dept);
         }
     }

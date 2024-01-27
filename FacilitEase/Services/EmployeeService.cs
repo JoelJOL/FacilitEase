@@ -1,91 +1,88 @@
+using FacilitEase.Data;
+using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.Repositories;
+using FacilitEase.Services;
 using FacilitEase.UnitOfWork;
 using System;
 using System.Diagnostics;
 
-public class EmployeeService : IEmployeeService
+namespace FacilitEase.Services
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly AppDbContext _context;
 
-
-    public EmployeeService(IUnitOfWork unitOfWork,AppDbContext context)
+    public class EmployeeService : IEmployeeService
     {
-        _unitOfWork = unitOfWork;
-        _context = context;
-    }
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly AppDbContext _context;
 
-    public void AddEmployees(IEnumerable<EmployeeInputModel> employeeInputs, params EmployeeInputModel[] additionalEmployeeInputs)
-    {
-        if (employeeInputs == null || !employeeInputs.Any())
+        public EmployeeService(IUnitOfWork unitOfWork, AppDbContext context)
         {
-            throw new ArgumentException("Employee input data is null or empty.", nameof(employeeInputs));
+            _unitOfWork = unitOfWork;
+            _context = context;
         }
 
-        try
+        public void AddEmployees(IEnumerable<EmployeeInputModel> employeeInputs, params EmployeeInputModel[] additionalEmployeeInputs)
         {
-            // Combine the two collections if needed
-            var allEmployeeInputs = employeeInputs.Concat(additionalEmployeeInputs);
-
-            // Map the input models to your entity models
-            var employeeEntities = allEmployeeInputs.Select(employeeInput => new TBL_EMPLOYEE
+            if (employeeInputs == null || !employeeInputs.Any())
             {
-                EmployeeCode = employeeInput.EmployeeCode,
-                FirstName = employeeInput.FirstName,
-                LastName = employeeInput.LastName,
-                DOB = employeeInput.DOB,
-                Email = employeeInput.Email,
-                Gender = employeeInput.Gender,
-                ManagerId = employeeInput.ManagerId,
-                // Map other properties as needed
-            }).ToList();
-
-            // Add additional business logic if needed before calling the repository
-            _unitOfWork.EmployeeRepository.AddRange(employeeEntities);
-            _unitOfWork.Complete();
-        }
-        catch (Exception ex)
-        {
-            // Log the exception details or print to console for debugging
-            Debug.WriteLine($"Error in AddEmployees: {ex.Message}");
-            // Log or print the inner exception details
-            Debug.WriteLine($"Inner exception: {ex.InnerException?.Message}");
-            throw; // Re-throw the exception to propagate it up the call stack
-        }
-    }
-
-    /*  public void AddEmployee(EmployeeInputModel employeeInput)
-      {
-          AddEmployees(new List<EmployeeInputModel> { employeeInput });
-      }*/
-
-
-    public void DeleteEmployee(int id)
-    {
-        try
-        {
-            var employee = _unitOfWork.EmployeeRepository.GetById(id);
-
-            if (employee == null)
-            {
-                throw new KeyNotFoundException($"Employee with ID {id} not found.");
+                throw new ArgumentException("Employee input data is null or empty.", nameof(employeeInputs));
             }
+            try
+            {
+                // Combine the two collections if needed
+                var allEmployeeInputs = employeeInputs.Concat(additionalEmployeeInputs);
 
-            // Add additional business logic if needed before calling the repository
-            _unitOfWork.EmployeeRepository.Delete(employee);
-            _unitOfWork.Complete();
+                // Map the input models to your entity models
+                var employeeEntities = allEmployeeInputs.Select(employeeInput => new TBL_EMPLOYEE
+                {
+                    EmployeeCode = employeeInput.EmployeeCode,
+                    FirstName = employeeInput.FirstName,
+                    LastName = employeeInput.LastName,
+                    DOB = employeeInput.DOB,
+                    Email = employeeInput.Email,
+                    Gender = employeeInput.Gender,
+                    ManagerId = employeeInput.ManagerId,
+                    // Map other properties as needed
+                }).ToList();
+
+                // Add additional business logic if needed before calling the repository
+                _unitOfWork.EmployeeRepository.AddRange(employeeEntities);
+                _unitOfWork.Complete();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception details or print to console for debugging
+                Debug.WriteLine($"Error in AddEmployees: {ex.Message}");
+                // Log or print the inner exception details
+                Debug.WriteLine($"Inner exception: {ex.InnerException?.Message}");
+                throw; // Re-throw the exception to propagate it up the call stack
+            }
         }
-        catch (Exception ex)
+        public void DeleteEmployee(int id)
         {
-            // Log the exception details or print to console for debugging
-            Console.WriteLine($"Error in DeleteEmployee: {ex.Message}");
-            // Log or print the inner exception details
-            Console.WriteLine($"Inner exception: {ex.InnerException?.Message}");
-            throw; // Re-throw the exception to propagate it up the call stack
+            try
+            {
+                var employee = _unitOfWork.EmployeeRepository.GetById(id);
+
+                if (employee == null)
+                {
+                    throw new KeyNotFoundException($"Employee with ID {id} not found.");
+                }
+
+                // Add additional business logic if needed before calling the repository
+                _unitOfWork.EmployeeRepository.Delete(employee);
+                _unitOfWork.Complete();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception details or print to console for debugging
+                Console.WriteLine($"Error in DeleteEmployee: {ex.Message}");
+                // Log or print the inner exception details
+                Console.WriteLine($"Inner exception: {ex.InnerException?.Message}");
+                throw; // Re-throw the exception to propagate it up the call stack
+            }
         }
-    }
-    public List<ManagerSubordinateEmployee> GetSubordinates(int managerId)
+        public List<ManagerSubordinateEmployee> GetSubordinates(int managerId)
         {
             var result = _context.TBL_EMPLOYEE
                 .Where(e => e.ManagerId == managerId)
@@ -95,7 +92,7 @@ public class EmployeeService : IEmployeeService
                     employeeDetail => employeeDetail.EmployeeId,
                     (employee, employeeDetail) => new ManagerSubordinateEmployee
                     {
-                        EmployeeCode = employee.EmployeeCode,
+                        EmployeeCode = employee.EmployeeCode.ToString(),
                         FirstName = employee.FirstName,
                         LastName = employee.LastName,
                         DOB = employee.DOB,
@@ -161,7 +158,7 @@ public class EmployeeService : IEmployeeService
                 .Where(ed => ed.DepartmentId == departmentId)
                 .Join(_context.TBL_EMPLOYEE, e => e.EmployeeId, emp => emp.Id, (e, emp) => new AgentDetailsModel
                 {
-                    EmployeeCode = emp.EmployeeCode,
+                    EmployeeCode = emp.EmployeeCode.ToString(),
                     FirstName = emp.FirstName,
                     LastName = emp.LastName,
                     DOB = emp.DOB,
@@ -172,6 +169,6 @@ public class EmployeeService : IEmployeeService
 
             return agentDetails;
         }
-        
+
     }
 }

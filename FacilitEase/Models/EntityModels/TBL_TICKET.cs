@@ -16,6 +16,7 @@ namespace FacilitEase.Models.EntityModels
         public int UserId { get; set; }
         public int CategoryId { get; set; }
         public int? AssignedTo { get; set; }
+        public int? ControllerId { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
         public int CreatedBy { get; set; }

@@ -24,10 +24,6 @@ namespace FacilitEase.Services
             var ticket = _unitOfWork.Ticket.GetAll();
             return (ticket);
         }
-
-       
-
-
         public TBL_TICKET GetTicketById(int id)
         {
             var ticket = _unitOfWork.Ticket.GetById(id);
@@ -69,7 +65,8 @@ namespace FacilitEase.Services
             if (ticketToUpdate != null)
             {
                 ticketToUpdate.StatusId = 1;
-                ticketToUpdate.DepartmentId = deptId;
+                //Need for fix
+               /* ticketToUpdate.DepartmentId = deptId;*/
                 _context.SaveChanges();
             }
 
