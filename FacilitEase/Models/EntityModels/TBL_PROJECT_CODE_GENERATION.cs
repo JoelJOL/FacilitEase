@@ -8,26 +8,11 @@ namespace FacilitEase.Models.EntityModels
     {
         [Key]
         public int ProjectCode { get; set; }
-
-        [Required]
         public double BudgetAmount { get; set; }
-
-        [Required]
         public int ProjectId { get; set; }
-
-        [Required]
         public int CreatedBy { get; set; }
-
-        [Required]
         public DateTime CreatedDate { get; set; }
-
-        [Required]
         public int UpdatedBy { get; set; }
-
-        [Required]
         public DateTime UpdatedDate { get; set; }
-
-       /* [ForeignKey("ProjectId")]
-        public TBL_PROJECT? Project { get; set; }*/
     }
 }

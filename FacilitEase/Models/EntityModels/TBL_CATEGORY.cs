@@ -8,12 +8,10 @@ namespace FacilitEase.Models.EntityModels
         [Key]
         public int Id { get; set; }
         public string CategoryName { get; set; }
-
-        [ForeignKey("DepartmentId")]
-        public TBL_DEPARTMENT Department { get; set; }
+        public int DepartmentId { get; set; }
         public int CreatedBy { get; set; }
         public int UpdatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
-        public DateTime UpdatedDate { get; set; }
+        public DateTime UpdatedDate { get; set; }   
     }
 }

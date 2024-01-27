@@ -26,7 +26,6 @@ namespace FacilitEase.Data
         public DbSet<TBL_TICKET_ASSIGNMENT> TBL_TICKET_ASSIGNMENT { get; set; }
         public DbSet<TBL_LOGIN> TBL_LOGIN { get; set; }
         public DbSet<TBL_POSITION> TBL_POSITION { get; set; }
-        public DbSet<TBL_LOCATION> TBL_LOCATION { get; set; }
         public DbSet<TBL_BUDGET_CODE_GENERATION> TBL_BUDGET_CODE_GENERATION { get; set; }
         public DbSet<TBL_PROJECT_CODE_GENERATION> TBL_PROJECT_CODE_GENERATION { get; set; }
         public DbSet<TBL_ASSET_TYPE> TBL_ASSET_TYPE { get; set; }

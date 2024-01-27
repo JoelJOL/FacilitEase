@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using FacilitEase.Data;
 using FacilitEase.Repositories;
+using FacilitEase.UnitOfWork;
 
 public class UnitOfWork : IUnitOfWork
 {
@@ -40,8 +41,9 @@ public class UnitOfWork : IUnitOfWork
         public IDepartmentRepository Department { get; }
         public IEmployeeRepository EmployeeRepository { get; set; }
         public ITicketRepository TicketRepository { get; set; }
+         public IL3AdminRepository L3Admin { get; set; }
 
-        public int Complete()
+    public int Complete()
         {
             try
             {
@@ -72,10 +74,6 @@ public class UnitOfWork : IUnitOfWork
                 throw; // Re-throw the exception to propagate it up the call stack
             }
         }
-    public async Task<int> CompleteAsync()
-    {
-        return await _context.SaveChangesAsync();
-    }
     public void Dispose()
     {
         _context.Dispose();
