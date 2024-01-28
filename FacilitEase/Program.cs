@@ -24,19 +24,19 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 // Startup.cs
-builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-builder.Services.AddScoped<IManagerRepository, ManagerRepository>();
+/*builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();*/
+/*builder.Services.AddScoped<IManagerRepository, ManagerRepository>();*/
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
+/*builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IPriorityService, PriorityService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
-builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();*/
 builder.Services.AddScoped<IL3AdminService, L3AdminService>();
-builder.Services.AddScoped<IRepository<TBL_TICKET>, Repository<TBL_TICKET>>();
-builder.Services.AddScoped<IReportService, ReportService>();
+/*builder.Services.AddScoped<IRepository<TBL_TICKET>, Repository<TBL_TICKET>>();
+builder.Services.AddScoped<IReportService, ReportService>();*/
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(); ;
