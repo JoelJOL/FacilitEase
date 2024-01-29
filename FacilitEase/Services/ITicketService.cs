@@ -19,6 +19,9 @@ namespace FacilitEase.Services
         //Abhijith
         public void SendForApproval(int ticketId , int managerId);
         //Avinash
+        public DepartmentHeadManagerTicketDetails DHTicketDetails(int ticketId);
+        //Abhijith
+        public IEnumerable<DepartmentHeadManagerTickets> DHGetApprovalTicket(int employeeId);
         Task<bool> ChangeTicketStatus(int ticketId, TicketStatusChangeRequest request);
         //Nathaniel
         List<TicketApiModel> GetTickets();
