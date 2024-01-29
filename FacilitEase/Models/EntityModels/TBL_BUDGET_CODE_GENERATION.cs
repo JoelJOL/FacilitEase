@@ -4,6 +4,7 @@ namespace FacilitEase.Models.EntityModels
 {
     public class TBL_BUDGET_CODE_GENERATION
     {
+        [Key]
         public int BudgetCode { get; set; }
         public float BudgetAmount { get; set; }
         public int DepartmentId { get; set; }

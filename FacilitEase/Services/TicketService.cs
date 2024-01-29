@@ -51,13 +51,14 @@ namespace FacilitEase.Services
                 return false;
             }
         }
-        public IEnumerable<ManagerEmployeeTickets> GetTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize)
+        public ManagerTicketResponse<ManagerEmployeeTickets> GetTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
+
         {
             var query = _context.TBL_TICKET
-            .Where(ticket =>
+                .Where(ticket =>
                     _context.TBL_USER
                         .Where(user => user.Id == ticket.UserId)
-            .Join(
+                        .Join(
                             _context.TBL_EMPLOYEE,
                             user => user.EmployeeId,
                             employee => employee.Id,
@@ -65,6 +66,7 @@ namespace FacilitEase.Services
                         )
                         .Any()
                 )
+                .Where(ticket => string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery))
                 .Select(ticket => new ManagerEmployeeTickets
                 {
                     Id = ticket.Id,
@@ -91,29 +93,24 @@ namespace FacilitEase.Services
                         .FirstOrDefault(),
                 });
 
+            var materializedQuery = query.ToList();
+
             // Apply Sorting
             if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
             {
-                switch (sortOrder.ToLower())
-                {
-                    case "asc":
-                        query = query.OrderBy(sortField);
-                        break;
-                    case "desc":
-                        query = query.OrderBy($"{sortField} descending");
-                        break;
-                    default:
-                        // Handle invalid sortOrder if needed
-                        break;
-                }
+                string orderByString = $"{sortField} {sortOrder}";
+                materializedQuery = materializedQuery.AsQueryable().OrderBy(orderByString).ToList();
             }
 
             // Apply Pagination
-            query = query.Skip(pageIndex * pageSize).Take(pageSize);
+            var totalCount = materializedQuery.Count();
+            materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
-            var tickets = query.ToList();
-
-            return tickets;
+            return new ManagerTicketResponse<ManagerEmployeeTickets>
+            {
+                Data = materializedQuery,
+                TotalDataCount = totalCount
+            };
         }
         public ManagerEmployeeTicketDetailed ViewTicketDetails(int ticketId)
         {
@@ -135,11 +132,11 @@ namespace FacilitEase.Services
                         .Select(employee => $"{employee.FirstName} {employee.LastName}")
                         .FirstOrDefault(),
                     SubmittedDate = t.SubmittedDate,
-                    Priority = _context.TBL_PRIORITY
+                    priorityName = _context.TBL_PRIORITY
                         .Where(priority => priority.Id == t.PriorityId)
                         .Select(priority => priority.PriorityName)
                         .FirstOrDefault(),
-                    Status = _context.TBL_STATUS
+                    statusName = _context.TBL_STATUS
                         .Where(status => status.Id == t.StatusId)
                         .Select(status => status.StatusName)
                         .FirstOrDefault(),
@@ -153,10 +150,11 @@ namespace FacilitEase.Services
 
             return ticket;
         }
-        public IEnumerable<ManagerEmployeeTickets> GetApprovalTicket(int managerId)
+        public ManagerTicketResponse<ManagerEmployeeTickets> GetApprovalTicket(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             var tickets = _context.TBL_TICKET
             .Where(ticket => ticket.ControllerId == managerId)
+            .Where(ticket => string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery))
             .Select(ticket => new ManagerEmployeeTickets
             {
                 Id = ticket.Id,
@@ -181,10 +179,26 @@ namespace FacilitEase.Services
                 .Where(status => status.Id == ticket.StatusId)
                 .Select(status => $"{status.StatusName}")
                 .FirstOrDefault(),
-            })
-            .ToList();
+            });
 
-            return tickets;
+            var materializedQuery = tickets.ToList();
+
+            // Apply Sorting
+            if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
+            {
+                string orderByString = $"{sortField} {sortOrder}";
+                materializedQuery = materializedQuery.AsQueryable().OrderBy(orderByString).ToList();
+            }
+
+            // Apply Pagination
+            var totalCount = materializedQuery.Count();
+            materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+            return new ManagerTicketResponse<ManagerEmployeeTickets>
+            {
+                Data = materializedQuery,
+                TotalDataCount = totalCount
+            };
         }
         public void TicketDecision(int ticketId, int statusId)
         {   
