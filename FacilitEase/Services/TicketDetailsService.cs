@@ -1,4 +1,4 @@
-﻿/*using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Data;
@@ -9,26 +9,29 @@ namespace FacilitEase.Services
 {
     public class TicketDetailsService : ITicketDetailsService
     {
-        private readonly IUnitOfWork _dbContext;
 
-        public TicketDetailsService(IUnitOfwork dbContext)
+        private readonly AppDbContext _context;
+
+        public TicketDetailsService(AppDbContext context)
         {
-            _dbContext = dbContext;
+
+            _context = context;
         }
 
         public IEnumerable<TicketDetailsDto> GetTicketDetailsByUserId(int userId)
         {
-            var query = from t in _dbContext.Ticket
-                        join ts in _dbContext.Status on t.StatusId equals ts.StatusId
-                        join tp in _dbContext.Priority on t.PriorityId equals tp.PriorityId
-                        join u in _dbContext.User on t.AssignedToUserId equals u.UserId
+            var query = from t in _context.TBL_TICKET
+                        join ts in _context.TBL_STATUS on t.StatusId equals ts.Id
+                        join tp in _context.TBL_PRIORITY on t.PriorityId equals tp.Id
+                        join u in _context.TBL_USER on t.AssignedTo equals u.Id
                         where t.UserId == userId
                         select new TicketDetailsDto
                         {
+                            Id = t.Id,
                             TicketName = t.TicketName,
                             TicketDescription = t.TicketDescription,
                             StatusId = ts.StatusName,
-                            AssignedTo = u.UserName,
+                            AssignedTo = u.Email,
                             PriorityId = tp.PriorityName
                         };
 
@@ -37,4 +40,3 @@ namespace FacilitEase.Services
 
     }
 }
-*/

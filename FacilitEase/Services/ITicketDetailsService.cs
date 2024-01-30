@@ -1,4 +1,4 @@
-﻿/*using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using FacilitEase.Models.ApiModels;
 
 namespace FacilitEase.Services
@@ -8,4 +8,3 @@ namespace FacilitEase.Services
         IEnumerable<TicketDetailsDto> GetTicketDetailsByUserId(int userId);
     }
 }
-*/
