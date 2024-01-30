@@ -27,6 +27,7 @@ namespace FacilitEase.Services
             {
                 throw new ArgumentException("Employee input data is null or empty.", nameof(employeeInputs));
             }
+
             try
             {
                 // Combine the two collections if needed
@@ -38,26 +39,46 @@ namespace FacilitEase.Services
                     EmployeeCode = employeeInput.EmployeeCode,
                     FirstName = employeeInput.FirstName,
                     LastName = employeeInput.LastName,
-                    DOB = employeeInput.DOB,
+                   /* DOB = employeeInput.DOB,*/
                     Email = employeeInput.Email,
                     Gender = employeeInput.Gender,
                     ManagerId = employeeInput.ManagerId,
                     // Map other properties as needed
                 }).ToList();
 
-                // Add additional business logic if needed before calling the repository
+                // Add additional business logic if needed before calling the repositories
                 _unitOfWork.EmployeeRepository.AddRange(employeeEntities);
+                _unitOfWork.Complete();
+
+                // Retrieve the newly added employees to get their IDs
+                var addedEmployees = _unitOfWork.EmployeeRepository.GetAll()
+                    .Where(e => allEmployeeInputs.Any(input => input.EmployeeCode == e.EmployeeCode))
+                    .ToList();
+
+                // Map the input models to TBL_EMPLOYEE_DETAIL entities
+                var employeeDetailEntities = allEmployeeInputs.Select(employeeInput => new TBL_EMPLOYEE_DETAIL
+                {
+                    EmployeeId = addedEmployees.Single(e => e.EmployeeCode == employeeInput.EmployeeCode).Id,
+                    DepartmentId = employeeInput.DepartmentId,
+                    PositionId = employeeInput.PositionId,
+                    LocationId = employeeInput.LocationId,
+                  
+                }).ToList();
+
+                // Add additional business logic if needed before calling the repository
+                _unitOfWork.EmployeeDetailRepository.AddRange(employeeDetailEntities);
                 _unitOfWork.Complete();
             }
             catch (Exception ex)
             {
-                // Log the exception details or print to console for debugging
+                // Log and handle exceptions as needed
                 Debug.WriteLine($"Error in AddEmployees: {ex.Message}");
-                // Log or print the inner exception details
                 Debug.WriteLine($"Inner exception: {ex.InnerException?.Message}");
-                throw; // Re-throw the exception to propagate it up the call stack
+                throw;
             }
         }
+
+
         public void DeleteEmployee(int id)
         {
             try
@@ -82,6 +103,39 @@ namespace FacilitEase.Services
                 throw; // Re-throw the exception to propagate it up the call stack
             }
         }
+        public IEnumerable<TBL_POSITION> GetPositions()
+        {
+            try
+            {
+                // Logic to retrieve positions from the repository
+                return _unitOfWork.Position.GetAll();
+            }
+            catch (Exception ex)
+            {
+                // Log and handle exceptions as needed
+                Debug.WriteLine($"Error in GetPositions: {ex.Message}");
+                Debug.WriteLine($"Inner exception: {ex.InnerException?.Message}");
+                throw;
+            }
+        }
+
+        public IEnumerable<TBL_LOCATION> GetLocations()
+        {
+            try
+            {
+                // Logic to retrieve locations from the repository
+                return _unitOfWork.Location.GetAll();
+            }
+            catch (Exception ex)
+            {
+                // Log and handle exceptions as needed
+                Debug.WriteLine($"Error in GetLocations: {ex.Message}");
+                Debug.WriteLine($"Inner exception: {ex.InnerException?.Message}");
+                throw;
+            }
+        }
+
+
         public List<ManagerSubordinateEmployee> GetSubordinates(int managerId)
         {
             var result = _context.TBL_EMPLOYEE

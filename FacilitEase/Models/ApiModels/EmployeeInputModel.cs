@@ -16,8 +16,7 @@ public class EmployeeInputModel
     [Required]
     public string LastName { get; set; }
 
-
-    public DateOnly DOB { get; set; }
+   /* public DateOnly DOB { get; set; }*/
 
     [Required]
     [EmailAddress]
@@ -29,5 +28,12 @@ public class EmployeeInputModel
     [Required]
     public int ManagerId { get; set; }
 
-    // Other properties as needed
+    [Required]
+    public int DepartmentId { get; set; }
+
+    [Required]
+    public int PositionId { get; set; }
+
+    [Required]
+    public int LocationId { get; set; }
 }
