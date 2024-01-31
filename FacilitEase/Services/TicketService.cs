@@ -187,7 +187,7 @@ namespace FacilitEase.Services
             return tickets;
         }
         public void TicketDecision(int ticketId, int statusId)
-        {   
+        {
             var ticket = _unitOfWork.Ticket.GetById(ticketId);
             if (ticket == null)
             {
@@ -477,38 +477,55 @@ namespace FacilitEase.Services
 
             return ticket;
         }
-        public IEnumerable<DepartmentHeadManagerTickets> DHGetApprovalTicket(int managerId)
+        public DepartmentHeadTicketResponse<DepartmentHeadManagerTickets> DHGetApprovalTicket(int departmentHeadId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             var tickets = _context.TBL_TICKET
-            .Where(ticket => ticket.ControllerId == managerId)
-            .Select(ticket => new DepartmentHeadManagerTickets
-            {
-                Id = ticket.Id,
-                TicketName = ticket.TicketName,
-                EmployeeName = _context.TBL_USER
-                    .Where(user => user.Id == ticket.UserId)
-                    .Select(user => _context.TBL_EMPLOYEE
-                    .Where(employee => employee.Id == user.EmployeeId)
-                    .Select(employee => $"{employee.FirstName} {employee.LastName}")
-                    .FirstOrDefault())
-                .FirstOrDefault(),
-                AssignedTo = _context.TBL_EMPLOYEE
-                .Where(employee => employee.Id == ticket.AssignedTo)
-                .Select(employee => $"{employee.FirstName} {employee.LastName}")
-                    .FirstOrDefault(),
-                SubmittedDate = ticket.SubmittedDate,
-                Priority = _context.TBL_PRIORITY
-                .Where(priority => priority.Id == ticket.PriorityId)
-                .Select(priority => $"{priority.PriorityName}")
-                .FirstOrDefault(),
-                Status = _context.TBL_STATUS
-                .Where(status => status.Id == ticket.StatusId)
-                .Select(status => $"{status.StatusName}")
-                .FirstOrDefault(),
-            })
-            .ToList();
+                .Where(ticket => ticket.ControllerId == departmentHeadId)
+                .Where(ticket => string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery))
+                .Select(ticket => new DepartmentHeadManagerTickets
+                {
+                    Id = ticket.Id,
+                    TicketName = ticket.TicketName,
+                    EmployeeName = _context.TBL_USER
+                        .Where(user => user.Id == ticket.UserId)
+                        .Select(user => _context.TBL_EMPLOYEE
+                            .Where(employee => employee.Id == user.EmployeeId)
+                            .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                            .FirstOrDefault())
+                        .FirstOrDefault(),
+                    AssignedTo = _context.TBL_EMPLOYEE
+                        .Where(employee => employee.Id == ticket.AssignedTo)
+                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                        .FirstOrDefault(),
+                    SubmittedDate = ticket.SubmittedDate,
+                    Priority = _context.TBL_PRIORITY
+                        .Where(priority => priority.Id == ticket.PriorityId)
+                        .Select(priority => $"{priority.PriorityName}")
+                        .FirstOrDefault(),
+                    Status = _context.TBL_STATUS
+                        .Where(status => status.Id == ticket.StatusId)
+                        .Select(status => $"{status.StatusName}")
+                        .FirstOrDefault(),
+                });
 
-            return tickets;
+            var materializedQuery = tickets.ToList();
+
+            // Apply Sorting
+            if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
+            {
+                string orderByString = $"{sortField} {sortOrder}";
+                materializedQuery = materializedQuery.AsQueryable().OrderBy(orderByString).ToList();
+            }
+
+            // Apply Pagination
+            var totalCount = materializedQuery.Count();
+            materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+            return new DepartmentHeadTicketResponse<DepartmentHeadManagerTickets>
+            {
+                Data = materializedQuery,
+                TotalDataCount = totalCount
+            };
         }
     }
 }

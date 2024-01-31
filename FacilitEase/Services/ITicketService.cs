@@ -21,7 +21,7 @@ namespace FacilitEase.Services
         //Avinash
         public DepartmentHeadManagerTicketDetails DHTicketDetails(int ticketId);
         //Abhijith
-        public IEnumerable<DepartmentHeadManagerTickets> DHGetApprovalTicket(int employeeId);
+        public DepartmentHeadTicketResponse<DepartmentHeadManagerTickets> DHGetApprovalTicket(int departmentHeadId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
         Task<bool> ChangeTicketStatus(int ticketId, TicketStatusChangeRequest request);
         //Nathaniel
         List<TicketApiModel> GetTickets();

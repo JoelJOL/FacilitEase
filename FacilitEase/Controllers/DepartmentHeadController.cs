@@ -37,11 +37,11 @@ namespace FacilitEase.Controllers
 
 
         [HttpGet("GetApprovalTicket/{departmentHeadId}")]
-        public IActionResult DHGetApprovalTicket(int departmentHeadId)
+        public IActionResult DHGetApprovalTicket(int departmentHeadId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             try
             {
-                var tickets = _ticketService.DHGetApprovalTicket(departmentHeadId);
+                var tickets = _ticketService.DHGetApprovalTicket(departmentHeadId, sortField, sortOrder, pageIndex, pageSize, searchQuery);
                 return Ok(tickets);
             }
             catch (Exception ex)

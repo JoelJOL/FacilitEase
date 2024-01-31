@@ -39,7 +39,7 @@ namespace FacilitEase.Services
                     EmployeeCode = employeeInput.EmployeeCode,
                     FirstName = employeeInput.FirstName,
                     LastName = employeeInput.LastName,
-                   /* DOB = employeeInput.DOB,*/
+                    DOB = new DateOnly(employeeInput.DOB.Year, employeeInput.DOB.Month, employeeInput.DOB.Day),
                     Email = employeeInput.Email,
                     Gender = employeeInput.Gender,
                     ManagerId = employeeInput.ManagerId,
@@ -50,10 +50,8 @@ namespace FacilitEase.Services
                 _unitOfWork.EmployeeRepository.AddRange(employeeEntities);
                 _unitOfWork.Complete();
 
-                // Retrieve the newly added employees to get their IDs
-                var addedEmployees = _unitOfWork.EmployeeRepository.GetAll()
-                    .Where(e => allEmployeeInputs.Any(input => input.EmployeeCode == e.EmployeeCode))
-                    .ToList();
+                // Use the employeeEntities directly
+                var addedEmployees = employeeEntities;
 
                 // Map the input models to TBL_EMPLOYEE_DETAIL entities
                 var employeeDetailEntities = allEmployeeInputs.Select(employeeInput => new TBL_EMPLOYEE_DETAIL
@@ -62,7 +60,6 @@ namespace FacilitEase.Services
                     DepartmentId = employeeInput.DepartmentId,
                     PositionId = employeeInput.PositionId,
                     LocationId = employeeInput.LocationId,
-                  
                 }).ToList();
 
                 // Add additional business logic if needed before calling the repository
@@ -77,6 +74,7 @@ namespace FacilitEase.Services
                 throw;
             }
         }
+
 
 
         public void DeleteEmployee(int id)
