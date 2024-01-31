@@ -2,11 +2,13 @@
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Linq.Dynamic.Core;
 
 namespace FacilitEase.Services
 {
-    public class L3AdminService:IL3AdminService
+    public class L3AdminService : IL3AdminService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppDbContext _context;
@@ -43,18 +45,26 @@ namespace FacilitEase.Services
 
         }
 
-        public void ForwardTicketToDept(int ticketId, int deptId)
+        public void ForwardTicketToDept(int ticketId, int categoryId)
         {
-            var l2AdminEmployeeId = _context.TBL_USER_ROLE_MAPPING
-            .Where(mapping => mapping.UserRoleId == GetL2AdminRoleId() && mapping.UserId != null)
-            .Join(_context.TBL_USER,
-            mapping => mapping.UserId,
-            user => user.Id,
-            (mapping, user) => new { UserId = user.Id, user.EmployeeId })
-            .Join(_context.TBL_EMPLOYEE_DETAIL,
-             user => user.UserId,
-                employeeDetail => employeeDetail.EmployeeId,
-                (user, employeeDetail) => new { user.EmployeeId, employeeDetail.DepartmentId })
+            var category = _context.TBL_CATEGORY.FirstOrDefault(c => c.Id == categoryId);
+            int deptId = category.DepartmentId;
+            int adminRoleId = GetAdminRoleId();
+
+            int adminEmployeeId = _context.TBL_USER_ROLE_MAPPING
+                .Where(mapping => mapping.UserRoleId == adminRoleId && mapping.UserId != null)
+                .Join(_context.TBL_USER_ROLE,
+                    mapping => mapping.UserRoleId,
+                    userRole => userRole.Id,
+                    (mapping, userRole) => new { UserId = mapping.UserId, UserRoleName = userRole.UserRoleName })
+                .Join(_context.TBL_USER,
+                    userMapping => userMapping.UserId,
+                    user => user.Id,
+                    (userMapping, user) => new { UserId = userMapping.UserId, user.EmployeeId })
+                .Join(_context.TBL_EMPLOYEE_DETAIL,
+                    user => user.UserId,
+                    employeeDetail => employeeDetail.EmployeeId,
+                    (user, employeeDetail) => new { user.EmployeeId, employeeDetail.DepartmentId })
                 .Where(result => result.DepartmentId == deptId)
                 .Select(result => result.EmployeeId)
                 .FirstOrDefault();
@@ -65,20 +75,20 @@ namespace FacilitEase.Services
             if (ticketToUpdate != null)
             {
                 ticketToUpdate.StatusId = 1;
-                //Need for fix
-               /* ticketToUpdate.DepartmentId = deptId;*/
+                ticketToUpdate.CategoryId = categoryId;
+                ticketToUpdate.ControllerId = adminEmployeeId;
                 _context.SaveChanges();
             }
 
         }
 
-        private int GetL2AdminRoleId()
+        public int GetAdminRoleId()
         {
+            // Replace "Admin" with the actual role name for administrators
+            var adminRole = _context.TBL_USER_ROLE
+                .FirstOrDefault(role => role.UserRoleName == "Admin");
 
-            return _context.TBL_USER_ROLE
-                .Where(role => role.UserRoleName.ToLower() == "l2admin")
-                .Select(role => role.Id)
-                .FirstOrDefault();
+            return adminRole?.Id ?? 0;
         }
 
 
@@ -115,62 +125,66 @@ namespace FacilitEase.Services
             _unitOfWork.Complete();
         }
 
-   
-        public IEnumerable<TicketJoin> GetTicketDetailsByAgent(int agentId)
+        public AgentTicketResponse<TicketJoin> GetTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
-            var query = from ticket in _context.TBL_TICKET
-                        join user in _context.TBL_USER on ticket.UserId equals user.Id
-                        join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
-                        join category in _context.TBL_CATEGORY on ticket.CategoryId equals category.Id
-                        join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
-                        join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
-                        where ticket.AssignedTo == agentId & status.StatusName == "In Progress"
-                        select new TicketJoin
-                        {
-                            Id = ticket.Id,
-                            TicketName = ticket.TicketName,
-                            PriorityName = priority.PriorityName,
-                            StatusName = status.StatusName,
+            var query = _context.TBL_TICKET
+              .Join(
+                  _context.TBL_USER,
+                  ticket => ticket.UserId,
+                  user => user.Id,
+                  (ticket, user) => new { Ticket = ticket, User = user }
+              )
+              .Join(
+                  _context.TBL_EMPLOYEE,
+                  joined => joined.User.EmployeeId,
+                  employee => employee.Id,
+                  (joined, employee) => new { joined.Ticket, joined.User, Employee = employee }
+              )
+              .Join(
+                  _context.TBL_PRIORITY,
+                  joined => joined.Ticket.PriorityId,
+                  priority => priority.Id,
+                  (joined, priority) => new { joined.Ticket, joined.User, joined.Employee, Priority = priority }
+              )
+              .Join(
+                  _context.TBL_STATUS,
+                  joined => joined.Ticket.StatusId,
+                  status => status.Id,
+                  (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Priority, Status = status }
+              )
+              .Where(joined => joined.Ticket.AssignedTo == agentId && joined.Ticket.StatusId == 2)
+              .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
+              .Select(joined => new TicketJoin
+              {
+                  Id = joined.Ticket.Id,
+                  TicketName = joined.Ticket.TicketName,
+                  EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
+                  SubmittedDate = joined.Ticket.SubmittedDate,
+                  PriorityName = joined.Priority.PriorityName,
+                  StatusName = joined.Status.StatusName,
+              });
 
-                            SubmittedDate = ticket.SubmittedDate,
-                            EmployeeName = $"{employee.FirstName} {employee.LastName}"
-                        };
 
-            return query.ToList();
-        }
-         public IEnumerable<TicketJoin> GetLatestTicketsByAgent(int agentId)
-        {
-            try
+            var materializedQuery = query.ToList();
+
+            // Apply Sorting
+            if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
             {
-                var query = from ticket in _context.TBL_TICKET
-                            join user in _context.TBL_USER on ticket.UserId equals user.Id
-                            join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
-                            join category in _context.TBL_CATEGORY on ticket.CategoryId equals category.Id
-                            join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
-                            join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
-                            where ticket.AssignedTo == agentId & status.StatusName == "In Progress"
-                            orderby ticket.SubmittedDate descending
-                            select new TicketJoin
-                            {
-                                Id = ticket.Id,
-                                TicketName = ticket.TicketName,
-                                PriorityName = priority.PriorityName,
-                                StatusName = status.StatusName,
-                                SubmittedDate = ticket.SubmittedDate,
-                                EmployeeName = $"{employee.FirstName} {employee.LastName}",
-                            };
+                string orderByString = $"{sortField} {sortOrder}";
+                materializedQuery = materializedQuery.AsQueryable().OrderBy(orderByString).ToList();
+            }
 
-       
-                var results = query.ToList();
-                return results;
-            }
-            catch (Exception ex)
+            // Apply Pagination
+            var totalCount = materializedQuery.Count();
+            materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+            return new AgentTicketResponse<TicketJoin>
             {
-                // Log or handle the exception
-                Console.WriteLine($"An error occurred: {ex.Message}");
-                throw; // Rethrow the exception for proper error handling
-            }
+                Data = materializedQuery,
+                TotalDataCount = totalCount
+            };
         }
+
 
         public IEnumerable<Join> GetTicketDetailByAgent(int desiredTicketId)
         {
@@ -198,7 +212,7 @@ namespace FacilitEase.Services
                               SubmittedDate = ticket.SubmittedDate,
                               RaisedEmployeeName = $"{employee.FirstName} {employee.LastName}",
                               ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : null,
-                              ManagerId= manager.ManagerId,
+                              ManagerId = employee.ManagerId,
                               LocationName = location.LocationName,
                               DeptName = department.DeptName,
                               DocumentLink = document.DocumentLink,
@@ -206,6 +220,89 @@ namespace FacilitEase.Services
                           }).FirstOrDefault();
 
             yield return result;
+        }
+
+        public string GetCommentTextByTicketId(int ticketId)
+        {
+            var commentText = _context.TBL_COMMENT
+                .Where(comment => comment.TicketId == ticketId)
+                .Select(comment => comment.Text)
+                .FirstOrDefault();
+
+            return commentText;
+        }
+
+        public void UpdateCommentTextByTicketId(int ticketId, string newText)
+        {
+            var comment = _context.TBL_COMMENT
+                .FirstOrDefault(c => c.TicketId == ticketId);
+
+            if (comment != null)
+            {
+                comment.Text = newText;
+                _context.SaveChanges();
+            }
+        }
+
+        public AgentTicketResponse<TicketResolveJoin> GetResolvedTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
+        {
+            var query = _context.TBL_TICKET
+              .Join(
+                  _context.TBL_USER,
+                  ticket => ticket.UserId,
+                  user => user.Id,
+                  (ticket, user) => new { Ticket = ticket, User = user }
+              )
+              .Join(
+                  _context.TBL_EMPLOYEE,
+                  joined => joined.User.EmployeeId,
+                  employee => employee.Id,
+                  (joined, employee) => new { joined.Ticket, joined.User, Employee = employee }
+              )
+              .Join(
+                  _context.TBL_PRIORITY,
+                  joined => joined.Ticket.PriorityId,
+                  priority => priority.Id,
+                  (joined, priority) => new { joined.Ticket, joined.User, joined.Employee, Priority = priority }
+              )
+              .Join(
+                  _context.TBL_STATUS,
+                  joined => joined.Ticket.StatusId,
+                  status => status.Id,
+                  (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Priority, Status = status }
+              )
+              .Where(joined => joined.Ticket.AssignedTo == agentId && joined.Ticket.StatusId == 3)
+              .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
+              .Select(joined => new TicketResolveJoin
+              {
+                  Id = joined.Ticket.Id,
+                  TicketName = joined.Ticket.TicketName,
+                  EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
+                  SubmittedDate = joined.Ticket.SubmittedDate,
+                  ResolvedDate = joined.Ticket.UpdatedDate,
+                  PriorityName = joined.Priority.PriorityName,
+
+              });
+
+
+            var materializedQuery = query.ToList();
+
+            // Apply Sorting
+            if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
+            {
+                string orderByString = $"{sortField} {sortOrder}";
+                materializedQuery = materializedQuery.AsQueryable().OrderBy(orderByString).ToList();
+            }
+
+            // Apply Pagination
+            var totalCount = materializedQuery.Count();
+            materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+            return new AgentTicketResponse<TicketResolveJoin>
+            {
+                Data = materializedQuery,
+                TotalDataCount = totalCount
+            };
         }
 
         public IEnumerable<TicketJoin> GetResolvedTicketsByAgent(int agentId)
@@ -231,8 +328,28 @@ namespace FacilitEase.Services
             return results;
         }
 
+        public IEnumerable<TicketJoin> GetEscalatedTicketsByAgent(int agentId)
+        {
+            var query = from ticket in _context.TBL_TICKET
+                        join user in _context.TBL_USER on ticket.UserId equals user.Id
+                        join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
+                        join category in _context.TBL_CATEGORY on ticket.CategoryId equals category.Id
+                        join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
+                        join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
+                        where ticket.AssignedTo == agentId & (status.StatusName == "Escalated")
+                        select new TicketJoin
+                        {
+                            Id = ticket.Id,
+                            TicketName = ticket.TicketName,
+                            PriorityName = priority.PriorityName,
+                            StatusName = status.StatusName,
+                            SubmittedDate = ticket.SubmittedDate,
+                            EmployeeName = $"{employee.FirstName} {employee.LastName}",
+                        };
+
+            var results = query.ToList();
+            return results;
+        }
+
     }
 }
-
-
-
