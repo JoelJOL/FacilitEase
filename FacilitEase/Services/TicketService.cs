@@ -51,67 +51,78 @@ namespace FacilitEase.Services
                 return false;
             }
         }
+
+        /// <summary>
+        /// Get - Retrieves a list of tickets raised by the emloyees working under a specific manager and the total number of tickets 
+        /// Includes pagination,searching and sorting functionality.
+        /// </summary>
+        /// <param name="managerId"></param>
+        /// <param name="sortField"></param>
+        /// <param name="sortOrder"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="searchQuery"></param>
+        /// <returns>A response of paginated list of tickets of employees associated with a specific manager and the total tickets count</returns>
         public ManagerTicketResponse<ManagerEmployeeTickets> GetTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
 
         {
-            var query = _context.TBL_TICKET
-                .Where(ticket =>
-                    _context.TBL_USER
-                        .Where(user => user.Id == ticket.UserId)
-                        .Join(
-                            _context.TBL_EMPLOYEE,
-                            user => user.EmployeeId,
-                            employee => employee.Id,
-                            (user, employee) => employee.ManagerId == managerId
-                        )
-                        .Any()
-                )
-                .Where(ticket => string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery))
-                .Select(ticket => new ManagerEmployeeTickets
-                {
-                    Id = ticket.Id,
-                    TicketName = ticket.TicketName,
-                    EmployeeName = _context.TBL_USER
-                        .Where(user => user.Id == ticket.UserId)
-                        .Select(user => _context.TBL_EMPLOYEE
-                            .Where(employee => employee.Id == user.EmployeeId)
-                            .Select(employee => $"{employee.FirstName} {employee.LastName}")
-                            .FirstOrDefault())
-                        .FirstOrDefault(),
-                    AssignedTo = _context.TBL_EMPLOYEE
-                        .Where(employee => employee.Id == ticket.AssignedTo)
-                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
-                        .FirstOrDefault(),
-                    SubmittedDate = ticket.SubmittedDate,
-                    Priority = _context.TBL_PRIORITY
-                        .Where(priority => priority.Id == ticket.PriorityId)
-                        .Select(priority => $"{priority.PriorityName}")
-                        .FirstOrDefault(),
-                    Status = _context.TBL_STATUS
-                        .Where(status => status.Id == ticket.StatusId)
-                        .Select(status => $"{status.StatusName}")
-                        .FirstOrDefault(),
-                });
+            var query = from ticket in _context.TBL_TICKET
+            join user in _context.TBL_USER on ticket.UserId equals user.Id
+            join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
+            where employee.ManagerId == managerId
+            where string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery)
+            select new ManagerEmployeeTickets
+        {
+        Id = ticket.Id,
+        TicketName = ticket.TicketName,
+        EmployeeName = _context.TBL_USER
+            .Where(user => user.Id == ticket.UserId)
+            .Select(user => _context.TBL_EMPLOYEE
+                .Where(employee => employee.Id == user.EmployeeId)
+                .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                .FirstOrDefault())
+            .FirstOrDefault(),
+        AssignedTo = _context.TBL_EMPLOYEE
+            .Where(employee => employee.Id == ticket.AssignedTo)
+            .Select(employee => $"{employee.FirstName} {employee.LastName}")
+            .FirstOrDefault(),
+        SubmittedDate = ticket.SubmittedDate,
+        Priority = _context.TBL_PRIORITY
+            .Where(priority => priority.Id == ticket.PriorityId)
+            .Select(priority => $"{priority.PriorityName}")
+            .FirstOrDefault(),
+        Status = _context.TBL_STATUS
+            .Where(status => status.Id == ticket.StatusId)
+            .Select(status => $"{status.StatusName}")
+            .FirstOrDefault(),
+    };
 
-            var materializedQuery = query.ToList();
+            var queryList = query.ToList();
 
             // Apply Sorting
             if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
             {
                 string orderByString = $"{sortField} {sortOrder}";
-                materializedQuery = materializedQuery.AsQueryable().OrderBy(orderByString).ToList();
+                queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
             }
 
             // Apply Pagination
-            var totalCount = materializedQuery.Count();
-            materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            var totalCount = queryList.Count();
+            queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
             return new ManagerTicketResponse<ManagerEmployeeTickets>
             {
-                Data = materializedQuery,
+                Data = queryList,
                 TotalDataCount = totalCount
             };
         }
+
+
+        /// <summary>
+        /// Get - Retrieves all the data required when the manager accesses the detailed view of a specific employee ticket
+        /// </summary>
+        /// <param name="ticketId"></param>
+        /// <returns></returns>
         public ManagerEmployeeTicketDetailed ViewTicketDetails(int ticketId)
         {
             var ticket = _context.TBL_TICKET
@@ -140,6 +151,24 @@ namespace FacilitEase.Services
                         .Where(status => status.Id == t.StatusId)
                         .Select(status => status.StatusName)
                         .FirstOrDefault(),
+                    Notes = _context.TBL_COMMENT                           //retrieves the notes associated with the ticket from comments table
+                        .Where(comment => comment.TicketId == ticketId)
+                        .Where(comment => comment.Category == "Note")
+                        .Select(comment => comment.Text)
+                        .FirstOrDefault(),
+                    LastUpdate = _context.TBL_COMMENT                      //retrieves the difference between current datetime and datetime where notes of the ticket was last updated
+                        .Where(comment => comment.TicketId == ticketId)
+                        .OrderByDescending(comment => comment.UpdatedDate)
+                        .Select(comment =>
+                        (comment.UpdatedDate != null)
+                        ? (DateTime.Now - comment.UpdatedDate).TotalMinutes < 60
+                        ? $"{(int)(DateTime.Now - comment.UpdatedDate).TotalMinutes}M"
+                        : (DateTime.Now - comment.UpdatedDate).TotalHours < 24
+                        ? $"{(int)(DateTime.Now - comment.UpdatedDate).TotalHours}H"
+                        : $"{(int)(DateTime.Now - comment.UpdatedDate).TotalDays}D"
+                        : null
+                    )
+                     .FirstOrDefault(),
                     TicketDescription = t.TicketDescription,
                     DocumentLink = string.Join(", ", _context.TBL_DOCUMENT
                         .Where(documents => documents.TicketId == t.Id)
@@ -150,6 +179,18 @@ namespace FacilitEase.Services
 
             return ticket;
         }
+
+        /// <summary>
+        /// Get - Retrieves a list of tickets raised by the emloyees that need approval from the manager and the total number of waiting tickets 
+        /// Includes pagination,searching and sorting functionality.
+        /// </summary>
+        /// <param name="managerId"></param>
+        /// <param name="sortField"></param>
+        /// <param name="sortOrder"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="searchQuery"></param>
+        /// <returns></returns>
         public ManagerTicketResponse<ManagerEmployeeTickets> GetApprovalTicket(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             var tickets = _context.TBL_TICKET
@@ -181,25 +222,33 @@ namespace FacilitEase.Services
                 .FirstOrDefault(),
             });
 
-            var materializedQuery = tickets.ToList();
+            var queryList = tickets.ToList();
 
             // Apply Sorting
             if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
             {
                 string orderByString = $"{sortField} {sortOrder}";
-                materializedQuery = materializedQuery.AsQueryable().OrderBy(orderByString).ToList();
+                queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
             }
 
             // Apply Pagination
-            var totalCount = materializedQuery.Count();
-            materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            var totalCount = queryList.Count();
+            queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
             return new ManagerTicketResponse<ManagerEmployeeTickets>
             {
-                Data = materializedQuery,
+                Data = queryList,
                 TotalDataCount = totalCount
             };
         }
+
+        /// <summary>
+        /// Post - Decides whether the ticket needs to be accepted or rejected
+        /// Updates the status of a ticket to inprogress or cancelled and changes controller to the agent or null.
+        /// </summary>
+        /// <param name="ticketId"></param>
+        /// <param name="statusId"></param>
+        /// <exception cref="InvalidOperationException"></exception>
         public void TicketDecision(int ticketId, int statusId)
         {   
             var ticket = _unitOfWork.Ticket.GetById(ticketId);
@@ -210,9 +259,21 @@ namespace FacilitEase.Services
             else
             {
                 ticket.StatusId = statusId;
+                if (statusId == 2) //If ticket is accepted change the status id to 2 which is id of Status - Inprogress and set Controller id to Agent id
+                    ticket.ControllerId = ticket.AssignedTo;
+                else               //If ticket is rejected change the status id to 5 which is id of Status - Cancelled and set Controller id to null
+                    ticket.ControllerId = null;
             }
             _unitOfWork.Complete();
         }
+
+
+        /// <summary>
+        /// Post - Updates the priority id according to the priority specified by the Manager
+        /// </summary>
+        /// <param name="ticketId"></param>
+        /// <param name="newPriorityId"></param>
+        /// <exception cref="InvalidOperationException"></exception>
         public void ChangePriority(int ticketId, int newPriorityId)
         {
             var ticket = _unitOfWork.Ticket.GetById(ticketId);
@@ -226,6 +287,13 @@ namespace FacilitEase.Services
             }
             _unitOfWork.Complete();
         }
+
+        /// <summary>
+        /// Post - Updates the controller id to the department head id if the manager things higher authority approval is necessary
+        /// </summary>
+        /// <param name="ticketId"></param>
+        /// <param name="managerId"></param>
+        /// <exception cref="InvalidOperationException"></exception>
         public void SendForApproval(int ticketId, int managerId)
         {
             var ticket = _unitOfWork.Ticket.GetById(ticketId);
