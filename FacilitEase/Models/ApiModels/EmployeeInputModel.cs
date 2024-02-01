@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 public class EmployeeInputModel
 {
     [Required]
-    public int EmployeeCode { get; set; }
+    public string EmployeeCode { get; set; }
 
     [Required]
     public string FirstName { get; set; }

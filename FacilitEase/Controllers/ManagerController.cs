@@ -22,11 +22,11 @@ namespace FacilitEase.Controllers
              _managerService = managerService;
         }
         [HttpGet("GetTicketByManager/{managerId}")]
-        public IActionResult GetTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize)
+        public IActionResult GetTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             try
             {
-                var tickets = _ticketService.GetTicketByManager(managerId, sortField,sortOrder, pageIndex,pageSize);
+                var tickets = _ticketService.GetTicketByManager(managerId, sortField,sortOrder, pageIndex,pageSize,searchQuery);
                 return Ok(tickets);
             }
             catch (Exception ex)
@@ -36,11 +36,11 @@ namespace FacilitEase.Controllers
         }
 
         [HttpGet("GetApprovalTicket/{managerId}")]
-        public IActionResult GetApprovalTicket(int managerId)
+        public IActionResult GetApprovalTicket(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             try
             {
-                var tickets = _ticketService.GetApprovalTicket(managerId);
+                var tickets = _ticketService.GetApprovalTicket(managerId, sortField, sortOrder, pageIndex, pageSize, searchQuery);
                 return Ok(tickets);
             }
             catch (Exception ex)
@@ -69,7 +69,7 @@ namespace FacilitEase.Controllers
             try
             {
                 _ticketService.ChangePriority(request.TicketId, request.NewPriorityId);
-                return Ok("Successfully Changed Priority");
+                return Ok();
             }
             catch (Exception ex)
             {
@@ -105,12 +105,11 @@ namespace FacilitEase.Controllers
             }
         }
         [HttpGet("{managerId}/subordinates")]
-        public ActionResult<List<ManagerSubordinateEmployee>> GetSubordinateEmployees(int managerId)
+        public ActionResult<List<ManagerSubordinateEmployee>> GetSubordinates(int managerId)
         {
             try
             {
                 var subordinates = _employeeService.GetSubordinates(managerId);
-               
 
                 return Ok(subordinates);
             }

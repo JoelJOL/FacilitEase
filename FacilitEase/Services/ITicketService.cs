@@ -7,11 +7,11 @@ namespace FacilitEase.Services
     public interface ITicketService
     {
         //Abhijith
-        public IEnumerable<ManagerEmployeeTickets> GetTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize);
+        public ManagerTicketResponse<ManagerEmployeeTickets> GetTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
         //Abhijith
         public ManagerEmployeeTicketDetailed ViewTicketDetails(int ticketId);
         //Abhijith
-        public IEnumerable<ManagerEmployeeTickets> GetApprovalTicket(int employeeId);
+        public ManagerTicketResponse<ManagerEmployeeTickets> GetApprovalTicket(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
         //Abhijith
         public void TicketDecision(int ticketId, int statusId);
         //Abhijith
@@ -21,16 +21,19 @@ namespace FacilitEase.Services
         //Avinash
         Task<bool> ChangeTicketStatus(int ticketId, TicketStatusChangeRequest request);
         //Nathaniel
-        List<TicketApiModel> GetTickets();
+        TicketDetails GetTicketDetails(int desiredTicketId);
         //Nathaniel
-        List<TicketApiModel> GetUnassignedTickets();
+        ManagerTicketResponse<UnassignedTicketModel> GetUnassignedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery);      
         //Nathaniel
         void AssignTicketToAgent(int ticketId, int agentId);
         //Nathaniel
-        List<TicketApiModel> GetAssignedTickets();
+        ManagerTicketResponse<TicketApiModel> GetAssignedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery);
         //Nathaniel
-        List<TicketApiModel> GetEscalatedTickets();
+        ManagerTicketResponse<TicketApiModel> GetEscalatedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery);        
         //Hema
         void CreateTicketWithDocuments(TicketDto ticket);
+
+        //Hema
+        
     }
 }

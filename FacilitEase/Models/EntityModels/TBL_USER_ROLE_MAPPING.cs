@@ -1,7 +1,10 @@
-﻿namespace FacilitEase.Models.EntityModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace FacilitEase.Models.EntityModels
 {
     public class TBL_USER_ROLE_MAPPING
     {
+        [Key]
         public int Id { get; set; }
         public int UserRoleId { get; set; }
         public int UserId { get; set; }

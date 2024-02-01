@@ -1,5 +1,8 @@
 ﻿namespace FacilitEase.Models.ApiModels
 {
+    /// <summary>
+    /// To get the categories
+    /// </summary>
     public class CategoryDto
     {
         public int Id { get; set; }

@@ -1,6 +1,9 @@
-﻿namespace FacilitEase.Models.EntityModels
+﻿namespace FacilitEase.Models.ApiModels
 {
-    public class TBL_COMMENT
+    /// <summary>
+    /// To get the comments for a ticket
+    /// </summary>
+    public class CommentDto
     {
         public int Id { get; set; }
         public int TicketId { get; set; }
@@ -8,10 +11,5 @@
         public int Receiver { get; set; }
         public string Text { get; set; }
         public string Category { get; set; }
-
-        public int CreatedBy { get; set; }
-        public int UpdatedBy { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime UpdatedDate { get; set; }
     }
 }
