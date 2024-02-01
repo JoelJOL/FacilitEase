@@ -4,6 +4,7 @@ using FacilitEase.Models.EntityModels;
 using FacilitEase.Repositories;
 using FacilitEase.Services;
 using FacilitEase.UnitOfWork;
+using Microsoft.OpenApi.Models;
 using System;
 using System.Diagnostics;
 
@@ -185,6 +186,20 @@ namespace FacilitEase.Services
                 .ToList();
 
             return agentDetails;
+        }
+        public IEnumerable<EmployeeDetails> GetEmployeeDetails(int empId)
+        {
+            var employeeDetails = from employee in _context.TBL_EMPLOYEE
+                                  join user in _context.TBL_USER on employee.Id equals user.EmployeeId
+                                  where employee.Id == empId
+                                  select new EmployeeDetails
+                                  {
+                                      EmployeeName = employee.FirstName + " " + employee.LastName,
+                                      DOB = employee.DOB,
+                                      Gender = employee.Gender,
+                                      Username = user.Email
+                                  };
+            return employeeDetails;
         }
 
     }
