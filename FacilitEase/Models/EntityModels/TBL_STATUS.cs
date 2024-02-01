@@ -4,6 +4,7 @@ namespace FacilitEase.Models.EntityModels
 {
     public class TBL_STATUS
     {
+        [Key]
         public int Id { get; set; }
         public string StatusName { get; set; }
         public int CreatedBy { get; set; }

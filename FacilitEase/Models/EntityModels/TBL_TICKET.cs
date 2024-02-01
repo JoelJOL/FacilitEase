@@ -9,7 +9,7 @@ namespace FacilitEase.Models.EntityModels
         [Key]
         public int Id { get; set; }
         public string TicketName { get; set; }
-        public string TicketDescription { get; set; }
+        public string? TicketDescription { get; set; }
         public DateTime SubmittedDate { get; set; }
         public int PriorityId { get; set; }
         public int? StatusId { get; set; }

@@ -2,6 +2,9 @@
 
 namespace FacilitEase.Models.ApiModels
 {
+    /// <summary>
+    /// Api Model to specify the ticket details to be shown when listing the tickets to the manager
+    /// </summary>
     public class ManagerEmployeeTickets
     {
         [Key]
