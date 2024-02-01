@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FacilitEase.Controllers
 {
-    [EnableCors("AllowAngularDev")]
+    [EnableCors("AllowLocalhost")]
     [ApiController]
     [Route("api/[controller]")]
     public class DepartmentController: ControllerBase

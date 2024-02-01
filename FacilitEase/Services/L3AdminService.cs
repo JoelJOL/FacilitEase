@@ -2,6 +2,7 @@
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.UnitOfWork;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Linq.Dynamic.Core;
@@ -143,6 +144,7 @@ namespace FacilitEase.Services
         {
             var commentText = _context.TBL_COMMENT
                 .Where(comment => comment.TicketId == ticketId)
+                .Where(comment => comment.Category == "Note")
                 .Select(comment => comment.Text)
                 .FirstOrDefault();
 
@@ -214,8 +216,8 @@ namespace FacilitEase.Services
                   TicketName = joined.Ticket.TicketName,
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
                   SubmittedDate = joined.Ticket.SubmittedDate,
-                  PriorityName = joined.Priority.PriorityName,
-                  StatusName = joined.Status.StatusName,
+                  Priority = joined.Priority.PriorityName,
+                  Status = joined.Status.StatusName,
               });
 
             //Return the query data to a list.
@@ -273,7 +275,7 @@ namespace FacilitEase.Services
                               SubmittedDate = ticket.SubmittedDate,
                               RaisedEmployeeName = $"{employee.FirstName} {employee.LastName}",
                               ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : null,
-                              ManagerId = manager.ManagerId,
+                              ManagerId = employee.ManagerId,
                               LocationName = location.LocationName,
                               DeptName = department.DeptName,
                               DocumentLink = document.DocumentLink,
@@ -359,33 +361,76 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
-        
+
         /// <summary>
         /// Function that gets all tickets that have been escalated for that l3 admin
         /// </summary>
         /// <param name="agentId"></param>
         /// <returns></returns>
-        public IEnumerable<TicketJoin> GetEscalatedTicketsByAgent(int agentId)
+        public AgentTicketResponse<TicketResolveJoin> GetOnHoldTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
-            var query = from ticket in _context.TBL_TICKET
-                        join user in _context.TBL_USER on ticket.UserId equals user.Id
-                        join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
-                        join category in _context.TBL_CATEGORY on ticket.CategoryId equals category.Id
-                        join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
-                        join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
-                        where ticket.AssignedTo == agentId & (status.StatusName == "Escalated")
-                        select new TicketJoin
-                        {
-                            Id = ticket.Id,
-                            TicketName = ticket.TicketName,
-                            PriorityName = priority.PriorityName,
-                            StatusName = status.StatusName,
-                            SubmittedDate = ticket.SubmittedDate,
-                            EmployeeName = $"{employee.FirstName} {employee.LastName}",
-                        };
+            // Joining multiple tables to fetch necessary information about resolved tickets.
+            var query = _context.TBL_TICKET
+              .Join(
+                  _context.TBL_USER,
+                  ticket => ticket.UserId,
+                  user => user.Id,
+                  (ticket, user) => new { Ticket = ticket, User = user }
+              )
+              .Join(
+                  _context.TBL_EMPLOYEE,
+                  joined => joined.User.EmployeeId,
+                  employee => employee.Id,
+                  (joined, employee) => new { joined.Ticket, joined.User, Employee = employee }
+              )
+              .Join(
+                  _context.TBL_PRIORITY,
+                  joined => joined.Ticket.PriorityId,
+                  priority => priority.Id,
+                  (joined, priority) => new { joined.Ticket, joined.User, joined.Employee, Priority = priority }
+              )
+              .Join(
+                  _context.TBL_STATUS,
+                  joined => joined.Ticket.StatusId,
+                  status => status.Id,
+                  (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Priority, Status = status }
+              )
+              // Filtering resolved tickets based on agentId and StatusId.
+              .Where(joined => joined.Ticket.AssignedTo == agentId && joined.Ticket.StatusId == 5)
+              // Filtering resolved tickets based on searchQuery (if provided).
+              .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
+              // Selecting the desired fields and creating a new TicketResolveJoin object.
+              .Select(joined => new TicketResolveJoin
+              {
+                  Id = joined.Ticket.Id,
+                  TicketName = joined.Ticket.TicketName,
+                  EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
+                  SubmittedDate = joined.Ticket.SubmittedDate,
+                  ResolvedDate = joined.Ticket.UpdatedDate,
+                  PriorityName = joined.Priority.PriorityName,
 
-            var results = query.ToList();
-            return results;
+              });
+
+
+            var materializedQuery = query.ToList();
+
+            // Apply Sorting
+            if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
+            {
+                string orderByString = $"{sortField} {sortOrder}";
+                materializedQuery = materializedQuery.AsQueryable().OrderBy(orderByString).ToList();
+            }
+
+            // Apply Pagination
+            var totalCount = materializedQuery.Count();
+            materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+            // Return the paginated and sorted resolved ticket data along with the total count
+            return new AgentTicketResponse<TicketResolveJoin>
+            {
+                Data = materializedQuery,
+                TotalDataCount = totalCount
+            };
         }
 
     }

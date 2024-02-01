@@ -98,7 +98,7 @@ using System.Collections.Generic;
 
 namespace FacilitEase.Controllers
 {
-    [EnableCors("AllowAngularDev")]
+    [EnableCors("AllowLocalhost")]
     [ApiController]
     [Route("api/[controller]")]
     public class L1AdminController : ControllerBase

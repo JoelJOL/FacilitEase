@@ -8,7 +8,7 @@ namespace FacilitEase.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [EnableCors("AllowAngularDev")]
+    [EnableCors("AllowLocalhost")]
     public class ManagerController : ControllerBase
     {
         private readonly ITicketService _ticketService;

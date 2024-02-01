@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FacilitEase.Controllers
 {
 
-    [EnableCors("AllowAngularDev")]
+    [EnableCors("AllowLocalhost")]
     [ApiController]
     [Route("api/[controller]")]
     public class L3AdminController : ControllerBase
@@ -90,7 +90,27 @@ namespace FacilitEase.Controllers
         }
 
 
-        [HttpGet("ticketdetail-by-agent/{ticketId}")]
+        [HttpGet("GetOnHoldTicketsByAgent/{agentId}")]
+        public IActionResult GetOnHoldTicketsByAgent(
+         int agentId,
+         string sortField = null,
+         string sortOrder = null,
+         int pageIndex = 0,
+         int pageSize = 10,
+         string searchQuery = null)
+        {
+            try
+            {
+                var tickets = _adminService.GetOnHoldTicketsByAgent(agentId, sortField, sortOrder, pageIndex, pageSize, searchQuery);
+                return Ok(tickets);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"An error occurred: {ex.Message}");
+            }
+        }
+
+            [HttpGet("ticketdetail-by-agent/{ticketId}")]
         public IActionResult GetTicketDetailByAgent([FromRoute] int ticketId)
         {
             try
@@ -139,25 +159,6 @@ namespace FacilitEase.Controllers
         }
 
 
-        [HttpGet("escalted-tickets-by-agent/{agentId}")]
-        public IActionResult GetEscalatedTicketsByAgent([FromRoute] int agentId)
-        {
-            try
-            {
-                var tickets = _adminService.GetEscalatedTicketsByAgent(agentId);
-                if (tickets == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(tickets);
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(500, "Error retrieving ticket details");
-            }
-        }
 
 
 

@@ -11,10 +11,11 @@ namespace FacilitEase.Services
         void ForwardTicketToDept(int ticketId, int deptId);
         public string GetCommentTextByTicketId(int ticketId);
         public void UpdateCommentTextByTicketId(int ticketId, string newText);
-        public IEnumerable<TicketJoin> GetEscalatedTicketsByAgent(int agentId);
         IEnumerable<Join> GetTicketDetailByAgent(int ticketId);
         public AgentTicketResponse<TicketJoin> GetTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
         public AgentTicketResponse<TicketResolveJoin> GetResolvedTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
-      
+        public AgentTicketResponse<TicketResolveJoin> GetOnHoldTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
+
+
     }
 }
