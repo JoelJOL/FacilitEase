@@ -164,6 +164,7 @@ namespace FacilitEase.Controllers
             {
                 return BadRequest("Error retrieving comments. Please try again later.");
             }
+        }
         [HttpGet("{id}")]
         public IActionResult GetEmployeeDetails(int id) 
         {
