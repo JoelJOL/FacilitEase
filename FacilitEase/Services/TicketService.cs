@@ -233,8 +233,14 @@ namespace FacilitEase.Services
             }
             _unitOfWork.Complete();
         }
+
+        /// <summary>
+        /// To create a new ticket along with associated documents in the database.
+        /// </summary>
+        /// <param name="ticketDto"></param>
         public void CreateTicketWithDocuments(TicketDto ticketDto)
         {
+
 
             var ticketEntity = new TBL_TICKET
             {
@@ -242,6 +248,9 @@ namespace FacilitEase.Services
                 TicketDescription = ticketDto.TicketDescription,
                 PriorityId = ticketDto.PriorityId,
                 CategoryId = ticketDto.CategoryId,
+                StatusId = 1,
+                CreatedBy = 1,
+                UpdatedBy = 1, 
             };
             _context.Add(ticketEntity);
 
@@ -254,6 +263,8 @@ namespace FacilitEase.Services
                 {
                     DocumentLink = documentLink,
                     TicketId = ticketEntity.Id,
+                    CreatedBy = 1,
+                    UpdatedBy = 1,
                 };
 
                 _documentRepository.Add(documentEntity);
@@ -462,7 +473,7 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
-
+        
         /// <summary>
         /// retrieve escalated tickets with optional search criteria
         /// </summary>
@@ -502,7 +513,6 @@ namespace FacilitEase.Services
                 .Where(ticket => ticket.Status == "Escalated")
                 .Where(ticket => string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery))
                 .ToList();
-
             var queryList = escalatedTicketsQuery.ToList();
 
             // Apply Sorting
@@ -524,4 +534,6 @@ namespace FacilitEase.Services
             };
         }
     }
+
+    
 }

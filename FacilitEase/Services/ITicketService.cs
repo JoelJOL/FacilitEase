@@ -32,5 +32,8 @@ namespace FacilitEase.Services
         ManagerTicketResponse<TicketApiModel> GetEscalatedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery);        
         //Hema
         void CreateTicketWithDocuments(TicketDto ticket);
+
+        //Hema
+        
     }
 }
