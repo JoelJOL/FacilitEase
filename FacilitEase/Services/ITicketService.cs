@@ -19,6 +19,9 @@ namespace FacilitEase.Services
         //Abhijith
         public void SendForApproval(int ticketId , int managerId);
         //Avinash
+        public DepartmentHeadManagerTicketDetails DHTicketDetails(int ticketId);
+        //Abhijith
+        public DepartmentHeadTicketResponse<DepartmentHeadManagerTickets> DHGetApprovalTicket(int departmentHeadId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
         Task<bool> ChangeTicketStatus(int ticketId, TicketStatusChangeRequest request);
         //Nathaniel
         TicketDetails GetTicketDetails(int desiredTicketId);

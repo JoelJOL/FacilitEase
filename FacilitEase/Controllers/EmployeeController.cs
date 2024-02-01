@@ -1,4 +1,5 @@
 using FacilitEase.Models.ApiModels;
+using FacilitEase.Models.EntityModels;
 using FacilitEase.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -40,7 +41,20 @@ namespace FacilitEase.Controllers
         {
             var departments = _departmentService.GetDepartments();
             return Ok(departments);
-        }   
+        }
+        [HttpGet("positions")]
+        public ActionResult<IEnumerable<TBL_POSITION>> GetPositions()
+        {
+            var positions = _employeeService.GetPositions();
+            return Ok(positions);
+        }
+
+        [HttpGet("locations")]
+        public ActionResult<IEnumerable<TBL_LOCATION>> GetLocations()
+        {
+            var locations = _employeeService.GetLocations();
+            return Ok(locations);
+        }
         [HttpGet("categories")]
         public ActionResult<IEnumerable<CategoryDto>> GetCategory()
         {
@@ -85,6 +99,7 @@ namespace FacilitEase.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
         [HttpDelete("{id}")]
         public IActionResult DeleteEmployee(int id)
         {

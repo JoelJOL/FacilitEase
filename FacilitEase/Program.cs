@@ -10,6 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddControllers()
+           .AddJsonOptions(options =>
+           {
+               options.JsonSerializerOptions.Converters.Add(new DateOnlyConverter());
+           });
+
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -26,6 +32,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<IEmployeeDetailRepository, EmployeeDetailRepository>();
 builder.Services.AddScoped<IManagerRepository, ManagerRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IManagerService, ManagerService>();
@@ -42,6 +49,9 @@ builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IL3AdminService, L3AdminService>();
 builder.Services.AddScoped<IRepository<TBL_TICKET>, Repository<TBL_TICKET>>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IPositionRepository, PositionRepository>();
+builder.Services.AddScoped<ILocationRepository, LocationRepository>();
+builder.Services.AddScoped<IManagerService, ManagerService>();
 builder.Services.AddScoped<IRepository<TBL_TICKET>, Repository<TBL_TICKET>>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<ITicketDetailsService, TicketDetailsService>();

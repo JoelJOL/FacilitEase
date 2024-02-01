@@ -20,11 +20,15 @@ public class UnitOfWork : IUnitOfWork
             Document = new DocumentRepository(_context);
             User = new UserRepository(_context);
             Employee = new EmployeeRepository(_context);
+        EmployeeDetailRepository = new EmployeeDetailRepository(_context);
             Status = new StatusRepository(_context);
             Employees = new EmployeeRepository(_context);
             Tickets = new TicketRepository(_context);
             Department = new DepartmentRepository(_context);
             TicketRepository = new TicketRepository(_context);
+            Location = new LocationRepository(_context);
+            Position = new PositionRepository(_context);
+            
         }
 
 
@@ -37,11 +41,17 @@ public class UnitOfWork : IUnitOfWork
         public IStatusRepository Status { get; set; }
         public IEmployeeRepository Employee { get; set; }
         public IEmployeeRepository Employees { get; }
+
+        public IEmployeeDetailRepository EmployeeDetailRepository { get; set; }
         public ITicketRepository Tickets { get; }
         public IDepartmentRepository Department { get; }
+        public ILocationRepository Location { get; set; }
+        public IPositionRepository Position { get; set; }
+        
         public IEmployeeRepository EmployeeRepository { get; set; }
         public ITicketRepository TicketRepository { get; set; }
          public IL3AdminRepository L3Admin { get; set; }
+
 
     public int Complete()
         {

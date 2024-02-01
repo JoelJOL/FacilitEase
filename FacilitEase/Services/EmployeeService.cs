@@ -22,12 +22,20 @@ namespace FacilitEase.Services
             _context = context;
         }
 
+
+        /// <summary>
+        /// Adds a list of employees to the database.
+        /// </summary>
         public void AddEmployees(IEnumerable<EmployeeInputModel> employeeInputs, params EmployeeInputModel[] additionalEmployeeInputs)
         {
+         
+            /// <param name="employeeInputs">The list of employees to add.</param>
+            /// <param name="additionalEmployeeInputs">Additional employees to add.</param>
             if (employeeInputs == null || !employeeInputs.Any())
             {
                 throw new ArgumentException("Employee input data is null or empty.", nameof(employeeInputs));
             }
+
             try
             {
                 // Combine the two collections if needed
@@ -39,26 +47,49 @@ namespace FacilitEase.Services
                     EmployeeCode = employeeInput.EmployeeCode,
                     FirstName = employeeInput.FirstName,
                     LastName = employeeInput.LastName,
-                    DOB = employeeInput.DOB,
+                    DOB = new DateOnly(employeeInput.DOB.Year, employeeInput.DOB.Month, employeeInput.DOB.Day),
                     Email = employeeInput.Email,
                     Gender = employeeInput.Gender,
                     ManagerId = employeeInput.ManagerId,
                     // Map other properties as needed
                 }).ToList();
 
-                // Add additional business logic if needed before calling the repository
+                // Add additional business logic if needed before calling the repositories
                 _unitOfWork.EmployeeRepository.AddRange(employeeEntities);
+                _unitOfWork.Complete();
+
+                // Use the employeeEntities directly
+                var addedEmployees = employeeEntities;
+
+                // Map the input models to TBL_EMPLOYEE_DETAIL entities
+                var employeeDetailEntities = allEmployeeInputs.Select(employeeInput => new TBL_EMPLOYEE_DETAIL
+                {
+                    EmployeeId = addedEmployees.Single(e => e.EmployeeCode == employeeInput.EmployeeCode).Id,
+                    DepartmentId = employeeInput.DepartmentId,
+                    PositionId = employeeInput.PositionId,
+                    LocationId = employeeInput.LocationId,
+                }).ToList();
+
+                // Add additional business logic if needed before calling the repository
+                _unitOfWork.EmployeeDetailRepository.AddRange(employeeDetailEntities);
                 _unitOfWork.Complete();
             }
             catch (Exception ex)
             {
-                // Log the exception details or print to console for debugging
+                // Log and handle exceptions as needed
                 Debug.WriteLine($"Error in AddEmployees: {ex.Message}");
-                // Log or print the inner exception details
                 Debug.WriteLine($"Inner exception: {ex.InnerException?.Message}");
-                throw; // Re-throw the exception to propagate it up the call stack
+                throw;
             }
         }
+
+
+
+
+        /// <summary>
+        /// Deletes an employee from the database.
+        /// </summary>
+        /// <param name="id">The ID of the employee to delete.</param>
         public void DeleteEmployee(int id)
         {
             try
@@ -70,7 +101,6 @@ namespace FacilitEase.Services
                     throw new KeyNotFoundException($"Employee with ID {id} not found.");
                 }
 
-                // Add additional business logic if needed before calling the repository
                 _unitOfWork.EmployeeRepository.Delete(employee);
                 _unitOfWork.Complete();
             }
@@ -85,6 +115,47 @@ namespace FacilitEase.Services
         }
 
         /// <summary>
+        /// Retrieves all positions from the database.
+        /// </summary>
+        /// <returns>A list of all positions.</returns>
+        public IEnumerable<TBL_POSITION> GetPositions()
+        {
+            try
+            {
+                // Logic to retrieve positions from the repository
+                return _unitOfWork.Position.GetAll();
+            }
+            catch (Exception ex)
+            {
+                // Log and handle exceptions as needed
+                Debug.WriteLine($"Error in GetPositions: {ex.Message}");
+                Debug.WriteLine($"Inner exception: {ex.InnerException?.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Retrieves all locations from the database.
+        /// </summary>
+        /// <returns>A list of all locations.</returns>
+        public IEnumerable<TBL_LOCATION> GetLocations()
+        {
+            try
+            {
+                // Logic to retrieve locations from the repository
+                return _unitOfWork.Location.GetAll();
+            }
+            catch (Exception ex)
+            {
+                // Log and handle exceptions as needed
+                Debug.WriteLine($"Error in GetLocations: {ex.Message}");
+                Debug.WriteLine($"Inner exception: {ex.InnerException?.Message}");
+                throw;
+            }
+        }
+
+
+
         /// retrieve subordinate employees based on the provided managerId
         /// </summary>
         /// <param name="managerId"></param>

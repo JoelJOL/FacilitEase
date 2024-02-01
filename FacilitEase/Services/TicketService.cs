@@ -26,6 +26,12 @@ namespace FacilitEase.Services
             _unitOfWork = unitOfWork;//Avinash
         }
         //Avinash
+        /// <summary>
+        /// Changes the status of a ticket.
+        /// </summary>
+        /// <param name="ticketId">The ID of the ticket to change.</param>
+        /// <param name="request">The request containing the new status.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a boolean indicating the success of the operation.</returns>
         public async Task<bool> ChangeTicketStatus(int ticketId, TicketStatusChangeRequest request)
         {
             try
@@ -35,11 +41,11 @@ namespace FacilitEase.Services
                 if (ticket == null)
                     return false;
 
-                var newStatusId = request.IsApproved ? 3 : 2; // Set status based on IsApproved flag
+                // Set status based on IsApproved flag
+                var newStatusId = request.IsApproved ? 3 : 2;
 
                 ticket.StatusId = newStatusId;
 
-                /*_ticketRepository.Update(ticket);*/
                 _unitOfWork.TicketRepository.Update(ticket);
                 _unitOfWork.Complete();
 
@@ -64,7 +70,6 @@ namespace FacilitEase.Services
         /// <param name="searchQuery"></param>
         /// <returns>A response of paginated list of tickets of employees associated with a specific manager and the total tickets count</returns>
         public ManagerTicketResponse<ManagerEmployeeTickets> GetTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
-
         {
             var query = from ticket in _context.TBL_TICKET
             join user in _context.TBL_USER on ticket.UserId equals user.Id
@@ -250,7 +255,7 @@ namespace FacilitEase.Services
         /// <param name="statusId"></param>
         /// <exception cref="InvalidOperationException"></exception>
         public void TicketDecision(int ticketId, int statusId)
-        {   
+        {
             var ticket = _unitOfWork.Ticket.GetById(ticketId);
             if (ticket == null)
             {
@@ -607,7 +612,7 @@ namespace FacilitEase.Services
             // Apply Pagination
             var totalCount = queryList.Count();
             queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
-
+            
             // Return the result in the ManagerTicketResponse format
             return new ManagerTicketResponse<TicketApiModel>
             {
@@ -615,6 +620,111 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
+        //me
+        /// <summary>
+        /// Retrieves the details of a ticket for a department head or manager.
+        /// </summary>
+        /// <param name="ticketId">The ID of the ticket to retrieve.</param>
+        /// <returns>A DepartmentHeadManagerTicketDetails object containing the detailed ticket view on selecting a particular ticket</returns>
+        public DepartmentHeadManagerTicketDetails DHTicketDetails(int ticketId)
+        {
+            var ticket = _context.TBL_TICKET
+                .Where(t => t.Id == ticketId)
+                .Select(t => new DepartmentHeadManagerTicketDetails
+                {
+                    Id = t.Id,
+                    TicketName = t.TicketName,
+                    EmployeeName = _context.TBL_USER
+                        .Where(user => user.Id == t.UserId)
+                        .Select(user => _context.TBL_EMPLOYEE
+                            .Where(employee => employee.Id == user.EmployeeId)
+                            .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                            .FirstOrDefault())
+                        .FirstOrDefault(),
+                    AssignedTo = _context.TBL_EMPLOYEE
+                        .Where(employee => employee.Id == t.AssignedTo)
+                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                        .FirstOrDefault(),
+                    SubmittedDate = t.SubmittedDate,
+                    priorityName = _context.TBL_PRIORITY
+                        .Where(priority => priority.Id == t.PriorityId)
+                        .Select(priority => priority.PriorityName)
+                        .FirstOrDefault(),
+                    statusName = _context.TBL_STATUS
+                        .Where(status => status.Id == t.StatusId)
+                        .Select(status => status.StatusName)
+                        .FirstOrDefault(),
+                    TicketDescription = t.TicketDescription,
+                    DocumentLink = string.Join(", ", _context.TBL_DOCUMENT
+                        .Where(documents => documents.TicketId == t.Id)
+                        .Select(document => document.DocumentLink)
+                        .ToList())
+                })
+                .FirstOrDefault();
+
+            return ticket;
+        }
+
+        /// <summary>
+        /// Retrieves a paginated list of tickets for approval by a department head.
+        /// </summary>
+        /// <param name="departmentHeadId">The ID of the department head.</param>
+        /// <param name="sortField">The field to sort the tickets by.</param>
+        /// <param name="sortOrder">The order to sort the tickets in.</param>
+        /// <param name="pageIndex">The index of the page to retrieve.</param>
+        /// <param name="pageSize">The size of the page to retrieve.</param>
+        /// <param name="searchQuery">The query to filter the tickets by.</param>
+        /// <returns>A DepartmentHeadTicketResponse object containing the paginated list of tickets and the total count of tickets.</returns>
+        public DepartmentHeadTicketResponse<DepartmentHeadManagerTickets> DHGetApprovalTicket(int departmentHeadId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
+        {
+            var tickets = _context.TBL_TICKET
+                .Where(ticket => ticket.ControllerId == departmentHeadId)
+                .Where(ticket => string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery))
+                .Select(ticket => new DepartmentHeadManagerTickets
+                {
+                    Id = ticket.Id,
+                    TicketName = ticket.TicketName,
+                    EmployeeName = _context.TBL_USER
+                        .Where(user => user.Id == ticket.UserId)
+                        .Select(user => _context.TBL_EMPLOYEE
+                            .Where(employee => employee.Id == user.EmployeeId)
+                            .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                            .FirstOrDefault())
+                        .FirstOrDefault(),
+                    AssignedTo = _context.TBL_EMPLOYEE
+                        .Where(employee => employee.Id == ticket.AssignedTo)
+                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                        .FirstOrDefault(),
+                    SubmittedDate = ticket.SubmittedDate,
+                    Priority = _context.TBL_PRIORITY
+                        .Where(priority => priority.Id == ticket.PriorityId)
+                        .Select(priority => $"{priority.PriorityName}")
+                        .FirstOrDefault(),
+                    Status = _context.TBL_STATUS
+                        .Where(status => status.Id == ticket.StatusId)
+                        .Select(status => $"{status.StatusName}")
+                        .FirstOrDefault(),
+                });
+
+            var queryList = tickets.ToList();
+
+            // Apply Sorting
+            if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
+            {
+                string orderByString = $"{sortField} {sortOrder}";
+                queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
+            }
+
+            // Apply Pagination
+            var totalCount = queryList.Count();
+            queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+            return new DepartmentHeadTicketResponse<DepartmentHeadManagerTickets>
+             {
+                Data = queryList,
+                TotalDataCount = totalCount
+            };
+            
     }
 
     
