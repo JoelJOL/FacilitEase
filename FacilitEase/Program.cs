@@ -46,7 +46,7 @@ builder.Services.AddScoped<IRepository<TBL_TICKET>, Repository<TBL_TICKET>>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IPositionRepository, PositionRepository>();
 builder.Services.AddScoped<ILocationRepository, LocationRepository>();
-
+builder.Services.AddScoped<IManagerService, ManagerService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(); ;
 
