@@ -6,7 +6,6 @@ using System.Collections.Generic;
 
 namespace FacilitEase.Controllers
 {
-    [EnableCors("AllowAngularDev")]
     [ApiController]
     [Route("api/[controller]")]
     public class EmployeeController : ControllerBase
@@ -35,8 +34,7 @@ namespace FacilitEase.Controllers
         {
             var departments = _departmentService.GetDepartments();
             return Ok(departments);
-        }
-
+        }   
         [HttpGet("categories")]
         public ActionResult<IEnumerable<CategoryDto>> GetCategory()
         {
@@ -93,6 +91,12 @@ namespace FacilitEase.Controllers
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
+        }
+        [HttpGet("{id}")]
+        public IActionResult GetEmployeeDetails(int id) 
+        {
+            
+            return Ok(_employeeService.GetEmployeeDetails(id));
         }
     }
 }
