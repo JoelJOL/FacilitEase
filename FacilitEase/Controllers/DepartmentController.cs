@@ -16,7 +16,7 @@ namespace FacilitEase.Controllers
         {
             _deptService = deptService;
         }
-        
+
 
         [HttpGet]
         public IActionResult GetTickets()
@@ -25,6 +25,20 @@ namespace FacilitEase.Controllers
             return Ok(depts);
         }
 
- 
+        [HttpGet("categories-by-department/{departmentId}")]
+        public IActionResult GetCategoriesByDepartmentId(int departmentId)
+        {
+            var categories = _deptService.GetCategoriesByDepartmentId(departmentId);
+
+            if (categories == null || categories.Count == 0)
+            {
+                return NotFound("No categories found for the specified department.");
+            }
+
+            return Ok(categories);
+        }
+
+
+
     }
 }

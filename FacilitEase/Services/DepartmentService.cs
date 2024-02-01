@@ -1,14 +1,18 @@
 ﻿using FacilitEase.Models.ApiModels;
 using FacilitEase.UnitOfWork;
 using FacilitEase.Models.EntityModels;
+using Microsoft.EntityFrameworkCore;
+using FacilitEase.Data;
 
 namespace FacilitEase.Services
 {
     public class DepartmentService:IDepartmentService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        
         private readonly object employeeDto;
 
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly AppDbContext _context;
         public DepartmentService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -92,6 +96,18 @@ namespace FacilitEase.Services
         {
             var dept = _unitOfWork.Departments.GetAll();
             return (dept);
+        }
+
+        public List<CategoryDto> GetCategoriesByDepartmentId(int departmentId)
+        {
+            return _context.TBL_CATEGORY
+                .Where(category => category.DepartmentId == departmentId)
+                .Select(category => new CategoryDto
+                {
+                    Id = category.Id,
+                    CategoryName = category.CategoryName
+                })
+                .ToList();
         }
     }
 }
