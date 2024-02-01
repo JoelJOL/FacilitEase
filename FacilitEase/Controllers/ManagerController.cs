@@ -105,12 +105,11 @@ namespace FacilitEase.Controllers
             }
         }
         [HttpGet("{managerId}/subordinates")]
-        public ActionResult<List<ManagerSubordinateEmployee>> GetSubordinateEmployees(int managerId)
+        public ActionResult<List<ManagerSubordinateEmployee>> GetSubordinates(int managerId)
         {
             try
             {
                 var subordinates = _employeeService.GetSubordinates(managerId);
-               
 
                 return Ok(subordinates);
             }

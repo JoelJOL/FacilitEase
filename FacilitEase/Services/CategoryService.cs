@@ -1,16 +1,19 @@
 ﻿using FacilitEase.Models.ApiModels;
 using FacilitEase.UnitOfWork;
 using FacilitEase.Models.EntityModels;
+using Microsoft.EntityFrameworkCore;
+using FacilitEase.Data;
 
 namespace FacilitEase.Services
 {
     public class CategoryService : ICategoryService
     {
         private readonly IUnitOfWork _unitOfWork;
-
-        public CategoryService(IUnitOfWork unitOfWork)
+        private readonly AppDbContext _context;
+        public CategoryService(IUnitOfWork unitOfWork, AppDbContext context)
         {
             _unitOfWork = unitOfWork;
+            _context = context;
         }
 
         public IEnumerable<CategoryDto> GetCategory()
@@ -39,6 +42,25 @@ namespace FacilitEase.Services
                 UpdatedDate = category.UpdatedDate,
             };
         }
+
+        /// <summary>
+        /// To get the categories of particular department
+        /// </summary>
+        /// <param name="departmentId"></param>
+        /// <returns></returns>
+        public IEnumerable<CategoryDto> GetCategoryByDepartmentId(int departmentId)
+        {
+            var categories = _context.TBL_CATEGORY
+                .Where(category => category.DepartmentId == departmentId)
+                .ToList();
+            var categoryDtos = categories.Select(category => new CategoryDto
+            {
+                Id = category.Id,
+                CategoryName = category.CategoryName,
+            });
+
+            return categoryDtos;
+        }
         public void CreateCategory(CategoryDto categoryDto)
         {
 
@@ -62,6 +84,5 @@ namespace FacilitEase.Services
                 UpdatedDate = categoryDto.UpdatedDate,
             };
         }
-
     }
 }
