@@ -1,5 +1,8 @@
 ﻿namespace FacilitEase.Models.ApiModels
 {
+    /// <summary>
+    /// To get the comments for a ticket
+    /// </summary>
     public class CommentDto
     {
         public int Id { get; set; }
