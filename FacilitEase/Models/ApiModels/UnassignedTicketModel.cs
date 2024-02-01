@@ -1,5 +1,8 @@
 ﻿namespace FacilitEase.Models.ApiModels
 {
+    /// <summary>
+    /// Unassigned ticket details
+    /// </summary>
     public class UnassignedTicketModel
     {
         public int Id { get; set; }

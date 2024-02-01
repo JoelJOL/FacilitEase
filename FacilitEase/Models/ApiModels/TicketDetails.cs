@@ -1,5 +1,6 @@
 ﻿namespace FacilitEase.Models.ApiModels
 {
+    //to get the details of a specific ticket
     public class TicketDetails
     {
         public int Id { get; set; }

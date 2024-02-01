@@ -262,9 +262,14 @@ namespace FacilitEase.Services
             _context.SaveChanges();
 
         }
+        /// <summary>
+        /// retrieve detailed information about a specific ticket
+        /// </summary>
+        /// <param name="desiredTicketId"></param>
+        /// <returns></returns>
         public TicketDetails GetTicketDetails(int desiredTicketId)
-{
-    var ticketDetails = (from ticket in _context.TBL_TICKET
+            {
+                         var ticketDetails = (from ticket in _context.TBL_TICKET
                          join user in _context.TBL_USER on ticket.UserId equals user.Id
                          join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
                          join employeeDetail in _context.TBL_EMPLOYEE_DETAIL on employee.Id equals employeeDetail.EmployeeId
@@ -293,13 +298,21 @@ namespace FacilitEase.Services
                              DeptName = department.DeptName,
                              DocumentLink = document.DocumentLink,
                              ProjectCode = projectcode.ProjectCode
-                             // Add other properties as needed
                          })
                          .FirstOrDefault();
 
     return ticketDetails;
 }
 
+        /// <summary>
+        /// retrieve unassigned tickets with optional search criteria
+        /// </summary>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="sortField"></param>
+        /// <param name="sortOrder"></param>
+        /// <param name="searchQuery"></param>
+        /// <returns></returns>
         public ManagerTicketResponse<UnassignedTicketModel> GetUnassignedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery)
         {
             var unassignedTicketsQuery = _context.TBL_TICKET
@@ -325,29 +338,34 @@ namespace FacilitEase.Services
                         .Where(status => status.Id == ticket.StatusId)
                         .Select(status => status.StatusName)
                         .FirstOrDefault()
-                    // Exclude the AssignedTo field from the projection
                 });
 
-            var materializedQuery = unassignedTicketsQuery.ToList();
+            var queryList = unassignedTicketsQuery.ToList();
 
             // Apply Sorting
             if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
             {
                 string orderByString = $"{sortField} {sortOrder}";
-                materializedQuery = materializedQuery.AsQueryable().OrderBy(orderByString).ToList();
+                queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
             }
 
             // Apply Pagination
-            var totalCount = materializedQuery.Count();
-            materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
-
+            var totalCount = queryList.Count();
+            queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            
+            // Return the result in the ManagerTicketResponse format
             return new ManagerTicketResponse<UnassignedTicketModel>
             {
-                Data = materializedQuery,
+                Data = queryList,
                 TotalDataCount = totalCount
             };
         }
 
+        /// <summary>
+        /// Assign the ticket to the agent
+        /// </summary>
+        /// <param name="ticketId"></param>
+        /// <param name="agentId"></param>
         public void AssignTicketToAgent(int ticketId, int agentId)
         {
             try
@@ -368,24 +386,31 @@ namespace FacilitEase.Services
 
                         _context.SaveChanges();
 
-                        // Log success
                         Console.WriteLine($"Ticket {ticketId} assigned to agent {agentId} successfully.");
                     }
                     
          
                 else
                 {
-                    // Log agent not found
                     Console.WriteLine($"Agent not found with ID: {agentId}");
                 }
             }
             catch (Exception ex)
             {
-                // Log exception
                 Console.WriteLine($"Exception: {ex.Message}");
-                throw; // Rethrow the exception after logging
+                throw; 
             }
         }
+
+        /// <summary>
+        /// retrieve assigned tickets with optional search criteria
+        /// </summary>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="sortField"></param>
+        /// <param name="sortOrder"></param>
+        /// <param name="searchQuery"></param>
+        /// <returns></returns>
         public ManagerTicketResponse<TicketApiModel> GetAssignedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery)
         {
             var assignedTicketsQuery = _context.TBL_TICKET
@@ -415,29 +440,38 @@ namespace FacilitEase.Services
                         .Where(status => status.Id == ticket.StatusId)
                         .Select(status => status.StatusName)
                         .FirstOrDefault()
-                    // Add other properties as needed
                 });
 
-            var materializedQuery = assignedTicketsQuery.ToList();
+            var queryList = assignedTicketsQuery.ToList();
 
             // Apply Sorting
             if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
             {
                 string orderByString = $"{sortField} {sortOrder}";
-                materializedQuery = materializedQuery.AsQueryable().OrderBy(orderByString).ToList();
+                queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
             }
 
             // Apply Pagination
-            var totalCount = materializedQuery.Count();
-            materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            var totalCount = queryList.Count();
+            queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
+            // Return the result in the ManagerTicketResponse format
             return new ManagerTicketResponse<TicketApiModel>
             {
-                Data = materializedQuery,
+                Data = queryList,
                 TotalDataCount = totalCount
             };
         }
 
+        /// <summary>
+        /// retrieve escalated tickets with optional search criteria
+        /// </summary>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="sortField"></param>
+        /// <param name="sortOrder"></param>
+        /// <param name="searchQuery"></param>
+        /// <returns></returns>
         public ManagerTicketResponse<TicketApiModel> GetEscalatedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery)
         {
             var escalatedTicketsQuery = _context.TBL_TICKET
@@ -450,7 +484,6 @@ namespace FacilitEase.Services
                     employee => employee.Id,
                     (joined, employee) => new TicketApiModel
                     {
-                        // Map properties from TBL_TICKET, TBL_USER, and TBL_EMPLOYEE
                         Id = joined.Ticket.Id,
                         TicketName = joined.Ticket.TicketName,
                         RaisedBy = $"{employee.FirstName} {employee.LastName}",
@@ -465,32 +498,30 @@ namespace FacilitEase.Services
                             .Select(e => $"{e.FirstName} {e.LastName}")
                             .FirstOrDefault(),
                         RaisedDateTime = joined.Ticket.SubmittedDate,
-                        // ... add more properties here
                     })
-                .Where(ticket => ticket.Status == "Escalated") // Filter by "Escalated" status
+                .Where(ticket => ticket.Status == "Escalated")
                 .Where(ticket => string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery))
                 .ToList();
 
-            var materializedQuery = escalatedTicketsQuery.ToList();
+            var queryList = escalatedTicketsQuery.ToList();
 
             // Apply Sorting
             if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
             {
                 string orderByString = $"{sortField} {sortOrder}";
-                materializedQuery = materializedQuery.AsQueryable().OrderBy(orderByString).ToList();
+                queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
             }
 
             // Apply Pagination
-            var totalCount = materializedQuery.Count();
-            materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            var totalCount = queryList.Count();
+            queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
+            // Return the result in the ManagerTicketResponse format
             return new ManagerTicketResponse<TicketApiModel>
             {
-                Data = materializedQuery,
+                Data = queryList,
                 TotalDataCount = totalCount
             };
         }
-
-
     }
 }
