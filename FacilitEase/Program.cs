@@ -53,8 +53,6 @@ if (app.Environment.IsDevelopment())
 }
 app.UseCors("AllowAngularDev");
 
-app.UseCors("AllowLocalhost");
-
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
