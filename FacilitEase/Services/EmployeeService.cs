@@ -83,6 +83,12 @@ namespace FacilitEase.Services
                 throw; // Re-throw the exception to propagate it up the call stack
             }
         }
+
+        /// <summary>
+        /// retrieve subordinate employees based on the provided managerId
+        /// </summary>
+        /// <param name="managerId"></param>
+        /// <returns></returns>
         public List<ManagerSubordinateEmployee> GetSubordinates(int managerId)
         {
             var result = _context.TBL_EMPLOYEE
@@ -108,6 +114,12 @@ namespace FacilitEase.Services
 
             return result;
         }
+
+        /// <summary>
+        /// Retrieve agents based on the RoleId, UserId and DepartmentId
+        /// </summary>
+        /// <param name="departmentId"></param>
+        /// <returns></returns>
         public IEnumerable<AgentApiModel> GetAgents(int departmentId)
         {
             var agentRoleId = _context.TBL_USER_ROLE
@@ -141,6 +153,11 @@ namespace FacilitEase.Services
             return agents;
         }
 
+        /// <summary>
+        /// retrieve the detailed informations of the agents in a department
+        /// </summary>
+        /// <param name="departmentId"></param>
+        /// <returns></returns>
         public IEnumerable<AgentDetailsModel> GetAgentsByDepartment(int departmentId)
         {
             var agentRoleId = _context.TBL_USER_ROLE
