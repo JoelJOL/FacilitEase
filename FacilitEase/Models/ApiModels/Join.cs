@@ -1,5 +1,10 @@
-﻿namespace FacilitEase.Models.ApiModels
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+
+namespace FacilitEase.Models.ApiModels
 {
+    /// <summary>
+    /// Represents a model for joining data related to a ticket in the API response.
+    /// </summary>
     public class Join
     {
         public int Id { get; set; }
