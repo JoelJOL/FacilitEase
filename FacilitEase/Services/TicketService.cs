@@ -72,35 +72,35 @@ namespace FacilitEase.Services
         public ManagerTicketResponse<ManagerEmployeeTickets> GetTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             var query = from ticket in _context.TBL_TICKET
-            join user in _context.TBL_USER on ticket.UserId equals user.Id
-            join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
-            where employee.ManagerId == managerId
-            where string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery)
-            select new ManagerEmployeeTickets
-        {
-        Id = ticket.Id,
-        TicketName = ticket.TicketName,
-        EmployeeName = _context.TBL_USER
-            .Where(user => user.Id == ticket.UserId)
-            .Select(user => _context.TBL_EMPLOYEE
-                .Where(employee => employee.Id == user.EmployeeId)
-                .Select(employee => $"{employee.FirstName} {employee.LastName}")
-                .FirstOrDefault())
-            .FirstOrDefault(),
-        AssignedTo = _context.TBL_EMPLOYEE
-            .Where(employee => employee.Id == ticket.AssignedTo)
-            .Select(employee => $"{employee.FirstName} {employee.LastName}")
-            .FirstOrDefault(),
-        SubmittedDate = ticket.SubmittedDate,
-        Priority = _context.TBL_PRIORITY
-            .Where(priority => priority.Id == ticket.PriorityId)
-            .Select(priority => $"{priority.PriorityName}")
-            .FirstOrDefault(),
-        Status = _context.TBL_STATUS
-            .Where(status => status.Id == ticket.StatusId)
-            .Select(status => $"{status.StatusName}")
-            .FirstOrDefault(),
-    };
+                        join user in _context.TBL_USER on ticket.UserId equals user.Id
+                        join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
+                        where employee.ManagerId == managerId
+                        where string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery)
+                        select new ManagerEmployeeTickets
+                        {
+                            Id = ticket.Id,
+                            TicketName = ticket.TicketName,
+                            EmployeeName = _context.TBL_USER
+                        .Where(user => user.Id == ticket.UserId)
+                        .Select(user => _context.TBL_EMPLOYEE
+                            .Where(employee => employee.Id == user.EmployeeId)
+                            .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                            .FirstOrDefault())
+                        .FirstOrDefault(),
+                            AssignedTo = _context.TBL_EMPLOYEE
+                        .Where(employee => employee.Id == ticket.AssignedTo)
+                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                        .FirstOrDefault(),
+                            SubmittedDate = ticket.SubmittedDate,
+                            Priority = _context.TBL_PRIORITY
+                        .Where(priority => priority.Id == ticket.PriorityId)
+                        .Select(priority => $"{priority.PriorityName}")
+                        .FirstOrDefault(),
+                            Status = _context.TBL_STATUS
+                        .Where(status => status.Id == ticket.StatusId)
+                        .Select(status => $"{status.StatusName}")
+                        .FirstOrDefault(),
+                        };
 
             var queryList = query.ToList();
 
@@ -337,7 +337,7 @@ namespace FacilitEase.Services
                 CategoryId = ticketDto.CategoryId,
                 StatusId = 1,
                 CreatedBy = 1,
-                UpdatedBy = 1, 
+                UpdatedBy = 1,
             };
             _context.Add(ticketEntity);
 
@@ -366,41 +366,42 @@ namespace FacilitEase.Services
         /// <param name="desiredTicketId"></param>
         /// <returns></returns>
         public TicketDetails GetTicketDetails(int desiredTicketId)
-            {
-                         var ticketDetails = (from ticket in _context.TBL_TICKET
-                         join user in _context.TBL_USER on ticket.UserId equals user.Id
-                         join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
-                         join employeeDetail in _context.TBL_EMPLOYEE_DETAIL on employee.Id equals employeeDetail.EmployeeId
-                         join location in _context.TBL_LOCATION on employeeDetail.LocationId equals location.Id
-                         join department in _context.TBL_DEPARTMENT on employeeDetail.DepartmentId equals department.Id
-                         join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
-                         join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
-                         join document in _context.TBL_DOCUMENT on ticket.Id equals document.TicketId
-                         join project in _context.TBL_PROJECT_EMPLOYEE_MAPPING on employee.Id equals project.EmployeeId
-                         join projectcode in _context.TBL_PROJECT_CODE_GENERATION on project.ProjectId equals projectcode.ProjectId
-                         join manager in _context.TBL_EMPLOYEE on employee.ManagerId equals manager.Id into managerJoin
-                         from manager in managerJoin.DefaultIfEmpty()
-                         where ticket.Id == desiredTicketId
-                         select new TicketDetails
-                         {
-                             Id = ticket.Id,
-                             TicketName = ticket.TicketName,
-                             TicketDescription = ticket.TicketDescription,
-                             StatusName = status.StatusName,
-                             PriorityName = priority.PriorityName,
-                             SubmittedDate = ticket.SubmittedDate,
-                             RaisedEmployeeName = $"{employee.FirstName} {employee.LastName}",
-                             ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : null,
-                             ManagerId = employee.ManagerId,
-                             LocationName = location.LocationName,
-                             DeptName = department.DeptName,
-                             DocumentLink = document.DocumentLink,
-                             ProjectCode = projectcode.ProjectCode
-                         })
-                         .FirstOrDefault();
+        {
+            var ticketDetails = (from ticket in _context.TBL_TICKET
+                                 join user in _context.TBL_USER on ticket.UserId equals user.Id
+                                 join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
+                                 join employeeDetail in _context.TBL_EMPLOYEE_DETAIL on employee.Id equals employeeDetail.EmployeeId
+                                 join location in _context.TBL_LOCATION on employeeDetail.LocationId equals location.Id
+                                 join department in _context.TBL_DEPARTMENT on employeeDetail.DepartmentId equals department.Id
+                                 join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
+                                 join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
+                                 join document in _context.TBL_DOCUMENT on ticket.Id equals document.TicketId
+                                 join project in _context.TBL_PROJECT_EMPLOYEE_MAPPING on employee.Id equals project.EmployeeId
+                                 join projectcode in _context.TBL_PROJECT_CODE_GENERATION on project.ProjectId equals projectcode.ProjectId
+                                 join manager in _context.TBL_EMPLOYEE on employee.ManagerId equals manager.Id into managerJoin
+                                 from manager in managerJoin.DefaultIfEmpty()
+                                 where ticket.Id == desiredTicketId
+                                 select new TicketDetails
+                                 {
+                                     Id = ticket.Id,
+                                     TicketName = ticket.TicketName,
+                                     TicketDescription = ticket.TicketDescription,
+                                     StatusName = status.StatusName,
+                                     PriorityName = priority.PriorityName,
+                                     SubmittedDate = ticket.SubmittedDate,
+                                     RaisedEmployeeName = $"{employee.FirstName} {employee.LastName}",
+                                     ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : null,
+                                     ManagerId = employee.ManagerId,
+                                     LocationName = location.LocationName,
+                                     DeptName = department.DeptName,
+                                     DocumentLink = document.DocumentLink,
+                                     ProjectCode = projectcode.ProjectCode
+                                 })
+            .FirstOrDefault();
 
-    return ticketDetails;
-}
+            return ticketDetails;
+
+        }
 
         /// <summary>
         /// retrieve unassigned tickets with optional search criteria
@@ -450,7 +451,7 @@ namespace FacilitEase.Services
             // Apply Pagination
             var totalCount = queryList.Count();
             queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
-            
+
             // Return the result in the ManagerTicketResponse format
             return new ManagerTicketResponse<UnassignedTicketModel>
             {
@@ -469,25 +470,25 @@ namespace FacilitEase.Services
             try
             {
                 Console.WriteLine($"AssignTicketToAgent called with ticketId: {ticketId}, agentId: {agentId}");
-                
-                    // Find the ticket by ID
-                    var ticket = _context.TBL_TICKET.FirstOrDefault(t => t.Id == ticketId);
 
-                    if (ticket != null)
-                    {
-                        // Assign the ticket to the agent
-                        ticket.AssignedTo = agentId;
-                        ticket.UpdatedDate = DateTime.Now;
+                // Find the ticket by ID
+                var ticket = _context.TBL_TICKET.FirstOrDefault(t => t.Id == ticketId);
 
-                        // Update the status to "In Progress"
-                        ticket.StatusId = 2;
+                if (ticket != null)
+                {
+                    // Assign the ticket to the agent
+                    ticket.AssignedTo = agentId;
+                    ticket.UpdatedDate = DateTime.Now;
 
-                        _context.SaveChanges();
+                    // Update the status to "In Progress"
+                    ticket.StatusId = 2;
 
-                        Console.WriteLine($"Ticket {ticketId} assigned to agent {agentId} successfully.");
-                    }
-                    
-         
+                    _context.SaveChanges();
+
+                    Console.WriteLine($"Ticket {ticketId} assigned to agent {agentId} successfully.");
+                }
+
+
                 else
                 {
                     Console.WriteLine($"Agent not found with ID: {agentId}");
@@ -496,7 +497,7 @@ namespace FacilitEase.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Exception: {ex.Message}");
-                throw; 
+                throw;
             }
         }
 
@@ -560,7 +561,7 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
-        
+
         /// <summary>
         /// retrieve escalated tickets with optional search criteria
         /// </summary>
@@ -612,7 +613,7 @@ namespace FacilitEase.Services
             // Apply Pagination
             var totalCount = queryList.Count();
             queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
-            
+
             // Return the result in the ManagerTicketResponse format
             return new ManagerTicketResponse<TicketApiModel>
             {
@@ -720,12 +721,13 @@ namespace FacilitEase.Services
             queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
             return new DepartmentHeadTicketResponse<DepartmentHeadManagerTickets>
-             {
+            {
                 Data = queryList,
                 TotalDataCount = totalCount
             };
-            
-    }
 
-    
+        }
+
+
+    }
 }
