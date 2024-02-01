@@ -1,20 +1,16 @@
 ﻿namespace FacilitEase.Models.ApiModels
 {
     /// <summary>
-    /// Represents a model for joining data related to a ticket in the API response. This api model is used 
-    /// in the data table view
+    /// // Represents a model for joining resolved ticket data in the API response. This is used in the data table fro resolved
+    /// ticketsgit 
     /// </summary>
-    public class TicketJoin
+    public class TicketResolveJoin
     {
         public int Id { get; set; }
         public required string TicketName { get; set; }
         public required string EmployeeName { get; set; }
-        public required string PriorityName { get; set; }
-        public required string StatusName { get; set; }
         public DateTime SubmittedDate { get; set; }
-
-
-
-
+        public DateTime ResolvedDate { get; set; }
+        public required string PriorityName { get; set; }
     }
 }

@@ -86,6 +86,9 @@ namespace FacilitEase.Services
         public ProfileData GetProfileData(int id)
         {
             ProfileData profileData = new ProfileData();
+            profileData.EmpId=(from u in _context.TBL_USER
+                               where u.Id == id
+                               select u.EmployeeId).FirstOrDefault();
             profileData.EmployeeFirstName = (from p in _context.TBL_EMPLOYEE
                                              join u in _context.TBL_USER on p.Id equals u.EmployeeId
                                              where u.EmployeeId == id

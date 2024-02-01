@@ -13,7 +13,7 @@ public class UnitOfWork : IUnitOfWork
         {
             _context = context;
             EmployeeRepository = new EmployeeRepository(_context);
-             Departments = new DepartmentRepository(_context);
+            Departments = new DepartmentRepository(_context);
             Category = new CategoryRepository(_context);
             Priority = new PriorityRepository(_context);
             Ticket = new TicketRepository(_context);
