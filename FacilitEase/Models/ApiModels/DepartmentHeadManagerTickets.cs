@@ -2,6 +2,9 @@
 
 namespace FacilitEase.Models.ApiModels
 {
+    /// <summary>
+    /// Represents the tickets for a department head .
+    /// </summary>
     public class DepartmentHeadManagerTickets
     {
         [Key]

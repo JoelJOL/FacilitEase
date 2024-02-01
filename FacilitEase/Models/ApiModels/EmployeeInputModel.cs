@@ -4,7 +4,9 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-
+/// <summary>
+/// Represents the input model for an employee and employee detail table , which act as a bulk upload model also.
+/// </summary>
 public class EmployeeInputModel
 {
     [Required]

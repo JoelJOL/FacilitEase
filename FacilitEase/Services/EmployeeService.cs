@@ -21,8 +21,15 @@ namespace FacilitEase.Services
             _context = context;
         }
 
+
+        /// <summary>
+        /// Adds a list of employees to the database.
+        /// </summary>
         public void AddEmployees(IEnumerable<EmployeeInputModel> employeeInputs, params EmployeeInputModel[] additionalEmployeeInputs)
         {
+         
+            /// <param name="employeeInputs">The list of employees to add.</param>
+            /// <param name="additionalEmployeeInputs">Additional employees to add.</param>
             if (employeeInputs == null || !employeeInputs.Any())
             {
                 throw new ArgumentException("Employee input data is null or empty.", nameof(employeeInputs));
@@ -77,6 +84,11 @@ namespace FacilitEase.Services
 
 
 
+
+        /// <summary>
+        /// Deletes an employee from the database.
+        /// </summary>
+        /// <param name="id">The ID of the employee to delete.</param>
         public void DeleteEmployee(int id)
         {
             try
@@ -88,7 +100,6 @@ namespace FacilitEase.Services
                     throw new KeyNotFoundException($"Employee with ID {id} not found.");
                 }
 
-                // Add additional business logic if needed before calling the repository
                 _unitOfWork.EmployeeRepository.Delete(employee);
                 _unitOfWork.Complete();
             }
@@ -101,6 +112,11 @@ namespace FacilitEase.Services
                 throw; // Re-throw the exception to propagate it up the call stack
             }
         }
+
+        /// <summary>
+        /// Retrieves all positions from the database.
+        /// </summary>
+        /// <returns>A list of all positions.</returns>
         public IEnumerable<TBL_POSITION> GetPositions()
         {
             try
@@ -117,6 +133,10 @@ namespace FacilitEase.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves all locations from the database.
+        /// </summary>
+        /// <returns>A list of all locations.</returns>
         public IEnumerable<TBL_LOCATION> GetLocations()
         {
             try
@@ -132,6 +152,7 @@ namespace FacilitEase.Services
                 throw;
             }
         }
+
 
 
         public List<ManagerSubordinateEmployee> GetSubordinates(int managerId)
