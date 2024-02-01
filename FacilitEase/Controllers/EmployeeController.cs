@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
+
 namespace FacilitEase.Controllers
 {
     [EnableCors("AllowAngularDev")]
@@ -16,18 +17,23 @@ namespace FacilitEase.Controllers
         private readonly IPriorityService _priorityService;
         private readonly ITicketService _ticketService;
         private readonly IEmployeeService _employeeService;
-
+        private readonly ITicketDetailsService _ticketDetailsService;
+        private readonly ICommentService _commentService;
         public EmployeeController(IDepartmentService departmentService,
             ICategoryService categoryService,
             IPriorityService priorityService,
             ITicketService ticketService,
-            IEmployeeService employeeService)
+            IEmployeeService employeeService,
+            ITicketDetailsService ticketDetailsService,
+            ICommentService commentService)
         {
             _departmentService = departmentService;
             _categoryService = categoryService;
             _priorityService = priorityService;
             _ticketService = ticketService;
             _employeeService = employeeService;
+            _ticketDetailsService = ticketDetailsService;
+            _commentService = commentService;
         }
 
         [HttpGet("departments")]
@@ -94,5 +100,60 @@ namespace FacilitEase.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        [HttpPatch("cancel-request/{ticketId}")]
+        public IActionResult RequestToCancelTicket(int ticketId)
+        {
+            bool success = _ticketDetailsService.RequestToCancelTicket(ticketId);
+
+            if (success)
+            {
+                return Ok(new { Message = "Ticket cancellation request successful." });
+            }
+            else
+            {
+                return NotFound(new { Message = "Ticket not found or cancellation request failed." });
+            }
+        }
+        [HttpGet("myTickets/{userId}")]
+        public IActionResult GetTicketDetailsByUserId(int userId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
+        {
+            var ticketDetails = _ticketDetailsService.GetTicketDetailsByUserId( userId,  sortField,  sortOrder,  pageIndex,  pageSize,   searchQuery);
+
+            if (ticketDetails == null)
+            {
+                return NotFound("No ticket details found for the specified user ID.");
+            }
+
+            return Ok(ticketDetails);
+        }
+        [HttpGet("GetCategoryByDepartmentId/{departmentId}")]
+        public IActionResult GetCategoryByDepartmentId(int departmentId)
+        {
+            try
+            {
+                var categories = _categoryService.GetCategoryByDepartmentId(departmentId);
+                return Ok(categories);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Error processing the request. Please try again later.");
+            }
+        }
+        [HttpGet("GetCommentsByTicketId/{ticketId}")]
+        public IActionResult GetCommentsByTicketId(int ticketId)
+        {
+            try
+            {
+                var comments = _commentService.GetCommentsByTicketId(ticketId);
+                return Ok(comments);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Error retrieving comments. Please try again later.");
+            }
+        }
     }
+    
 }
+

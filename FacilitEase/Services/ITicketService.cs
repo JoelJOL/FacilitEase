@@ -32,5 +32,8 @@ namespace FacilitEase.Services
         List<TicketApiModel> GetEscalatedTickets();
         //Hema
         void CreateTicketWithDocuments(TicketDto ticket);
+
+        //Hema
+        
     }
 }

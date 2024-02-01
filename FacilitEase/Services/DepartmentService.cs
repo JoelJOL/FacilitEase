@@ -13,6 +13,11 @@ namespace FacilitEase.Services
         {
             _unitOfWork = unitOfWork;
         }
+
+        /// <summary>
+        /// To Retrieve all departments from the database and maps them to DepartmentDto objects.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<DepartmentDto> GetDepartments()
         {
 
@@ -20,12 +25,22 @@ namespace FacilitEase.Services
             return MapToDepartmentDtoList(departments);
         }
 
-     
+
+        /// <summary>
+        /// Mapping a collection of TBL_DEPARTMENT entities to a collection of DepartmentDto objects.
+        /// </summary>
+        /// <param name="departments"></param>
+        /// <returns></returns>
         private IEnumerable<DepartmentDto> MapToDepartmentDtoList(IEnumerable<TBL_DEPARTMENT> departments)
         {
             return departments.Select(MapToDepartmentDto);
         }
 
+        /// <summary>
+        /// Mapping an individual TBL_DEPARTMENT entity to a DepartmentDto object.
+        /// </summary>
+        /// <param name="departments"></param>
+        /// <returns></returns>
         private DepartmentDto MapToDepartmentDto(TBL_DEPARTMENT departments)
         {
             return new DepartmentDto
@@ -38,6 +53,10 @@ namespace FacilitEase.Services
                 UpdatedDate = departments.UpdatedDate,
             };
         }
+        /// <summary>
+        /// To add department
+        /// </summary>
+        /// <param name="departmentDto"></param>
         public void CreateDepartment(DepartmentDto departmentDto)
         {
             
@@ -46,6 +65,11 @@ namespace FacilitEase.Services
             _unitOfWork.Complete();
         }
 
+        /// <summary>
+        /// Mapping a DepartmentDto object to a TBL_DEPARTMENT entity.
+        /// </summary>
+        /// <param name="departmentDto"></param>
+        /// <returns></returns>
         private TBL_DEPARTMENT MapToTBL_DEPARTMENT(DepartmentDto departmentDto)
         {
             
@@ -60,9 +84,12 @@ namespace FacilitEase.Services
             };
         }
 
+        /// <summary>
+        /// To retrieve all departments from the database using the Unit of Work pattern and returns them as a collection of TBL_DEPARTMENT entities.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<TBL_DEPARTMENT> GetAllDepartments()
         {
-
             var dept = _unitOfWork.Departments.GetAll();
             return (dept);
         }

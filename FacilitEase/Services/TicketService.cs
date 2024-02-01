@@ -233,7 +233,7 @@ namespace FacilitEase.Services
             }
             _unitOfWork.Complete();
         }
-        public void CreateTicketWithDocuments(TicketDto ticketDto)
+        /*public void CreateTicketWithDocuments(TicketDto ticketDto)
         {
 
             var ticketEntity = new TBL_TICKET
@@ -254,6 +254,46 @@ namespace FacilitEase.Services
                 {
                     DocumentLink = documentLink,
                     TicketId = ticketEntity.Id,
+                };
+
+                _documentRepository.Add(documentEntity);
+            }
+
+            _context.SaveChanges();
+
+        }*/
+
+        /// <summary>
+        /// To create a new ticket along with associated documents in the database.
+        /// </summary>
+        /// <param name="ticketDto"></param>
+        public void CreateTicketWithDocuments(TicketDto ticketDto)
+        {
+
+
+            var ticketEntity = new TBL_TICKET
+            {
+                TicketName = ticketDto.TicketName,
+                TicketDescription = ticketDto.TicketDescription,
+                PriorityId = ticketDto.PriorityId,
+                CategoryId = ticketDto.CategoryId,
+                StatusId = 1,
+                CreatedBy = 1,
+                UpdatedBy = 1, 
+            };
+            _context.Add(ticketEntity);
+
+            _context.SaveChanges();
+
+
+            foreach (var documentLink in ticketDto.DocumentLink)
+            {
+                var documentEntity = new TBL_DOCUMENT
+                {
+                    DocumentLink = documentLink,
+                    TicketId = ticketEntity.Id,
+                    CreatedBy = 1,
+                    UpdatedBy = 1,
                 };
 
                 _documentRepository.Add(documentEntity);
@@ -401,6 +441,7 @@ namespace FacilitEase.Services
 
             return assignedTickets;
         }
+        
         public List<TicketApiModel> GetEscalatedTickets()
         {
             var escalatedTickets = _context.TBL_TICKET
@@ -436,6 +477,7 @@ namespace FacilitEase.Services
 
             return escalatedTickets;
         }
-
     }
+
+    
 }

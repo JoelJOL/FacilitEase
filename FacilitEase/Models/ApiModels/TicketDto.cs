@@ -21,7 +21,7 @@
             public int PriorityId { get; set; }
             public int CategoryId { get; set; }
             public int DepartmentId { get; set; }
-            public string[]? DocumentLink { get; set; }
+            public string[] DocumentLink { get; set; }
 
     }
 }
