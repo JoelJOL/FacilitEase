@@ -8,6 +8,7 @@ using System;
 using System.Linq.Dynamic.Core;
 using FacilitEase.Repositories;
 using System.Linq;
+using Microsoft.Net.Http.Headers;
 
 namespace FacilitEase.Services
 {
@@ -321,11 +322,11 @@ namespace FacilitEase.Services
             _unitOfWork.Complete();
         }
 
-        /// <summary>
+        /// <summary> working
         /// To create a new ticket along with associated documents in the database.
         /// </summary>
         /// <param name="ticketDto"></param>
-        public void CreateTicketWithDocuments(TicketDto ticketDto)
+        /*public void CreateTicketWithDocuments(TicketDto ticketDto)
         {
 
 
@@ -338,6 +339,7 @@ namespace FacilitEase.Services
                 StatusId = 1,
                 CreatedBy = 1,
                 UpdatedBy = 1,
+                UserId = 1,
             };
             _context.Add(ticketEntity);
 
@@ -359,7 +361,96 @@ namespace FacilitEase.Services
 
             _context.SaveChanges();
 
+        }*/
+
+        /*public void CreateTicketWithDocuments(TicketDto ticketDto)
+        {
+
+
+            var ticketEntity = new TBL_TICKET
+            {
+                TicketName = ticketDto.TicketName,
+                TicketDescription = ticketDto.TicketDescription,
+                PriorityId = ticketDto.PriorityId,
+                CategoryId = ticketDto.CategoryId,
+                StatusId = 1,
+                CreatedBy = 1,
+                UpdatedBy = 1,
+                UserId = 1,
+            };
+            _context.Add(ticketEntity);
+
+            _context.SaveChanges();
+
+
+            foreach (var documentLink in ticketDto.DocumentLink)
+            {
+                var documentEntity = new TBL_DOCUMENT
+                {
+                    DocumentLink = documentLink,
+                    TicketId = ticketEntity.Id,
+                    CreatedBy = 1,
+                    UpdatedBy = 1,
+                };
+
+                _documentRepository.Add(documentEntity);
+            }
+
+            _context.SaveChanges();
+
+        }*/
+
+        public void CreateTicketWithDocuments(TicketDto ticketDto, IFormFile file)
+        {
+            // Your existing code for creating a ticket
+            var ticketEntity = new TBL_TICKET
+            {
+                TicketName = ticketDto.TicketName,
+                TicketDescription = ticketDto.TicketDescription,
+                PriorityId = ticketDto.PriorityId,
+                CategoryId = ticketDto.CategoryId,
+                StatusId = 1,
+                CreatedBy = 1,
+                UpdatedBy = 1,
+                UserId = 1,
+            };
+
+            _context.Add(ticketEntity);
+            _context.SaveChanges();
+
+            if (file != null && file.Length > 0)
+            {
+                var folderName = Path.Combine("Resources", "Images");
+                var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.ToString().Trim('"');
+                var fullPath = Path.Combine(folderName, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    file.CopyTo(stream);
+                }
+
+                byte[] fileBytes;
+                using (var memoryStream = new MemoryStream())
+                {
+                    file.CopyTo(memoryStream);
+                    fileBytes = memoryStream.ToArray();
+                }
+
+                var documentEntity = new TBL_DOCUMENT
+                {
+                    DocumentLink = fileBytes,
+                    TicketId = ticketEntity.Id,
+                    CreatedBy = 1,
+                    UpdatedBy = 1,
+                };
+
+                _documentRepository.Add(documentEntity);
+                _context.SaveChanges();
+            }
         }
+
+
+
         /// <summary>
         /// retrieve detailed information about a specific ticket
         /// </summary>

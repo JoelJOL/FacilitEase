@@ -4,6 +4,7 @@ using FacilitEase.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 
 
 namespace FacilitEase.Controllers
@@ -69,7 +70,7 @@ namespace FacilitEase.Controllers
             return Ok(priority);
         }
 
-        [HttpPost("raiseticket")]
+        /*[HttpPost("raiseticket")]
         public IActionResult CreateTicket([FromBody] TicketDto ticketApiModel)
         {
             if (ticketApiModel == null)
@@ -80,8 +81,73 @@ namespace FacilitEase.Controllers
             _ticketService.CreateTicketWithDocuments(ticketApiModel);
 
             return Ok("Ticket created successfully");
+        }*/
+        /* [HttpPost("upload")]
+         public IActionResult Upload()
+         {
+             try
+             {
+                 var file = Request.Form.Files[0];
+                 var folderName = Path.Combine("Resources", "Images");
+                 var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+
+                 if (file.Length > 0 )
+                 {
+                     var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+                     var fullPath = Path.Combine(pathToSave, fileName);
+                     var dbPath = Path.Combine(folderName, fileName);
+
+                     using (var stream = new FileStream(fullPath, FileMode.Create))
+                     {
+                         file.CopyTo(stream);
+                     }
+
+                     return Ok( new {dbPath});
+                 }
+                 else { return BadRequest(); }
+             }
+             catch (Exception ex)
+             {
+                 return BadRequest(ex.Message);
+             }
+         }*/
+
+        [HttpPost("create-with-documents")]
+        public IActionResult CreateTicketWithDocuments([FromForm] TicketDto ticketDto, [FromForm] IFormFile file)
+        {
+            try
+            {
+                // Call the service method to create the ticket with documents
+                _ticketService.CreateTicketWithDocuments(ticketDto, file);
+
+                // Return a success response if the ticket creation is successful
+                return Ok(new { Message = "Ticket created successfully." });
+            }
+            catch (Exception ex)
+            {
+                // Return a bad request response if an exception occurs during the process
+                return BadRequest(new { Message = $"Error creating ticket: {ex.Message}" });
+            }
         }
-        [HttpPost("AddEmployees")]
+        private readonly string _imagesPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Images");
+        [HttpGet("{imageName}")]
+        public IActionResult GetImage(string imageName)
+        {
+            var imagePath = Path.Combine(_imagesPath, imageName);
+
+            if (System.IO.File.Exists(imagePath))
+            {
+                var imageBytes = System.IO.File.ReadAllBytes(imagePath);
+                return File(imageBytes, "image/jpeg"); // Adjust the content type based on your image format
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+    
+
+    [HttpPost("AddEmployees")]
         public IActionResult AddEmployees([FromBody] IEnumerable<EmployeeInputModel> employeeInputs)
         {
             if (employeeInputs == null || !employeeInputs.Any())
