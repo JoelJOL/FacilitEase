@@ -1,5 +1,8 @@
 ﻿namespace FacilitEase.Models.ApiModels
 {
+    /// <summary>
+    /// To get the priority
+    /// </summary>
     public class PriorityDto
     {
         public int Id { get; set; }

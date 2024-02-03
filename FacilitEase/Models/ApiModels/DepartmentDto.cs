@@ -1,5 +1,8 @@
 ﻿namespace FacilitEase.Models.ApiModels
 {
+    /// <summary>
+    /// To get and add the departments
+    /// </summary>
     public class DepartmentDto
     {
         public int Id { get; set; }

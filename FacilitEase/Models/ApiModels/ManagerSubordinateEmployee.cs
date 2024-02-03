@@ -1,5 +1,8 @@
 ﻿namespace FacilitEase.Models.ApiModels
 {
+    /// <summary>
+    /// get employee details
+    /// </summary>
     public class ManagerSubordinateEmployee
     {
         public string EmployeeCode { get; set; }

@@ -27,12 +27,12 @@ namespace FacilitEase.Controllers
             var agents = _employeeService.GetAgents(requestModel.DepartmentId);
             return Ok(agents);
         }
-        [HttpGet("tickets")]
-        public ActionResult<List<TicketApiModel>> GetTickets()
+        [HttpGet("ticketById")]
+        public ActionResult<TicketDetails> GetTicketDetails(int desiredTicketId)
         {
             try
             {
-                var tickets = _ticketService.GetTickets();
+                var tickets = _ticketService.GetTicketDetails(desiredTicketId);
                 return Ok(tickets);
             }
             catch (Exception ex)
@@ -42,11 +42,11 @@ namespace FacilitEase.Controllers
         }
 
         [HttpGet("unassigned-tickets")]
-        public ActionResult<List<TicketApiModel>> GetUnassignedTickets()
+        public ActionResult<ManagerTicketResponse<UnassignedTicketModel>> GetUnassignedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery)
         {
             try
             {
-                var unassignedTickets = _ticketService.GetUnassignedTickets();
+                var unassignedTickets = _ticketService.GetUnassignedTickets(pageIndex, pageSize, sortField, sortOrder, searchQuery);
                 return Ok(unassignedTickets);
             }
             catch (Exception ex)
@@ -60,6 +60,7 @@ namespace FacilitEase.Controllers
         {
             try
             {
+                Console.WriteLine($"TicketId: {request.TicketId}, AgentId: {request.AgentId}");
                 _ticketService.AssignTicketToAgent(request.TicketId, request.AgentId);
                 return Ok(new { Message = "Ticket assigned successfully" });
             }
@@ -69,11 +70,11 @@ namespace FacilitEase.Controllers
             }
         }
         [HttpGet("assigned-tickets")]
-        public ActionResult<List<TicketApiModel>> GetAssignedTickets()
+        public ActionResult<ManagerTicketResponse<TicketApiModel>> GetAssignedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery)
         {
             try
             {
-                var assignedTickets = _ticketService.GetAssignedTickets();
+                var assignedTickets = _ticketService.GetAssignedTickets(pageIndex, pageSize, sortField, sortOrder, searchQuery);
                 return Ok(assignedTickets);
             }
             catch (Exception ex)
@@ -82,15 +83,15 @@ namespace FacilitEase.Controllers
             }
         }
         [HttpGet("escalated-tickets")]
-        public ActionResult<List<TicketApiModel>> GetEscalatedTickets()
+        public ActionResult<ManagerTicketResponse<TicketApiModel>> GetEscalatedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery)
         {
-            var escalatedTickets = _ticketService.GetEscalatedTickets();
+            var escalatedTickets = _ticketService.GetEscalatedTickets(pageIndex, pageSize, sortField, sortOrder, searchQuery);
             return Ok(escalatedTickets);
         }
         [HttpGet("agentsByDepartmentId")]
-        public IActionResult GetAgentsByDepartment([FromQuery] DepartmentAgentsRequestModel requestModel)
+        public ActionResult<List<AgentDetailsModel>> GetAgentsByDepartment(int departmentId)
         {
-            var agents = _employeeService.GetAgentsByDepartment(requestModel.DepartmentId);
+            var agents = _employeeService.GetAgentsByDepartment(departmentId);
             return Ok(agents);
         }
     }
