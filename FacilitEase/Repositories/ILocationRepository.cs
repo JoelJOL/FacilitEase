@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace FacilitEase.Repositories
 {
-    public interface ILocationRepository : IRepository<TBL_LOCATION>
+    public interface ILocationRepository : IRepository<Location>
     {
         // Add specific methods for locations if needed
-        IEnumerable<TBL_LOCATION> GetByName(string locationName);
+        IEnumerable<Location> GetByName(string locationName);
     }
 }

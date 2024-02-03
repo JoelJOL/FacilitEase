@@ -13,9 +13,10 @@ namespace FacilitEase.Services
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppDbContext _context;
-        public DepartmentService(IUnitOfWork unitOfWork)
+        public DepartmentService(IUnitOfWork unitOfWork, AppDbContext context)
         {
             _unitOfWork = unitOfWork;
+            _context = context;
         }
 
         /// <summary>
@@ -35,7 +36,7 @@ namespace FacilitEase.Services
         /// </summary>
         /// <param name="departments"></param>
         /// <returns></returns>
-        private IEnumerable<DepartmentDto> MapToDepartmentDtoList(IEnumerable<TBL_DEPARTMENT> departments)
+        private IEnumerable<DepartmentDto> MapToDepartmentDtoList(IEnumerable<Department> departments)
         {
             return departments.Select(MapToDepartmentDto);
         }
@@ -45,7 +46,7 @@ namespace FacilitEase.Services
         /// </summary>
         /// <param name="departments"></param>
         /// <returns></returns>
-        private DepartmentDto MapToDepartmentDto(TBL_DEPARTMENT departments)
+        private DepartmentDto MapToDepartmentDto(Department departments)
         {
             return new DepartmentDto
             {
@@ -74,10 +75,10 @@ namespace FacilitEase.Services
         /// </summary>
         /// <param name="departmentDto"></param>
         /// <returns></returns>
-        private TBL_DEPARTMENT MapToTBL_DEPARTMENT(DepartmentDto departmentDto)
+        private Department MapToTBL_DEPARTMENT(DepartmentDto departmentDto)
         {
             
-            return new TBL_DEPARTMENT
+            return new Department
             {
                 Id = departmentDto.Id,
                 DeptName = departmentDto.DeptName,
@@ -92,17 +93,17 @@ namespace FacilitEase.Services
         /// To retrieve all departments from the database using the Unit of Work pattern and returns them as a collection of TBL_DEPARTMENT entities.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<TBL_DEPARTMENT> GetAllDepartments()
+        public IEnumerable<Department> GetAllDepartments()
         {
             var dept = _unitOfWork.Departments.GetAll();
             return (dept);
         }
 
-        public List<CategoryDto> GetCategoriesByDepartmentId(int departmentId)
+        public List<DeptCategoryDto> GetCategoriesByDepartmentId(int departmentId)
         {
-            return _context.TBL_CATEGORY
+            return _context.Category
                 .Where(category => category.DepartmentId == departmentId)
-                .Select(category => new CategoryDto
+                .Select(category => new DeptCategoryDto
                 {
                     Id = category.Id,
                     CategoryName = category.CategoryName

@@ -4,7 +4,7 @@ using FacilitEase.Models.EntityModels;
 
 namespace FacilitEase.Repositories
 {
-    public class EmployeeRepository : Repository<TBL_EMPLOYEE>, IEmployeeRepository
+    public class EmployeeRepository : Repository<Employee>, IEmployeeRepository
     {
         public EmployeeRepository(AppDbContext context) : base(context)
         {
@@ -12,7 +12,7 @@ namespace FacilitEase.Repositories
 
     /*Dont use Repository<ManagerSubordinateEmployee> it is an api model*/
 
-        public void AddRange(IEnumerable<TBL_EMPLOYEE> employees)
+        public void AddRange(IEnumerable<Employee> employees)
         {
             // This implementation will call the AddRange method from the base class (generic repository)
             base.AddRange(employees);

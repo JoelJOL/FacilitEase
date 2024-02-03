@@ -3,15 +3,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FacilitEase.Models.EntityModels
 {
-    public class TBL_CATEGORY
+    [Table("TBL_USER_ROLE_MAPPING")]
+    public class UserRoleMapping
     {
         [Key]
         public int Id { get; set; }
-        public string CategoryName { get; set; }
-        public int DepartmentId { get; set; }
+        public int UserRoleId { get; set; }
+        public int UserId { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime UpdatedDate { get; set; }
         public int CreatedBy { get; set; }
         public int UpdatedBy { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime UpdatedDate { get; set; }   
     }
 }

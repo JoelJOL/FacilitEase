@@ -1,6 +1,9 @@
-﻿namespace FacilitEase.Models.EntityModels
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace FacilitEase.Models.EntityModels
 {
-    public class TBL_TICKET_ASSIGNMENT
+    [Table("TBL_TICKET_ASSIGNMENT")]
+    public class TicketAssignment
     {
         public int Id { get; set; }
         public int TicketId { get; set; }

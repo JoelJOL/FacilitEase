@@ -24,12 +24,12 @@ namespace FacilitEase.Services
         }
 
 
-        private IEnumerable<CategoryDto> MapToCategoryDtoList(IEnumerable<TBL_CATEGORY> departments)
+        private IEnumerable<CategoryDto> MapToCategoryDtoList(IEnumerable<Category> departments)
         {
             return departments.Select(MapToCategoryDto);
         }
 
-        private CategoryDto MapToCategoryDto(TBL_CATEGORY category)
+        private CategoryDto MapToCategoryDto(Category category)
         {
             return new CategoryDto
             {
@@ -50,7 +50,7 @@ namespace FacilitEase.Services
         /// <returns></returns>
         public IEnumerable<CategoryDto> GetCategoryByDepartmentId(int departmentId)
         {
-            var categories = _context.TBL_CATEGORY
+            var categories = _context.Category
                 .Where(category => category.DepartmentId == departmentId)
                 .ToList();
             var categoryDtos = categories.Select(category => new CategoryDto
@@ -69,10 +69,10 @@ namespace FacilitEase.Services
             _unitOfWork.Complete();
         }
 
-        private TBL_CATEGORY MapToTBL_DEPARTMENT(CategoryDto categoryDto)
+        private Category MapToTBL_DEPARTMENT(CategoryDto categoryDto)
         {
 
-            return new TBL_CATEGORY
+            return new Category
             {
 
                 Id = categoryDto.Id,

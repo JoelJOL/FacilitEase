@@ -18,7 +18,7 @@ namespace FacilitEase.Services
         /// <returns></returns>
         public IEnumerable<CommentDto> GetCommentsByTicketId(int ticketId)
         {
-            var comments = _context.TBL_COMMENT
+            var comments = _context.Comment
                 .Where(comment => comment.TicketId == ticketId)
                 .Select(comment => new CommentDto
                 {

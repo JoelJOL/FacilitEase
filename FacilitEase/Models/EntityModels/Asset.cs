@@ -1,7 +1,11 @@
-﻿namespace FacilitEase.Models.EntityModels
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace FacilitEase.Models.EntityModels
 {
-    public class TBL_ASSET
+    [Table("TBL_ASSET")]
+    public class Asset
     {
+    
         public int Id { get; set; }
         public string AssetName { get; set; }
         public string WarrantyInfo { get; set; }

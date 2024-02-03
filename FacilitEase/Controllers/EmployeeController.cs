@@ -43,14 +43,14 @@ namespace FacilitEase.Controllers
             return Ok(departments);
         }
         [HttpGet("positions")]
-        public ActionResult<IEnumerable<TBL_POSITION>> GetPositions()
+        public ActionResult<IEnumerable<Position>> GetPositions()
         {
             var positions = _employeeService.GetPositions();
             return Ok(positions);
         }
 
         [HttpGet("locations")]
-        public ActionResult<IEnumerable<TBL_LOCATION>> GetLocations()
+        public ActionResult<IEnumerable<Location>> GetLocations()
         {
             var locations = _employeeService.GetLocations();
             return Ok(locations);

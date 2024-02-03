@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FacilitEase.Models.EntityModels
 {
-    public class TBL_EMPLOYEE_DETAIL
+    [Table("TBL_EMPLOYEE_DETAIL")]
+    public class EmployeeDetail
     {
         public int Id { get; set; }
         public int EmployeeId { get; set; }

@@ -1,15 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FacilitEase.Models.EntityModels
 {
-    public class TBL_DEPARTMENT
+
+    [Table("TBL_LOCATION")]
+    public class Location
     {
-        [Key]
         public int Id { get; set; }
-        public string DeptName { get; set; }
-        public int CreatedBy { get; set; }
-        public int UpdatedBy { get; set; }
+        public string LocationName { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+        public int CreatedBy { get; set; }
+        public int UpdatedBy { get; set; }
     }
 }

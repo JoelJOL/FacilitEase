@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Net.NetworkInformation;
 using System.Text.Json.Serialization;
 
 namespace FacilitEase.Models.EntityModels
 {
-    public class TBL_TICKET
+    [Table("TBL_TICKET")]
+    public class Ticket
     {
         [Key]
         public int Id { get; set; }

@@ -35,6 +35,22 @@ namespace FacilitEase.Controllers
 
         }
 
+        [HttpPatch("AcceptTicketCancellation/{ticketId}")]
+        public IActionResult AcceptTicketCancellation([FromRoute] int ticketId)
+        {
+            _adminService.AcceptTicketCancellation(ticketId);
+            return Ok(new ApiResponse { Message = $"Ticket {ticketId} Cancellation Request Accepted." });
+
+        }
+
+        [HttpPatch("DenyTicketCancellation/{ticketId}")]
+        public IActionResult DenyTicketCancellation([FromRoute] int ticketId)
+        {
+            _adminService.DenyTicketCancellation(ticketId);
+            return Ok(new ApiResponse { Message = $"Ticket {ticketId} Cancellation Request Denied." });
+
+        }
+
         [HttpGet("forward-ticket/{ticketId}/{managerId}")]
         public IActionResult ForwardRaisedTicketStatus([FromRoute] int ticketId, [FromRoute] int managerId)
         {
@@ -110,7 +126,27 @@ namespace FacilitEase.Controllers
             }
         }
 
-            [HttpGet("ticketdetail-by-agent/{ticketId}")]
+        [HttpGet("GetCancelRequestTicketsByAgent/{agentId}")]
+        public IActionResult GetCancelRequestTicketsByAgent(
+         int agentId,
+         string sortField = null,
+         string sortOrder = null,
+         int pageIndex = 0,
+         int pageSize = 10,
+         string searchQuery = null)
+        {
+            try
+            {
+                var tickets = _adminService.GetCancelRequestTicketsByAgent(agentId, sortField, sortOrder, pageIndex, pageSize, searchQuery);
+                return Ok(tickets);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"An error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpGet("ticketdetail-by-agent/{ticketId}")]
         public IActionResult GetTicketDetailByAgent([FromRoute] int ticketId)
         {
             try
@@ -129,6 +165,38 @@ namespace FacilitEase.Controllers
                 return StatusCode(500, "Error retrieving ticket details");
             }
         }
+
+        [HttpPost]
+        public IActionResult PostComment([FromBody] CommentRequestDto commentRequestDto)
+        {
+            try
+            {
+                // Create a new Comment object with predefined values and provided text and TicketId
+                Comment comment = new Comment
+                {
+                    TicketId = commentRequestDto.TicketId,
+                    Text = commentRequestDto.Text,
+                    Sender = 1, // Predefined value, replace with actual value
+                    Receiver = 2, // Predefined value, replace with actual value
+                    Category = "Note", // Predefined value, replace with actual value
+                    CreatedBy = 1, // Predefined value, replace with actual value
+                    UpdatedBy = 1, // Predefined value, replace with actual value
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                };
+
+                // Call the service method to save the comment
+                _adminService.AddComment(comment);
+
+                return Ok(new { Message = "Comment posted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Internal Server Error", Message = ex.Message });
+            }
+        }
+    
+        
 
         [HttpGet("ticket-commenttext/{ticketId}")]
         public ActionResult<string> GetCommentTextByTicketId(int ticketId)
@@ -158,10 +226,20 @@ namespace FacilitEase.Controllers
             }
         }
 
+        [HttpDelete("delete-comment/{ticketId}")]
+        public async Task<IActionResult> DeleteComment(int ticketId)
+        {
+            var success = await _adminService.DeleteCommentAsync(ticketId);
 
-
-
-
+            if (success)
+            {
+                return NoContent(); // Successfully deleted
+            }
+            else
+            {
+                return NotFound(new { error = "Comment not found" });
+            }
+        }
 
     }
 }

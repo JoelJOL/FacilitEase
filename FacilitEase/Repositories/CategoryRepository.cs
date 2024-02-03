@@ -3,7 +3,7 @@ using FacilitEase.Models.EntityModels;
 
 namespace FacilitEase.Repositories
 {
-    public class CategoryRepository : Repository<TBL_CATEGORY>, ICategoryRepository
+    public class CategoryRepository : Repository<Category>, ICategoryRepository
     {
         public CategoryRepository(AppDbContext context) : base(context) { }
     }

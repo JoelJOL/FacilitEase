@@ -1,8 +1,10 @@
-﻿using System.Net.Sockets;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Net.Sockets;
 
 namespace FacilitEase.Models.EntityModels
 {
-    public class TBL_NOTIFICATION
+    [Table("Notification")]
+    public class Notification
     {
         public int Id { get; set; }
         public string Content { get; set; }

@@ -1,6 +1,9 @@
-﻿namespace FacilitEase.Models.EntityModels
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace FacilitEase.Models.EntityModels
 {
-    public class TBL_PROJECT
+    [Table("TBL_PROJECT")]
+    public class Project
     {
         public int Id { get; set; }
         public string ProjectName { get; set; }

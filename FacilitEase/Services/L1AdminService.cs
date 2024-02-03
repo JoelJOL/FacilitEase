@@ -14,7 +14,7 @@ namespace FacilitEase.Services
         public IEnumerable<ProfileData> GetSuggestions(string text)
         {
             text=text.ToLower();
-            var suggestions = _context.TBL_EMPLOYEE
+            var suggestions = _context.Employee
                     .Where(employee =>
                         employee.FirstName.ToLower().Contains(text) ||
                         employee.LastName.ToLower().Contains(text)
@@ -24,14 +24,14 @@ namespace FacilitEase.Services
                             EmpId = employee.Id,
                             EmployeeFirstName = employee.FirstName,
                             EmployeeLastName = employee.LastName,
-                            JobTitle = _context.TBL_POSITION
-                                .Where(p => p.Id == _context.TBL_EMPLOYEE_DETAIL
+                            JobTitle = _context.Position
+                                .Where(p => p.Id == _context.EmployeeDetail
                                 .Where(ed => ed.EmployeeId == employee.Id)
                                 .Select(ed => ed.PositionId)
                                 .FirstOrDefault())
                                 .Select(p => p.PositionName)
                                 .FirstOrDefault() ?? "",
-                                Username = _context.TBL_USER
+                                Username = _context.User
                                 .Where(u => u.EmployeeId == employee.Id)
                                 .Select(u => u.Email)
                                 .FirstOrDefault() ?? ""
@@ -42,7 +42,7 @@ namespace FacilitEase.Services
         }
         public IEnumerable<string> GetRoles()
         {
-            var roles = from r in _context.TBL_USER_ROLE
+            var roles = from r in _context.UserRole
                         select r.UserRoleName;
             return roles;
         }
@@ -50,11 +50,11 @@ namespace FacilitEase.Services
         {
             int empId= assignRole.EmpId;
             string roleName = assignRole.RoleName;
-            TBL_USER_ROLE_MAPPING roleMapping=new TBL_USER_ROLE_MAPPING();
-            roleMapping.UserId = (from u in _context.TBL_USER
+            UserRoleMapping roleMapping=new UserRoleMapping();
+            roleMapping.UserId = (from u in _context.User
                                  where u.EmployeeId == empId
                                  select u.Id).FirstOrDefault();
-            roleMapping.UserRoleId = (from r in _context.TBL_USER_ROLE
+            roleMapping.UserRoleId = (from r in _context.UserRole
                                       where r.UserRoleName == roleName
                                       select r.Id).FirstOrDefault();
             DateTime currentDateTime = DateTime.Now;
@@ -64,7 +64,7 @@ namespace FacilitEase.Services
             roleMapping.UpdatedBy=1;
 
 
-            _context.TBL_USER_ROLE_MAPPING.Add(roleMapping);
+            _context.User_Role_Mapping.Add(roleMapping);
             _context.SaveChanges();
             
         }

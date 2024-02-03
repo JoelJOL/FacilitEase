@@ -1,13 +1,15 @@
-﻿namespace FacilitEase.Models.EntityModels
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+namespace FacilitEase.Models.EntityModels
 {
-    public class TBL_TICKET_TRACKING
+    [Table("TBL_DOCUMENT")]
+    public class Document
     {
+        [Key]
         public int Id { get; set; }
+        public string DocumentLink { get; set; }
         public int TicketId { get; set; }
-        public int TicketStatusId { get; set; }
-        public DateTime TicketRaisedTimestamp { get; set; }
-        public int? AssignedTo { get; set; }
-        public int? ApproverId { get; set; }
         public int CreatedBy { get; set; }
         public int UpdatedBy { get; set; }
         public DateTime CreatedDate { get; set; }

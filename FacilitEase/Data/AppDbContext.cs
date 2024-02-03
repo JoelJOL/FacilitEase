@@ -8,32 +8,32 @@ namespace FacilitEase.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<TBL_EMPLOYEE> TBL_EMPLOYEE { get; set; }
-        public DbSet<TBL_PRIORITY> TBL_PRIORITY { get; set; }
-        public DbSet<TBL_DEPARTMENT> TBL_DEPARTMENT { get; set; }
-        public DbSet<TBL_STATUS> TBL_STATUS { get; set; }
-        public DbSet<TBL_CATEGORY> TBL_CATEGORY { get; set; }
-        public DbSet<TBL_USER> TBL_USER { get; set; }
-        public DbSet<TBL_USER_ROLE> TBL_USER_ROLE { get; set; }
-        public DbSet<TBL_USER_ROLE_MAPPING> TBL_USER_ROLE_MAPPING { get; set; }
-        public DbSet<TBL_TICKET> TBL_TICKET { get; set; }
-        public DbSet<TBL_EMPLOYEE_DETAIL> TBL_EMPLOYEE_DETAIL { get; set; }
-        public DbSet<TBL_DOCUMENT> TBL_DOCUMENT { get; set; }
-        public DbSet<TBL_LOCATION> TBL_LOCATION { get; set; }
-        public DbSet<TBL_PROJECT_EMPLOYEE_MAPPING> TBL_PROJECT_EMPLOYEE_MAPPING { get; set; }
-        public DbSet<TBL_PROJECT> TBL_PROJECT { get; set; }
-        public DbSet<TBL_TICKET_TRACKING> TBL_TICKET_TRACKING { get; set; }
-        public DbSet<TBL_TICKET_ASSIGNMENT> TBL_TICKET_ASSIGNMENT { get; set; }
-        public DbSet<TBL_LOGIN> TBL_LOGIN { get; set; }
-        public DbSet<TBL_POSITION> TBL_POSITION { get; set; }
-        public DbSet<TBL_BUDGET_CODE_GENERATION> TBL_BUDGET_CODE_GENERATION { get; set; }
-        public DbSet<TBL_PROJECT_CODE_GENERATION> TBL_PROJECT_CODE_GENERATION { get; set; }
-        public DbSet<TBL_ASSET_TYPE> TBL_ASSET_TYPE { get; set; }
-        public DbSet<TBL_ASSET_STATUS> TBL_ASSET_STATUS { get; set; }
-        public DbSet<TBL_ASSET> TBL_ASSET { get; set; }
-        public DbSet<TBL_ASSET_EMPLOYEE_MAPPING> TBL_ASSET_EMPLOYEE_MAPPING { get; set; }
-        public DbSet<TBL_COMMENT> TBL_COMMENT { get; set; }
-        public DbSet<TBL_NOTIFICATION> TBL_NOTIFICATION { get; set; }
+        public DbSet<Employee> Employee { get; set; }
+        public DbSet<Priority> Priority { get; set; }
+        public DbSet<Department> Department { get; set; }
+        public DbSet<Status> Status { get; set; }
+        public DbSet<Category> Category { get; set; }
+        public DbSet<User> User { get; set; }
+        public DbSet<UserRole> UserRole { get; set; }
+        public DbSet<UserRoleMapping> User_Role_Mapping { get; set; }
+        public DbSet<Ticket> Ticket { get; set; }
+        public DbSet<EmployeeDetail> EmployeeDetail { get; set; }
+        public DbSet<Document> Document { get; set; }
+        public DbSet<Location> Location { get; set; }
+        public DbSet<ProjectEmployeeMapping> ProjectEmployeeMapping { get; set; }
+        public DbSet<Project> Project { get; set; }
+        public DbSet<TicketTracking> TicketTracking { get; set; }
+        public DbSet<TicketAssignment> TicketAssignment { get; set; }
+        public DbSet<Login> Login { get; set; }
+        public DbSet<Position> Position { get; set; }
+        public DbSet<BudgetCodeGeneration> BudgetCodeGeneration { get; set; }
+        public DbSet<ProjectCodeGeneration> ProjectCodeGeneration { get; set; }
+        public DbSet<AssetType> AssetType { get; set; }
+        public DbSet<AssetStatus> AssetStatus { get; set; }
+        public DbSet<Asset> Asset { get; set; }
+        public DbSet<AssetEmployeeMapping> AssetEmployeeMapping { get; set; }
+        public DbSet<Comment> Comment { get; set; }
+        public DbSet<Notification> Notification { get; set; }
     }
 
 }
