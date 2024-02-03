@@ -42,9 +42,12 @@ namespace FacilitEase.Services
                     return false;
 
                 // Set status based on IsApproved flag
-                var newStatusId = request.IsApproved ? 3 : 2;
+                var newStatusId = request.IsApproved ? 2 : 5;
 
                 ticket.StatusId = newStatusId;
+
+                // Set ControllerId based on IsApproved flag
+                ticket.ControllerId = request.IsApproved ? ticket.AssignedTo : null;
 
                 _unitOfWork.TicketRepository.Update(ticket);
                 _unitOfWork.Complete();
