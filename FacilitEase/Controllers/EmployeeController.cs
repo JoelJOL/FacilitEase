@@ -40,7 +40,7 @@ namespace FacilitEase.Controllers
         {
             var departments = _departmentService.GetDepartments();
             return Ok(departments);
-        }   
+        }
         [HttpGet("categories")]
         public ActionResult<IEnumerable<CategoryDto>> GetCategory()
         {
@@ -115,7 +115,7 @@ namespace FacilitEase.Controllers
         [HttpGet("myTickets/{userId}")]
         public IActionResult GetTicketDetailsByUserId(int userId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
-            var ticketDetails = _ticketDetailsService.GetTicketDetailsByUserId( userId,  sortField,  sortOrder,  pageIndex,  pageSize,   searchQuery);
+            var ticketDetails = _ticketDetailsService.GetTicketDetailsByUserId(userId, sortField, sortOrder, pageIndex, pageSize, searchQuery);
 
             if (ticketDetails == null)
             {
@@ -149,12 +149,13 @@ namespace FacilitEase.Controllers
             {
                 return BadRequest("Error retrieving comments. Please try again later.");
             }
-        [HttpGet("{id}")]
-        public IActionResult GetEmployeeDetails(int id) 
-        {
-            
-            return Ok(_employeeService.GetEmployeeDetails(id));
         }
+            [HttpGet("{id}")]
+            public IActionResult GetEmployeeDetails(int id)
+            {
+
+                return Ok(_employeeService.GetEmployeeDetails(id));
+            }
     }
     
 }
