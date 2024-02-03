@@ -1,9 +1,9 @@
 using FacilitEase.Models.ApiModels;
+using FacilitEase.Models.EntityModels;
 using FacilitEase.Services;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-
+using System.Net.Http.Headers;
 
 namespace FacilitEase.Controllers
 {
@@ -18,6 +18,7 @@ namespace FacilitEase.Controllers
         private readonly IEmployeeService _employeeService;
         private readonly ITicketDetailsService _ticketDetailsService;
         private readonly ICommentService _commentService;
+
         public EmployeeController(IDepartmentService departmentService,
             ICategoryService categoryService,
             IPriorityService priorityService,
@@ -41,6 +42,20 @@ namespace FacilitEase.Controllers
             var departments = _departmentService.GetDepartments();
             return Ok(departments);
         }
+        [HttpGet("positions")]
+        public ActionResult<IEnumerable<TBL_POSITION>> GetPositions()
+        {
+            var positions = _employeeService.GetPositions();
+            return Ok(positions);
+        }
+
+        [HttpGet("locations")]
+        public ActionResult<IEnumerable<TBL_LOCATION>> GetLocations()
+        {
+            var locations = _employeeService.GetLocations();
+            return Ok(locations);
+        }
+
         [HttpGet("categories")]
         public ActionResult<IEnumerable<CategoryDto>> GetCategory()
         {
@@ -55,7 +70,7 @@ namespace FacilitEase.Controllers
             return Ok(priority);
         }
 
-        [HttpPost("raiseticket")]
+        /*[HttpPost("raiseticket")]
         public IActionResult CreateTicket([FromBody] TicketDto ticketApiModel)
         {
             if (ticketApiModel == null)
@@ -66,8 +81,73 @@ namespace FacilitEase.Controllers
             _ticketService.CreateTicketWithDocuments(ticketApiModel);
 
             return Ok("Ticket created successfully");
+        }*/
+        /* [HttpPost("upload")]
+         public IActionResult Upload()
+         {
+             try
+             {
+                 var file = Request.Form.Files[0];
+                 var folderName = Path.Combine("Resources", "Images");
+                 var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+
+                 if (file.Length > 0 )
+                 {
+                     var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+                     var fullPath = Path.Combine(pathToSave, fileName);
+                     var dbPath = Path.Combine(folderName, fileName);
+
+                     using (var stream = new FileStream(fullPath, FileMode.Create))
+                     {
+                         file.CopyTo(stream);
+                     }
+
+                     return Ok( new {dbPath});
+                 }
+                 else { return BadRequest(); }
+             }
+             catch (Exception ex)
+             {
+                 return BadRequest(ex.Message);
+             }
+         }*/
+
+        [HttpPost("create-with-documents")]
+        public IActionResult CreateTicketWithDocuments([FromForm] TicketDto ticketDto, [FromForm] IFormFile file)
+        {
+            try
+            {
+                // Call the service method to create the ticket with documents
+                _ticketService.CreateTicketWithDocuments(ticketDto, file);
+
+                // Return a success response if the ticket creation is successful
+                return Ok(new { Message = "Ticket created successfully." });
+            }
+            catch (Exception ex)
+            {
+                // Return a bad request response if an exception occurs during the process
+                return BadRequest(new { Message = $"Error creating ticket: {ex.Message}" });
+            }
         }
-        [HttpPost("AddEmployees")]
+        private readonly string _imagesPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Images");
+        [HttpGet("{imageName}")]
+        public IActionResult GetImage(string imageName)
+        {
+            var imagePath = Path.Combine(_imagesPath, imageName);
+
+            if (System.IO.File.Exists(imagePath))
+            {
+                var imageBytes = System.IO.File.ReadAllBytes(imagePath);
+                return File(imageBytes, "image/jpeg"); // Adjust the content type based on your image format
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+    
+
+    [HttpPost("AddEmployees")]
         public IActionResult AddEmployees([FromBody] IEnumerable<EmployeeInputModel> employeeInputs)
         {
             if (employeeInputs == null || !employeeInputs.Any())
@@ -85,6 +165,7 @@ namespace FacilitEase.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
         [HttpDelete("{id}")]
         public IActionResult DeleteEmployee(int id)
         {
@@ -98,6 +179,7 @@ namespace FacilitEase.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
         [HttpPatch("cancel-request/{ticketId}")]
         public IActionResult RequestToCancelTicket(int ticketId)
         {
@@ -112,6 +194,7 @@ namespace FacilitEase.Controllers
                 return NotFound(new { Message = "Ticket not found or cancellation request failed." });
             }
         }
+
         [HttpGet("myTickets/{userId}")]
         public IActionResult GetTicketDetailsByUserId(int userId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
@@ -124,6 +207,7 @@ namespace FacilitEase.Controllers
 
             return Ok(ticketDetails);
         }
+
         [HttpGet("GetCategoryByDepartmentId/{departmentId}")]
         public IActionResult GetCategoryByDepartmentId(int departmentId)
         {
@@ -137,6 +221,7 @@ namespace FacilitEase.Controllers
                 return BadRequest("Error processing the request. Please try again later.");
             }
         }
+
         [HttpGet("GetCommentsByTicketId/{ticketId}")]
         public IActionResult GetCommentsByTicketId(int ticketId)
         {
@@ -150,13 +235,12 @@ namespace FacilitEase.Controllers
                 return BadRequest("Error retrieving comments. Please try again later.");
             }
         }
-            [HttpGet("{id}")]
-            public IActionResult GetEmployeeDetails(int id)
-            {
 
-                return Ok(_employeeService.GetEmployeeDetails(id));
-            }
+        [HttpGet("{id}")]
+        public IActionResult GetEmployeeDetails(int id)
+        {
+            return Ok(_employeeService.GetEmployeeDetails(id));
+        }
+
     }
-    
 }
-

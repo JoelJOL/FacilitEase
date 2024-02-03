@@ -1,7 +1,6 @@
 ﻿using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
 using FacilitEase.UnitOfWork;
-using Microsoft.EntityFrameworkCore;
 
 namespace FacilitEase.Services
 {
@@ -15,6 +14,7 @@ namespace FacilitEase.Services
             _unitOfWork = unitOfWork;
             _context = context;
         }
+
         public Report GetReportData(int id)
         {
             Report report = new Report();
@@ -31,6 +31,7 @@ namespace FacilitEase.Services
 
             return report;
         }
+
         public ChartData GetChartData(int id)
         {
             var chartData = new ChartData
@@ -63,7 +64,6 @@ namespace FacilitEase.Services
 
             foreach (var entry in ticketCountsByMonth)
             {
-
                 switch (entry.Month)
                 {
                     case 1: chartData.January = new int[] { entry.ResolvedCount, entry.UnresolvedCount, entry.EscalatedCount }; break;
@@ -81,14 +81,14 @@ namespace FacilitEase.Services
                 }
             }
             return chartData;
-
         }
+
         public ProfileData GetProfileData(int id)
         {
             ProfileData profileData = new ProfileData();
-            profileData.EmpId=(from u in _context.TBL_USER
-                               where u.Id == id
-                               select u.EmployeeId).FirstOrDefault();
+            profileData.EmpId = (from u in _context.TBL_USER
+                                 where u.Id == id
+                                 select u.EmployeeId).FirstOrDefault();
             profileData.EmployeeFirstName = (from p in _context.TBL_EMPLOYEE
                                              join u in _context.TBL_USER on p.Id equals u.EmployeeId
                                              where u.EmployeeId == id
@@ -101,13 +101,13 @@ namespace FacilitEase.Services
 
             profileData.Username = (from u in _context.TBL_USER
                                     where u.Id == id
-                                    select u.Email).FirstOrDefault()?.ToString()??"";
+                                    select u.Email).FirstOrDefault()?.ToString() ?? "";
 
-            profileData.JobTitle= (from p in _context.TBL_POSITION
-                                join ed in _context.TBL_EMPLOYEE_DETAIL on p.Id equals ed.PositionId
-                                join u in _context.TBL_USER on ed.EmployeeId equals u.EmployeeId
-                                where u.EmployeeId == id
-                                select p.PositionName).FirstOrDefault()?.ToString()??"";
+            profileData.JobTitle = (from p in _context.TBL_POSITION
+                                    join ed in _context.TBL_EMPLOYEE_DETAIL on p.Id equals ed.PositionId
+                                    join u in _context.TBL_USER on ed.EmployeeId equals u.EmployeeId
+                                    where u.EmployeeId == id
+                                    select p.PositionName).FirstOrDefault()?.ToString() ?? "";
             return profileData;
         }
     }

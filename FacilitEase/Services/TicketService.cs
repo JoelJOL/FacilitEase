@@ -3,11 +3,10 @@ using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.Repositories;
 using FacilitEase.UnitOfWork;
-using Microsoft.EntityFrameworkCore;
-using System;
 using System.Linq.Dynamic.Core;
-using FacilitEase.Repositories;
 using System.Linq;
+using Microsoft.Net.Http.Headers;
+
 
 namespace FacilitEase.Services
 {
@@ -25,7 +24,14 @@ namespace FacilitEase.Services
             _documentRepository = documentRepository;
             _unitOfWork = unitOfWork;//Avinash
         }
+
         //Avinash
+        /// <summary>
+        /// Changes the status of a ticket.
+        /// </summary>
+        /// <param name="ticketId">The ID of the ticket to change.</param>
+        /// <param name="request">The request containing the new status.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a boolean indicating the success of the operation.</returns>
         public async Task<bool> ChangeTicketStatus(int ticketId, TicketStatusChangeRequest request)
         {
             try
@@ -35,11 +41,14 @@ namespace FacilitEase.Services
                 if (ticket == null)
                     return false;
 
-                var newStatusId = request.IsApproved ? 3 : 2; // Set status based on IsApproved flag
+                // Set status based on IsApproved flag
+                var newStatusId = request.IsApproved ? 2 : 5;
 
                 ticket.StatusId = newStatusId;
 
-                /*_ticketRepository.Update(ticket);*/
+                // Set ControllerId based on IsApproved flag
+                ticket.ControllerId = request.IsApproved ? ticket.AssignedTo : null;
+
                 _unitOfWork.TicketRepository.Update(ticket);
                 _unitOfWork.Complete();
 
@@ -53,7 +62,7 @@ namespace FacilitEase.Services
         }
 
         /// <summary>
-        /// Get - Retrieves a list of tickets raised by the emloyees working under a specific manager and the total number of tickets 
+        /// Get - Retrieves a list of tickets raised by the emloyees working under a specific manager and the total number of tickets
         /// Includes pagination,searching and sorting functionality.
         /// </summary>
         /// <param name="managerId"></param>
@@ -81,6 +90,26 @@ namespace FacilitEase.Services
                             SubmittedDate = ticket.SubmittedDate,
                             Priority = $"{priority.PriorityName}",
                             Status = $"{status.StatusName}",
+                            EmployeeName = _context.TBL_USER
+                        .Where(user => user.Id == ticket.UserId)
+                        .Select(user => _context.TBL_EMPLOYEE
+                            .Where(employee => employee.Id == user.EmployeeId)
+                            .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                            .FirstOrDefault())
+                        .FirstOrDefault(),
+                            AssignedTo = _context.TBL_EMPLOYEE
+                        .Where(employee => employee.Id == ticket.AssignedTo)
+                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                        .FirstOrDefault(),
+                            SubmittedDate = ticket.SubmittedDate,
+                            Priority = _context.TBL_PRIORITY
+                        .Where(priority => priority.Id == ticket.PriorityId)
+                        .Select(priority => $"{priority.PriorityName}")
+                        .FirstOrDefault(),
+                            Status = _context.TBL_STATUS
+                        .Where(status => status.Id == ticket.StatusId)
+                        .Select(status => $"{status.StatusName}")
+                        .FirstOrDefault(),
                         };
 
             var queryList = query.ToList();
@@ -104,8 +133,6 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
-
-
 
         /// <summary>
         /// Get - Retrieves all the data required when the manager accesses the detailed view of a specific employee ticket
@@ -156,7 +183,7 @@ namespace FacilitEase.Services
 
 
         /// <summary>
-        /// Get - Retrieves a list of tickets raised by the emloyees that need approval from the manager and the total number of waiting tickets 
+        /// Get - Retrieves a list of tickets raised by the emloyees that need approval from the manager and the total number of waiting tickets
         /// Includes pagination,searching and sorting functionality.
         /// </summary>
         /// <param name="managerId"></param>
@@ -216,7 +243,7 @@ namespace FacilitEase.Services
         /// <param name="statusId"></param>
         /// <exception cref="InvalidOperationException"></exception>
         public void TicketDecision(int ticketId, int statusId)
-        {   
+        {
             var ticket = _unitOfWork.Ticket.GetById(ticketId);
             if (ticket == null)
             {
@@ -232,7 +259,6 @@ namespace FacilitEase.Services
             }
             _unitOfWork.Complete();
         }
-
 
         /// <summary>
         /// Post - Updates the priority id according to the priority specified by the Manager
@@ -282,11 +308,11 @@ namespace FacilitEase.Services
             _unitOfWork.Complete();
         }
 
-        /// <summary>
+        /// <summary> working
         /// To create a new ticket along with associated documents in the database.
         /// </summary>
         /// <param name="ticketDto"></param>
-        public void CreateTicketWithDocuments(TicketDto ticketDto)
+        /*public void CreateTicketWithDocuments(TicketDto ticketDto)
         {
 
 
@@ -298,7 +324,8 @@ namespace FacilitEase.Services
                 CategoryId = ticketDto.CategoryId,
                 StatusId = 1,
                 CreatedBy = 1,
-                UpdatedBy = 1, 
+                UpdatedBy = 1,
+                UserId = 1,
             };
             _context.Add(ticketEntity);
 
@@ -320,48 +347,156 @@ namespace FacilitEase.Services
 
             _context.SaveChanges();
 
+        }*/
+
+        /*public void CreateTicketWithDocuments(TicketDto ticketDto)
+        {
+            var ticketEntity = new TBL_TICKET
+            {
+                TicketName = ticketDto.TicketName,
+                TicketDescription = ticketDto.TicketDescription,
+                PriorityId = ticketDto.PriorityId,
+                CategoryId = ticketDto.CategoryId,
+                StatusId = 1,
+                CreatedBy = 1,
+                UpdatedBy = 1,
+                UserId = 1,
+            };
+            _context.Add(ticketEntity);
+
+            _context.SaveChanges();
+
+            foreach (var documentLink in ticketDto.DocumentLink)
+            {
+                var documentEntity = new TBL_DOCUMENT
+                {
+                    DocumentLink = documentLink,
+                    TicketId = ticketEntity.Id,
+                    CreatedBy = 1,
+                    UpdatedBy = 1,
+                };
+
+                _documentRepository.Add(documentEntity);
+            }
+
+            _context.SaveChanges();
+
+        }*/
+
+        public void CreateTicketWithDocuments(TicketDto ticketDto, IFormFile file)
+        {
+            // Your existing code for creating a ticket
+            var ticketEntity = new TBL_TICKET
+            {
+                TicketName = ticketDto.TicketName,
+                TicketDescription = ticketDto.TicketDescription,
+                PriorityId = ticketDto.PriorityId,
+                CategoryId = ticketDto.CategoryId,
+                StatusId = 1,
+                CreatedBy = 1,
+                UpdatedBy = 1,
+                UserId = 1,
+            };
+
+            _context.Add(ticketEntity);
+            _context.SaveChanges();
+
+            if (file != null && file.Length > 0)
+            {
+                var folderName = Path.Combine("Resources", "Images");
+                var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.ToString().Trim('"');
+                var fullPath = Path.Combine(folderName, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    file.CopyTo(stream);
+                }
+
+                byte[] fileBytes;
+                using (var memoryStream = new MemoryStream())
+                {
+                    file.CopyTo(memoryStream);
+                    fileBytes = memoryStream.ToArray();
+                }
+
+                var documentEntity = new TBL_DOCUMENT
+                {
+                    DocumentLink = fileBytes,
+                    TicketId = ticketEntity.Id,
+                    CreatedBy = 1,
+                    UpdatedBy = 1,
+                };
+
+                _documentRepository.Add(documentEntity);
+                _context.SaveChanges();
+            }
         }
+
         /// <summary>
         /// retrieve detailed information about a specific ticket
         /// </summary>
         /// <param name="desiredTicketId"></param>
         /// <returns></returns>
         public TicketDetails GetTicketDetails(int desiredTicketId)
-            {
-                         var ticketDetails = (from ticket in _context.TBL_TICKET
-                         join user in _context.TBL_USER on ticket.UserId equals user.Id
-                         join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
-                         join employeeDetail in _context.TBL_EMPLOYEE_DETAIL on employee.Id equals employeeDetail.EmployeeId
-                         join location in _context.TBL_LOCATION on employeeDetail.LocationId equals location.Id
-                         join department in _context.TBL_DEPARTMENT on employeeDetail.DepartmentId equals department.Id
-                         join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
-                         join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
-                         join document in _context.TBL_DOCUMENT on ticket.Id equals document.TicketId
-                         join project in _context.TBL_PROJECT_EMPLOYEE_MAPPING on employee.Id equals project.EmployeeId
-                         join projectcode in _context.TBL_PROJECT_CODE_GENERATION on project.ProjectId equals projectcode.ProjectId
-                         join manager in _context.TBL_EMPLOYEE on employee.ManagerId equals manager.Id into managerJoin
-                         from manager in managerJoin.DefaultIfEmpty()
-                         where ticket.Id == desiredTicketId
-                         select new TicketDetails
-                         {
-                             Id = ticket.Id,
-                             TicketName = ticket.TicketName,
-                             TicketDescription = ticket.TicketDescription,
-                             StatusName = status.StatusName,
-                             PriorityName = priority.PriorityName,
-                             SubmittedDate = ticket.SubmittedDate,
-                             RaisedEmployeeName = $"{employee.FirstName} {employee.LastName}",
-                             ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : null,
-                             ManagerId = employee.ManagerId,
-                             LocationName = location.LocationName,
-                             DeptName = department.DeptName,
-                             DocumentLink = document.DocumentLink,
-                             ProjectCode = projectcode.ProjectCode
-                         })
-                         .FirstOrDefault();
+        {
+            var ticketDetailsList = (from ticket in _context.TBL_TICKET
+                                     join user in _context.TBL_USER on ticket.UserId equals user.Id
+                                 join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
+                                 join employeeDetail in _context.TBL_EMPLOYEE_DETAIL on employee.Id equals employeeDetail.EmployeeId
+                                 join location in _context.TBL_LOCATION on employeeDetail.LocationId equals location.Id
+                                 join department in _context.TBL_DEPARTMENT on employeeDetail.DepartmentId equals department.Id
+                                 join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
+                                 join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
+                                 join document in _context.TBL_DOCUMENT on ticket.Id equals document.TicketId
+                                 join project in _context.TBL_PROJECT_EMPLOYEE_MAPPING on employee.Id equals project.EmployeeId
+                                 join projectcode in _context.TBL_PROJECT_CODE_GENERATION on project.ProjectId equals projectcode.ProjectId
+                                 join manager in _context.TBL_EMPLOYEE on employee.ManagerId equals manager.Id into managerJoin
+                                 from manager in managerJoin.DefaultIfEmpty()
+                                     where ticket.Id == desiredTicketId
+                                     select new TicketDetails
+                                     {
+                                         Id = ticket.Id,
+                                         TicketName = ticket.TicketName,
+                                         TicketDescription = ticket.TicketDescription,
+                                         StatusName = status.StatusName,
+                                         PriorityName = priority.PriorityName,
+                                         SubmittedDate = ticket.SubmittedDate,
+                                         RaisedEmployeeName = $"{employee.FirstName} {employee.LastName}",
+                                         ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : null,
+                                         ManagerId = employee.ManagerId,
+                                         LocationName = location.LocationName,
+                                         DeptName = department.DeptName,
+                                         DocumentLink = document.DocumentLink,
+                                     })
+        .ToList();  // Materialize the main query first
+            Console.WriteLine(ticketDetailsList);
+            var ticketDetails = ticketDetailsList.FirstOrDefault();
 
-    return ticketDetails;
-}
+            // Now execute subqueries separately
+            if (ticketDetails != null)
+            {
+                ticketDetails.Notes = _context.TBL_COMMENT
+                    .Where(comment => comment.TicketId == desiredTicketId && comment.Category == "Note")
+                    .Select(comment => comment.Text)
+                    .FirstOrDefault();
+
+                ticketDetails.LastUpdate = _context.TBL_COMMENT
+                    .Where(comment => comment.TicketId == desiredTicketId)
+                    .OrderByDescending(comment => comment.UpdatedDate)
+                    .Select(comment =>
+                        (comment.UpdatedDate != null)
+                            ? (DateTime.Now - comment.UpdatedDate).TotalMinutes < 60
+                                ? $"{(int)(DateTime.Now - comment.UpdatedDate).TotalMinutes}M"
+                                : (DateTime.Now - comment.UpdatedDate).TotalHours < 24
+                                    ? $"{(int)(DateTime.Now - comment.UpdatedDate).TotalHours}H"
+                                    : $"{(int)(DateTime.Now - comment.UpdatedDate).TotalDays}D"
+                            : null
+                    )
+                    .FirstOrDefault();
+            }
+
+            return ticketDetails;
+        }
 
         /// <summary>
         /// retrieve unassigned tickets with optional search criteria
@@ -411,7 +546,7 @@ namespace FacilitEase.Services
             // Apply Pagination
             var totalCount = queryList.Count();
             queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
-            
+
             // Return the result in the ManagerTicketResponse format
             return new ManagerTicketResponse<UnassignedTicketModel>
             {
@@ -430,25 +565,23 @@ namespace FacilitEase.Services
             try
             {
                 Console.WriteLine($"AssignTicketToAgent called with ticketId: {ticketId}, agentId: {agentId}");
-                
-                    // Find the ticket by ID
-                    var ticket = _context.TBL_TICKET.FirstOrDefault(t => t.Id == ticketId);
 
-                    if (ticket != null)
-                    {
-                        // Assign the ticket to the agent
-                        ticket.AssignedTo = agentId;
-                        ticket.UpdatedDate = DateTime.Now;
+                // Find the ticket by ID
+                var ticket = _context.TBL_TICKET.FirstOrDefault(t => t.Id == ticketId);
 
-                        // Update the status to "In Progress"
-                        ticket.StatusId = 2;
+                if (ticket != null)
+                {
+                    // Assign the ticket to the agent
+                    ticket.AssignedTo = agentId;
+                    ticket.UpdatedDate = DateTime.Now;
 
-                        _context.SaveChanges();
+                    // Update the status to "In Progress"
+                    ticket.StatusId = 2;
 
-                        Console.WriteLine($"Ticket {ticketId} assigned to agent {agentId} successfully.");
-                    }
-                    
-         
+                    _context.SaveChanges();
+
+                    Console.WriteLine($"Ticket {ticketId} assigned to agent {agentId} successfully.");
+                }
                 else
                 {
                     Console.WriteLine($"Agent not found with ID: {agentId}");
@@ -457,7 +590,7 @@ namespace FacilitEase.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Exception: {ex.Message}");
-                throw; 
+                throw;
             }
         }
 
@@ -521,7 +654,7 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
-        
+
         /// <summary>
         /// retrieve escalated tickets with optional search criteria
         /// </summary>
@@ -581,7 +714,111 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
-    }
 
-    
+        //me
+        /// <summary>
+        /// Retrieves the details of a ticket for a department head or manager.
+        /// </summary>
+        /// <param name="ticketId">The ID of the ticket to retrieve.</param>
+        /// <returns>A DepartmentHeadManagerTicketDetails object containing the detailed ticket view on selecting a particular ticket</returns>
+        public DepartmentHeadManagerTicketDetails DHTicketDetails(int ticketId)
+        {
+            var ticket = _context.TBL_TICKET
+                .Where(t => t.Id == ticketId)
+                .Select(t => new DepartmentHeadManagerTicketDetails
+                {
+                    Id = t.Id,
+                    TicketName = t.TicketName,
+                    EmployeeName = _context.TBL_USER
+                        .Where(user => user.Id == t.UserId)
+                        .Select(user => _context.TBL_EMPLOYEE
+                            .Where(employee => employee.Id == user.EmployeeId)
+                            .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                            .FirstOrDefault())
+                        .FirstOrDefault(),
+                    AssignedTo = _context.TBL_EMPLOYEE
+                        .Where(employee => employee.Id == t.AssignedTo)
+                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                        .FirstOrDefault(),
+                    SubmittedDate = t.SubmittedDate,
+                    priorityName = _context.TBL_PRIORITY
+                        .Where(priority => priority.Id == t.PriorityId)
+                        .Select(priority => priority.PriorityName)
+                        .FirstOrDefault(),
+                    statusName = _context.TBL_STATUS
+                        .Where(status => status.Id == t.StatusId)
+                        .Select(status => status.StatusName)
+                        .FirstOrDefault(),
+                    TicketDescription = t.TicketDescription,
+                    DocumentLink = string.Join(", ", _context.TBL_DOCUMENT
+                        .Where(documents => documents.TicketId == t.Id)
+                        .Select(document => document.DocumentLink)
+                        .ToList())
+                })
+                .FirstOrDefault();
+
+            return ticket;
+        }
+
+        /// <summary>
+        /// Retrieves a paginated list of tickets for approval by a department head.
+        /// </summary>
+        /// <param name="departmentHeadId">The ID of the department head.</param>
+        /// <param name="sortField">The field to sort the tickets by.</param>
+        /// <param name="sortOrder">The order to sort the tickets in.</param>
+        /// <param name="pageIndex">The index of the page to retrieve.</param>
+        /// <param name="pageSize">The size of the page to retrieve.</param>
+        /// <param name="searchQuery">The query to filter the tickets by.</param>
+        /// <returns>A DepartmentHeadTicketResponse object containing the paginated list of tickets and the total count of tickets.</returns>
+        public DepartmentHeadTicketResponse<DepartmentHeadManagerTickets> DHGetApprovalTicket(int departmentHeadId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
+        {
+            var tickets = _context.TBL_TICKET
+                .Where(ticket => ticket.ControllerId == departmentHeadId)
+                .Where(ticket => string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery))
+                .Select(ticket => new DepartmentHeadManagerTickets
+                {
+                    Id = ticket.Id,
+                    TicketName = ticket.TicketName,
+                    EmployeeName = _context.TBL_USER
+                        .Where(user => user.Id == ticket.UserId)
+                        .Select(user => _context.TBL_EMPLOYEE
+                            .Where(employee => employee.Id == user.EmployeeId)
+                            .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                            .FirstOrDefault())
+                        .FirstOrDefault(),
+                    AssignedTo = _context.TBL_EMPLOYEE
+                        .Where(employee => employee.Id == ticket.AssignedTo)
+                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                        .FirstOrDefault(),
+                    SubmittedDate = ticket.SubmittedDate,
+                    Priority = _context.TBL_PRIORITY
+                        .Where(priority => priority.Id == ticket.PriorityId)
+                        .Select(priority => $"{priority.PriorityName}")
+                        .FirstOrDefault(),
+                    Status = _context.TBL_STATUS
+                        .Where(status => status.Id == ticket.StatusId)
+                        .Select(status => $"{status.StatusName}")
+                        .FirstOrDefault(),
+                });
+
+            var queryList = tickets.ToList();
+
+            // Apply Sorting
+            if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
+            {
+                string orderByString = $"{sortField} {sortOrder}";
+                queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
+            }
+
+            // Apply Pagination
+            var totalCount = queryList.Count();
+            queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+            return new DepartmentHeadTicketResponse<DepartmentHeadManagerTickets>
+            {
+                Data = queryList,
+                TotalDataCount = totalCount
+            };
+        }
+    }
 }

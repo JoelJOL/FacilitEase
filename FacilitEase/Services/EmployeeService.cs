@@ -1,16 +1,11 @@
 using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
-using FacilitEase.Repositories;
-using FacilitEase.Services;
 using FacilitEase.UnitOfWork;
-using Microsoft.OpenApi.Models;
-using System;
 using System.Diagnostics;
 
 namespace FacilitEase.Services
 {
-
     public class EmployeeService : IEmployeeService
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -22,12 +17,18 @@ namespace FacilitEase.Services
             _context = context;
         }
 
+        /// <summary>
+        /// Adds a list of employees to the database.
+        /// </summary>
         public void AddEmployees(IEnumerable<EmployeeInputModel> employeeInputs, params EmployeeInputModel[] additionalEmployeeInputs)
         {
+            /// <param name="employeeInputs">The list of employees to add.</param>
+            /// <param name="additionalEmployeeInputs">Additional employees to add.</param>
             if (employeeInputs == null || !employeeInputs.Any())
             {
                 throw new ArgumentException("Employee input data is null or empty.", nameof(employeeInputs));
             }
+
             try
             {
                 // Combine the two collections if needed
@@ -39,26 +40,46 @@ namespace FacilitEase.Services
                     EmployeeCode = employeeInput.EmployeeCode,
                     FirstName = employeeInput.FirstName,
                     LastName = employeeInput.LastName,
-                    DOB = employeeInput.DOB,
+                    DOB = new DateOnly(employeeInput.DOB.Year, employeeInput.DOB.Month, employeeInput.DOB.Day),
                     Email = employeeInput.Email,
                     Gender = employeeInput.Gender,
                     ManagerId = employeeInput.ManagerId,
                     // Map other properties as needed
                 }).ToList();
 
-                // Add additional business logic if needed before calling the repository
+                // Add additional business logic if needed before calling the repositories
                 _unitOfWork.EmployeeRepository.AddRange(employeeEntities);
+                _unitOfWork.Complete();
+
+                // Use the employeeEntities directly
+                var addedEmployees = employeeEntities;
+
+                // Map the input models to TBL_EMPLOYEE_DETAIL entities
+                var employeeDetailEntities = allEmployeeInputs.Select(employeeInput => new TBL_EMPLOYEE_DETAIL
+                {
+                    EmployeeId = addedEmployees.Single(e => e.EmployeeCode == employeeInput.EmployeeCode).Id,
+                    DepartmentId = employeeInput.DepartmentId,
+                    PositionId = employeeInput.PositionId,
+                    LocationId = employeeInput.LocationId,
+                }).ToList();
+
+                // Add additional business logic if needed before calling the repository
+                _unitOfWork.EmployeeDetailRepository.AddRange(employeeDetailEntities);
                 _unitOfWork.Complete();
             }
             catch (Exception ex)
             {
-                // Log the exception details or print to console for debugging
+                // Log and handle exceptions as needed
                 Debug.WriteLine($"Error in AddEmployees: {ex.Message}");
-                // Log or print the inner exception details
                 Debug.WriteLine($"Inner exception: {ex.InnerException?.Message}");
-                throw; // Re-throw the exception to propagate it up the call stack
+                throw;
             }
         }
+
+        /// <summary>
+        /// Deletes an employee from the database.
+        /// </summary>
+        /// <param name="id">The ID of the employee to delete.</param>
         public void DeleteEmployee(int id)
         {
             try
@@ -70,7 +91,6 @@ namespace FacilitEase.Services
                     throw new KeyNotFoundException($"Employee with ID {id} not found.");
                 }
 
-                // Add additional business logic if needed before calling the repository
                 _unitOfWork.EmployeeRepository.Delete(employee);
                 _unitOfWork.Complete();
             }
@@ -85,6 +105,45 @@ namespace FacilitEase.Services
         }
 
         /// <summary>
+        /// Retrieves all positions from the database.
+        /// </summary>
+        /// <returns>A list of all positions.</returns>
+        public IEnumerable<TBL_POSITION> GetPositions()
+        {
+            try
+            {
+                // Logic to retrieve positions from the repository
+                return _unitOfWork.Position.GetAll();
+            }
+            catch (Exception ex)
+            {
+                // Log and handle exceptions as needed
+                Debug.WriteLine($"Error in GetPositions: {ex.Message}");
+                Debug.WriteLine($"Inner exception: {ex.InnerException?.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Retrieves all locations from the database.
+        /// </summary>
+        /// <returns>A list of all locations.</returns>
+        public IEnumerable<TBL_LOCATION> GetLocations()
+        {
+            try
+            {
+                // Logic to retrieve locations from the repository
+                return _unitOfWork.Location.GetAll();
+            }
+            catch (Exception ex)
+            {
+                // Log and handle exceptions as needed
+                Debug.WriteLine($"Error in GetLocations: {ex.Message}");
+                Debug.WriteLine($"Inner exception: {ex.InnerException?.Message}");
+                throw;
+            }
+        }
+
         /// retrieve subordinate employees based on the provided managerId
         /// </summary>
         /// <param name="managerId"></param>
@@ -108,7 +167,6 @@ namespace FacilitEase.Services
                         Department = _context.TBL_DEPARTMENT.FirstOrDefault(d => d.Id == employeeDetail.DepartmentId).DeptName,
                         Position = _context.TBL_POSITION.FirstOrDefault(p => p.Id == employeeDetail.PositionId).PositionName,
                         Location = _context.TBL_LOCATION.FirstOrDefault(l => l.Id == employeeDetail.LocationId).LocationName
-
                     })
                 .ToList();
 
@@ -179,7 +237,7 @@ namespace FacilitEase.Services
                     EmployeeCode = emp.EmployeeCode.ToString(),
                     FirstName = emp.FirstName,
                     LastName = emp.LastName,
-                    DOB = emp.DOB,
+                    DOB = emp.DOB.ToString("dd-MM-yyyy"),
                     Email = emp.Email,
                     Gender = emp.Gender
                 })
@@ -187,20 +245,26 @@ namespace FacilitEase.Services
 
             return agentDetails;
         }
+
         public IEnumerable<EmployeeDetails> GetEmployeeDetails(int empId)
         {
             var employeeDetails = from employee in _context.TBL_EMPLOYEE
                                   join user in _context.TBL_USER on employee.Id equals user.EmployeeId
+                                  join ur in _context.TBL_USER_ROLE_MAPPING on user.Id equals ur.UserId
                                   where employee.Id == empId
                                   select new EmployeeDetails
                                   {
                                       EmployeeName = employee.FirstName + " " + employee.LastName,
-                                      DOB = employee.DOB,
+                                      DOB = employee.DOB.ToString("dd-MM-yyyy"),
                                       Gender = employee.Gender,
-                                      Username = user.Email
+                                      Username = user.Email,
+                                      Roles = (from role in _context.TBL_USER_ROLE
+                                               join userRole in _context.TBL_USER_ROLE_MAPPING on role.Id equals userRole.UserRoleId
+                                               where userRole.UserId == user.Id
+                                               select role.UserRoleName).ToArray()
                                   };
+
             return employeeDetails;
         }
-
     }
 }
