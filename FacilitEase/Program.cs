@@ -16,7 +16,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowLocalhost", builder =>
+    options.AddPolicy("AllowAngularDev", builder =>
     {
         builder.WithOrigins("http://localhost:4200")
                .AllowAnyHeader()
