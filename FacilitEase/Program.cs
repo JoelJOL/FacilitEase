@@ -67,9 +67,11 @@ builder.Services.Configure<FormOptions>(o =>
 });
 
 builder.Services.AddScoped<MailJetService>();
+builder.Services.AddHostedService<EscalationHostedService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(); ;
+
 
 var app = builder.Build();
 

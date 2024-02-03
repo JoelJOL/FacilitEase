@@ -42,7 +42,6 @@ namespace FacilitEase.Controllers
             var departments = _departmentService.GetDepartments();
             return Ok(departments);
         }
-
         [HttpGet("positions")]
         public ActionResult<IEnumerable<TBL_POSITION>> GetPositions()
         {
@@ -242,5 +241,6 @@ namespace FacilitEase.Controllers
         {
             return Ok(_employeeService.GetEmployeeDetails(id));
         }
+
     }
 }

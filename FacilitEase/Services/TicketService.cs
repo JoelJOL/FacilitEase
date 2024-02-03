@@ -77,12 +77,19 @@ namespace FacilitEase.Services
             var query = from ticket in _context.TBL_TICKET
                         join user in _context.TBL_USER on ticket.UserId equals user.Id
                         join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
+                        join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
+                        join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
                         where employee.ManagerId == managerId
                         where string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery)
                         select new ManagerEmployeeTickets
                         {
                             Id = ticket.Id,
                             TicketName = ticket.TicketName,
+                            EmployeeName = $"{employee.FirstName} {employee.LastName}",
+                            AssignedTo = $"{_context.TBL_EMPLOYEE.Where(emp => emp.Id == ticket.AssignedTo).Select(emp => $"{emp.FirstName} {emp.LastName}").FirstOrDefault()}",
+                            SubmittedDate = ticket.SubmittedDate,
+                            Priority = $"{priority.PriorityName}",
+                            Status = $"{status.StatusName}",
                             EmployeeName = _context.TBL_USER
                         .Where(user => user.Id == ticket.UserId)
                         .Select(user => _context.TBL_EMPLOYEE
@@ -115,8 +122,10 @@ namespace FacilitEase.Services
             }
 
             // Apply Pagination
-            var totalCount = queryList.Count();
+            var totalCount = query.Count();
             queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+
 
             return new ManagerTicketResponse<ManagerEmployeeTickets>
             {
@@ -132,60 +141,46 @@ namespace FacilitEase.Services
         /// <returns></returns>
         public ManagerEmployeeTicketDetailed ViewTicketDetails(int ticketId)
         {
-            var ticket = _context.TBL_TICKET
-                .Where(t => t.Id == ticketId)
-                .Select(t => new ManagerEmployeeTicketDetailed
-                {
-                    Id = t.Id,
-                    TicketName = t.TicketName,
-                    EmployeeName = _context.TBL_USER
-                        .Where(user => user.Id == t.UserId)
-                        .Select(user => _context.TBL_EMPLOYEE
-                            .Where(employee => employee.Id == user.EmployeeId)
-                            .Select(employee => $"{employee.FirstName} {employee.LastName}")
-                            .FirstOrDefault())
-                        .FirstOrDefault(),
-                    AssignedTo = _context.TBL_EMPLOYEE
-                        .Where(employee => employee.Id == t.AssignedTo)
-                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
-                        .FirstOrDefault(),
-                    SubmittedDate = t.SubmittedDate,
-                    priorityName = _context.TBL_PRIORITY
-                        .Where(priority => priority.Id == t.PriorityId)
-                        .Select(priority => priority.PriorityName)
-                        .FirstOrDefault(),
-                    statusName = _context.TBL_STATUS
-                        .Where(status => status.Id == t.StatusId)
-                        .Select(status => status.StatusName)
-                        .FirstOrDefault(),
-                    Notes = _context.TBL_COMMENT                           //retrieves the notes associated with the ticket from comments table
-                        .Where(comment => comment.TicketId == ticketId)
-                        .Where(comment => comment.Category == "Note")
-                        .Select(comment => comment.Text)
-                        .FirstOrDefault(),
-                    LastUpdate = _context.TBL_COMMENT                      //retrieves the difference between current datetime and datetime where notes of the ticket was last updated
-                        .Where(comment => comment.TicketId == ticketId)
-                        .OrderByDescending(comment => comment.UpdatedDate)
-                        .Select(comment =>
-                        (comment.UpdatedDate != null)
-                        ? (DateTime.Now - comment.UpdatedDate).TotalMinutes < 60
-                        ? $"{(int)(DateTime.Now - comment.UpdatedDate).TotalMinutes}M"
-                        : (DateTime.Now - comment.UpdatedDate).TotalHours < 24
-                        ? $"{(int)(DateTime.Now - comment.UpdatedDate).TotalHours}H"
-                        : $"{(int)(DateTime.Now - comment.UpdatedDate).TotalDays}D"
-                        : null
-                    )
-                     .FirstOrDefault(),
-                    TicketDescription = t.TicketDescription,
-                    DocumentLink = string.Join(", ", _context.TBL_DOCUMENT
-                        .Where(documents => documents.TicketId == t.Id)
-                        .Select(document => document.DocumentLink)
-                        .ToList())
-                })
-                .FirstOrDefault();
+            var ticket = from t in _context.TBL_TICKET
+                         join u in _context.TBL_USER on t.UserId equals u.Id
+                         join e in _context.TBL_EMPLOYEE on u.EmployeeId equals e.Id
+                         join p in _context.TBL_PRIORITY on t.PriorityId equals p.Id
+                         join s in _context.TBL_STATUS on t.StatusId equals s.Id
+                         where t.Id == ticketId
+                         select new ManagerEmployeeTicketDetailed
+                         {
+                             Id = t.Id,
+                             TicketName = t.TicketName,
+                             EmployeeName = $"{e.FirstName} {e.LastName}",
+                             AssignedTo = $"{_context.TBL_EMPLOYEE.Where(emp => emp.Id == t.AssignedTo).Select(emp => $"{emp.FirstName} {emp.LastName}").FirstOrDefault()}",
+                             SubmittedDate = t.SubmittedDate,
+                             priorityName = p.PriorityName,
+                             statusName = s.StatusName,
+                             Notes = _context.TBL_COMMENT
+                                 .Where(comment => comment.TicketId == ticketId && comment.Category == "Note")
+                                 .Select(comment => comment.Text)
+                                 .FirstOrDefault(),
+                             LastUpdate = _context.TBL_COMMENT
+                                 .Where(comment => comment.TicketId == ticketId)
+                                 .OrderByDescending(comment => comment.UpdatedDate)
+                                 .Select(comment => (comment.UpdatedDate != null)
+                                     ? (DateTime.Now - comment.UpdatedDate).TotalMinutes < 60
+                                         ? $"{(int)(DateTime.Now - comment.UpdatedDate).TotalMinutes}M ago"
+                                         : (DateTime.Now - comment.UpdatedDate).TotalHours < 24
+                                             ? $"{(int)(DateTime.Now - comment.UpdatedDate).TotalHours}H ago"
+                                             : $"{(int)(DateTime.Now - comment.UpdatedDate).TotalDays}D ago"
+                                     : null)
+                                 .FirstOrDefault(),
+                             TicketDescription = t.TicketDescription,
+                             DocumentLink = string.Join(", ", _context.TBL_DOCUMENT
+                                 .Where(documents => documents.TicketId == t.Id)
+                                 .Select(document => document.DocumentLink)
+                                 .ToList())
+                         };
 
-            return ticket;
+            return ticket.FirstOrDefault();
         }
+
 
         /// <summary>
         /// Get - Retrieves a list of tickets raised by the emloyees that need approval from the manager and the total number of waiting tickets
@@ -200,36 +195,24 @@ namespace FacilitEase.Services
         /// <returns></returns>
         public ManagerTicketResponse<ManagerEmployeeTickets> GetApprovalTicket(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
-            var tickets = _context.TBL_TICKET
-            .Where(ticket => ticket.ControllerId == managerId)
-            .Where(ticket => string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery))
-            .Select(ticket => new ManagerEmployeeTickets
-            {
-                Id = ticket.Id,
-                TicketName = ticket.TicketName,
-                EmployeeName = _context.TBL_USER
-                    .Where(user => user.Id == ticket.UserId)
-                    .Select(user => _context.TBL_EMPLOYEE
-                    .Where(employee => employee.Id == user.EmployeeId)
-                    .Select(employee => $"{employee.FirstName} {employee.LastName}")
-                    .FirstOrDefault())
-                .FirstOrDefault(),
-                AssignedTo = _context.TBL_EMPLOYEE
-                .Where(employee => employee.Id == ticket.AssignedTo)
-                .Select(employee => $"{employee.FirstName} {employee.LastName}")
-                    .FirstOrDefault(),
-                SubmittedDate = ticket.SubmittedDate,
-                Priority = _context.TBL_PRIORITY
-                .Where(priority => priority.Id == ticket.PriorityId)
-                .Select(priority => $"{priority.PriorityName}")
-                .FirstOrDefault(),
-                Status = _context.TBL_STATUS
-                .Where(status => status.Id == ticket.StatusId)
-                .Select(status => $"{status.StatusName}")
-                .FirstOrDefault(),
-            });
-
-            var queryList = tickets.ToList();
+            var query = from ticket in _context.TBL_TICKET
+                        join user in _context.TBL_USER on ticket.UserId equals user.Id
+                        join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
+                        join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
+                        join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
+                        where ticket.ControllerId == managerId
+                        where string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery)
+                        select new ManagerEmployeeTickets
+                        {
+                            Id = ticket.Id,
+                            TicketName = ticket.TicketName,
+                            EmployeeName = $"{employee.FirstName} {employee.LastName}",
+                            AssignedTo = $"{_context.TBL_EMPLOYEE.Where(emp => emp.Id == ticket.AssignedTo).Select(emp => $"{emp.FirstName} {emp.LastName}").FirstOrDefault()}",
+                            SubmittedDate = ticket.SubmittedDate,
+                            Priority = $"{priority.PriorityName}",
+                            Status = $"{status.StatusName}",
+                        };
+            var queryList = query.ToList();
 
             // Apply Sorting
             if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
@@ -239,8 +222,10 @@ namespace FacilitEase.Services
             }
 
             // Apply Pagination
-            var totalCount = queryList.Count();
+            var totalCount = query.Count();
             queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+            
 
             return new ManagerTicketResponse<ManagerEmployeeTickets>
             {
@@ -248,6 +233,7 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
+
 
         /// <summary>
         /// Post - Decides whether the ticket needs to be accepted or rejected
