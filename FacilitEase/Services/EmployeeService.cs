@@ -250,7 +250,7 @@ namespace FacilitEase.Services
                     EmployeeCode = emp.EmployeeCode.ToString(),
                     FirstName = emp.FirstName,
                     LastName = emp.LastName,
-                    DOB = emp.DOB,
+                    DOB = emp.DOB.ToString("dd-MM-yyyy"),
                     Email = emp.Email,
                     Gender = emp.Gender
                 })
