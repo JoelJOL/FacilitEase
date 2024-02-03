@@ -6,8 +6,7 @@ namespace FacilitEase.Models.EntityModels
     {
         [Key]
         public int Id { get; set; }
-
-        public string DocumentLink { get; set; }
+        public byte[] DocumentLink { get; set; } 
         public int TicketId { get; set; }
         public int CreatedBy { get; set; }
         public int UpdatedBy { get; set; }

@@ -29,6 +29,7 @@ namespace FacilitEase.Services
                         join ts in _context.TBL_STATUS on t.StatusId equals ts.Id
                         join tp in _context.TBL_PRIORITY on t.PriorityId equals tp.Id
                         join u in _context.TBL_USER on t.AssignedTo equals u.Id
+                        join e in _context.TBL_EMPLOYEE on u.Id equals e.Id
                         where t.UserId == userId
                         where string.IsNullOrEmpty(searchQuery) || t.TicketName.Contains(searchQuery)
                         select new TicketDetailsDto
@@ -36,9 +37,9 @@ namespace FacilitEase.Services
                             Id = t.Id,
                             TicketName = t.TicketName,
                             TicketDescription = t.TicketDescription,
-                            StatusId = ts.StatusName,
-                            AssignedTo = u.Email,
-                            PriorityId = tp.PriorityName
+                            Status = ts.StatusName,
+                            AssignedTo = e.FirstName,
+                            Priority = tp.PriorityName
                         };
 
             var queryList = query.ToList();

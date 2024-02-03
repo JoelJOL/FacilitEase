@@ -17,7 +17,7 @@
         public string ManagerName { get; set; }
         public string DeptName { get; set; }
         public int? ManagerId { get; set; }
-        public string DocumentLink { get; set; }
-        public int ProjectCode { get; set; }
+        public required byte[] DocumentLink { get; set; }
+        public required int ProjectCode { get; set;}
     }
 }
