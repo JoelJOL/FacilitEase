@@ -5,6 +5,8 @@ namespace FacilitEase.Repositories
 {
     public class PriorityRepository : Repository<TBL_PRIORITY>, IPriorityRepository
     {
-        public PriorityRepository(AppDbContext context) : base(context) { }
+        public PriorityRepository(AppDbContext context) : base(context)
+        {
+        }
     }
 }

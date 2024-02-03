@@ -1,13 +1,10 @@
 ﻿using FacilitEase.Models.ApiModels;
-using FacilitEase.Models.EntityModels;
 using FacilitEase.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FacilitEase.Controllers
 {
-
     [EnableCors("AllowAngularDev")]
     [ApiController]
     [Route("api/[controller]")]
@@ -20,8 +17,6 @@ namespace FacilitEase.Controllers
             _adminService = adminService;
         }
 
-
-
         public class ApiResponse
         {
             public string Message { get; set; }
@@ -32,7 +27,6 @@ namespace FacilitEase.Controllers
         {
             _adminService.CloseTicket(ticketId);
             return Ok(new ApiResponse { Message = $"Ticket {ticketId} resolved successfully." });
-
         }
 
         [HttpGet("forward-ticket/{ticketId}/{managerId}")]
@@ -89,7 +83,6 @@ namespace FacilitEase.Controllers
             }
         }
 
-
         [HttpGet("ticketdetail-by-agent/{ticketId}")]
         public IActionResult GetTicketDetailByAgent([FromRoute] int ticketId)
         {
@@ -105,7 +98,6 @@ namespace FacilitEase.Controllers
             }
             catch (Exception ex)
             {
-
                 return StatusCode(500, "Error retrieving ticket details");
             }
         }
@@ -138,7 +130,6 @@ namespace FacilitEase.Controllers
             }
         }
 
-
         [HttpGet("escalted-tickets-by-agent/{agentId}")]
         public IActionResult GetEscalatedTicketsByAgent([FromRoute] int agentId)
         {
@@ -154,13 +145,8 @@ namespace FacilitEase.Controllers
             }
             catch (Exception ex)
             {
-
                 return StatusCode(500, "Error retrieving ticket details");
             }
         }
-
-
-
-
     }
 }

@@ -3,11 +3,7 @@ using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.Repositories;
 using FacilitEase.UnitOfWork;
-using Microsoft.EntityFrameworkCore;
-using System;
 using System.Linq.Dynamic.Core;
-using FacilitEase.Repositories;
-using System.Linq;
 
 namespace FacilitEase.Services
 {
@@ -25,6 +21,7 @@ namespace FacilitEase.Services
             _documentRepository = documentRepository;
             _unitOfWork = unitOfWork;//Avinash
         }
+
         //Avinash
         /// <summary>
         /// Changes the status of a ticket.
@@ -62,7 +59,7 @@ namespace FacilitEase.Services
         }
 
         /// <summary>
-        /// Get - Retrieves a list of tickets raised by the emloyees working under a specific manager and the total number of tickets 
+        /// Get - Retrieves a list of tickets raised by the emloyees working under a specific manager and the total number of tickets
         /// Includes pagination,searching and sorting functionality.
         /// </summary>
         /// <param name="managerId"></param>
@@ -124,7 +121,6 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
-
 
         /// <summary>
         /// Get - Retrieves all the data required when the manager accesses the detailed view of a specific employee ticket
@@ -189,7 +185,7 @@ namespace FacilitEase.Services
         }
 
         /// <summary>
-        /// Get - Retrieves a list of tickets raised by the emloyees that need approval from the manager and the total number of waiting tickets 
+        /// Get - Retrieves a list of tickets raised by the emloyees that need approval from the manager and the total number of waiting tickets
         /// Includes pagination,searching and sorting functionality.
         /// </summary>
         /// <param name="managerId"></param>
@@ -275,7 +271,6 @@ namespace FacilitEase.Services
             _unitOfWork.Complete();
         }
 
-
         /// <summary>
         /// Post - Updates the priority id according to the priority specified by the Manager
         /// </summary>
@@ -330,8 +325,6 @@ namespace FacilitEase.Services
         /// <param name="ticketDto"></param>
         public void CreateTicketWithDocuments(TicketDto ticketDto)
         {
-
-
             var ticketEntity = new TBL_TICKET
             {
                 TicketName = ticketDto.TicketName,
@@ -345,7 +338,6 @@ namespace FacilitEase.Services
             _context.Add(ticketEntity);
 
             _context.SaveChanges();
-
 
             foreach (var documentLink in ticketDto.DocumentLink)
             {
@@ -361,8 +353,8 @@ namespace FacilitEase.Services
             }
 
             _context.SaveChanges();
-
         }
+
         /// <summary>
         /// retrieve detailed information about a specific ticket
         /// </summary>
@@ -513,8 +505,6 @@ namespace FacilitEase.Services
 
                     Console.WriteLine($"Ticket {ticketId} assigned to agent {agentId} successfully.");
                 }
-
-
                 else
                 {
                     Console.WriteLine($"Agent not found with ID: {agentId}");
@@ -647,6 +637,7 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
+
         //me
         /// <summary>
         /// Retrieves the details of a ticket for a department head or manager.
@@ -751,9 +742,6 @@ namespace FacilitEase.Services
                 Data = queryList,
                 TotalDataCount = totalCount
             };
-
         }
-
-
     }
 }

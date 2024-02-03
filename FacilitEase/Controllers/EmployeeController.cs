@@ -1,10 +1,7 @@
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.Services;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-
 
 namespace FacilitEase.Controllers
 {
@@ -19,6 +16,7 @@ namespace FacilitEase.Controllers
         private readonly IEmployeeService _employeeService;
         private readonly ITicketDetailsService _ticketDetailsService;
         private readonly ICommentService _commentService;
+
         public EmployeeController(IDepartmentService departmentService,
             ICategoryService categoryService,
             IPriorityService priorityService,
@@ -42,6 +40,7 @@ namespace FacilitEase.Controllers
             var departments = _departmentService.GetDepartments();
             return Ok(departments);
         }
+
         [HttpGet("positions")]
         public ActionResult<IEnumerable<TBL_POSITION>> GetPositions()
         {
@@ -55,6 +54,7 @@ namespace FacilitEase.Controllers
             var locations = _employeeService.GetLocations();
             return Ok(locations);
         }
+
         [HttpGet("categories")]
         public ActionResult<IEnumerable<CategoryDto>> GetCategory()
         {
@@ -81,6 +81,7 @@ namespace FacilitEase.Controllers
 
             return Ok("Ticket created successfully");
         }
+
         [HttpPost("AddEmployees")]
         public IActionResult AddEmployees([FromBody] IEnumerable<EmployeeInputModel> employeeInputs)
         {
@@ -113,6 +114,7 @@ namespace FacilitEase.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
         [HttpPatch("cancel-request/{ticketId}")]
         public IActionResult RequestToCancelTicket(int ticketId)
         {
@@ -127,10 +129,11 @@ namespace FacilitEase.Controllers
                 return NotFound(new { Message = "Ticket not found or cancellation request failed." });
             }
         }
+
         [HttpGet("myTickets/{userId}")]
         public IActionResult GetTicketDetailsByUserId(int userId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
-            var ticketDetails = _ticketDetailsService.GetTicketDetailsByUserId( userId,  sortField,  sortOrder,  pageIndex,  pageSize,   searchQuery);
+            var ticketDetails = _ticketDetailsService.GetTicketDetailsByUserId(userId, sortField, sortOrder, pageIndex, pageSize, searchQuery);
 
             if (ticketDetails == null)
             {
@@ -139,6 +142,7 @@ namespace FacilitEase.Controllers
 
             return Ok(ticketDetails);
         }
+
         [HttpGet("GetCategoryByDepartmentId/{departmentId}")]
         public IActionResult GetCategoryByDepartmentId(int departmentId)
         {
@@ -152,6 +156,7 @@ namespace FacilitEase.Controllers
                 return BadRequest("Error processing the request. Please try again later.");
             }
         }
+
         [HttpGet("GetCommentsByTicketId/{ticketId}")]
         public IActionResult GetCommentsByTicketId(int ticketId)
         {
@@ -165,13 +170,11 @@ namespace FacilitEase.Controllers
                 return BadRequest("Error retrieving comments. Please try again later.");
             }
         }
+
         [HttpGet("{id}")]
-        public IActionResult GetEmployeeDetails(int id) 
+        public IActionResult GetEmployeeDetails(int id)
         {
-            
             return Ok(_employeeService.GetEmployeeDetails(id));
         }
     }
-    
 }
-

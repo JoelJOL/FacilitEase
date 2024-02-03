@@ -3,6 +3,5 @@
     public class DepartmentAgentsRequestModel
     {
         public int DepartmentId { get; set; }
-
     }
 }

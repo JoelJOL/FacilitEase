@@ -1,5 +1,4 @@
 ﻿using FacilitEase.Models.EntityModels;
-using System.Collections.Generic;
 
 namespace FacilitEase.Repositories
 {

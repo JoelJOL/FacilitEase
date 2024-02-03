@@ -1,25 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
-using FacilitEase.Data;
-using FacilitEase.Services;
-using FacilitEase.UnitOfWork;
-using System.Net.Sockets;
-using Microsoft.Data.SqlClient;
 using System.Linq.Dynamic.Core;
+
 namespace FacilitEase.Services
 {
     public class TicketDetailsService : ITicketDetailsService
     {
-
         private readonly AppDbContext _context;
 
         public TicketDetailsService(AppDbContext context)
         {
-
             _context = context;
         }
-       
+
         /// <summary>
         /// To get all the tickets raised by an employee
         /// </summary>
@@ -30,13 +23,13 @@ namespace FacilitEase.Services
         /// <param name="pageSize"></param>
         /// <param name="searchQuery"></param>
         /// <returns></returns>
-        public EmployeeTicketResponse<TicketDetailsDto> GetTicketDetailsByUserId(int userId,  string sortField, string sortOrder, int pageIndex, int pageSize, string  searchQuery)
+        public EmployeeTicketResponse<TicketDetailsDto> GetTicketDetailsByUserId(int userId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             var query = from t in _context.TBL_TICKET
                         join ts in _context.TBL_STATUS on t.StatusId equals ts.Id
                         join tp in _context.TBL_PRIORITY on t.PriorityId equals tp.Id
                         join u in _context.TBL_USER on t.AssignedTo equals u.Id
-            where t.UserId == userId
+                        where t.UserId == userId
                         where string.IsNullOrEmpty(searchQuery) || t.TicketName.Contains(searchQuery)
                         select new TicketDetailsDto
                         {
@@ -68,7 +61,7 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
-    
+
         /// <summary>
         /// To cancel a particular ticket
         /// </summary>
