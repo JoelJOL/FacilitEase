@@ -6,6 +6,7 @@ namespace FacilitEase.Models.ApiModels
     {
         [Required]
         public int EmpId { get; set; }
+
         [Required]
         public string RoleName { get; set; }
     }

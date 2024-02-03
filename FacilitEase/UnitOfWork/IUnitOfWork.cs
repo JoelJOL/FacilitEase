@@ -17,10 +17,13 @@ namespace FacilitEase.UnitOfWork
         ITicketRepository TicketRepository { get; }
         IEmployeeDetailRepository EmployeeDetailRepository { get; }
 
-       ILocationRepository Location { get; }
+        ILocationRepository Location { get; }
         IPositionRepository Position { get; }
+
         Task<int> CompleteAsync();
+
         int Complete();
+
         void Dispose();
     }
 }

@@ -1,8 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace FacilitEase.Models.EntityModels
+﻿namespace FacilitEase.Models.EntityModels
 {
-
     public class TBL_LOCATION
     {
         public int Id { get; set; }

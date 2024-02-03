@@ -1,10 +1,9 @@
 using FacilitEase.Data;
-using FacilitEase.Services;
-using FacilitEase.UnitOfWork;
+using FacilitEase.Models.EntityModels;
 using FacilitEase.Repositories;
 using FacilitEase.Services;
+using FacilitEase.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
-using FacilitEase.Models.EntityModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,7 +61,6 @@ builder.Services.AddScoped<IL1AdminService, L1AdminService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(); ;
 
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -76,7 +74,10 @@ app.UseCors("AllowLocalhost");
 
 app.UseHttpsRedirection();
 
+app.UseTokenValidationMiddleware("https://login.microsoftonline.com/5b751804-232f-410d-bb2f-714e3bb466eb/v2.0", "d7104f84-ab29-436f-8f06-82fcf8d81381");
+
 app.UseAuthorization();
+
 
 app.MapControllers();
 

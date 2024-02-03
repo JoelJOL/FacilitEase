@@ -1,8 +1,6 @@
 ﻿using FacilitEase.Models.ApiModels;
 using FacilitEase.Services;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 
 namespace FacilitEase.Controllers
 {
@@ -13,13 +11,11 @@ namespace FacilitEase.Controllers
         private readonly IEmployeeService _employeeService;
         private readonly ITicketService _ticketService;
 
-
         public L2AdminController(IEmployeeService employeeService, ITicketService ticketService)
         {
             _employeeService = employeeService;
             _ticketService = ticketService;
         }
-
 
         [HttpGet("agents")]
         public IActionResult GetAgents([FromQuery] DepartmentAgentsRequestModel requestModel)
@@ -27,6 +23,7 @@ namespace FacilitEase.Controllers
             var agents = _employeeService.GetAgents(requestModel.DepartmentId);
             return Ok(agents);
         }
+
         [HttpGet("ticketById")]
         public ActionResult<TicketDetails> GetTicketDetails(int desiredTicketId)
         {
@@ -69,6 +66,7 @@ namespace FacilitEase.Controllers
                 return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
         }
+
         [HttpGet("assigned-tickets")]
         public ActionResult<ManagerTicketResponse<TicketApiModel>> GetAssignedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery)
         {
@@ -82,12 +80,14 @@ namespace FacilitEase.Controllers
                 return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
         }
+
         [HttpGet("escalated-tickets")]
         public ActionResult<ManagerTicketResponse<TicketApiModel>> GetEscalatedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery)
         {
             var escalatedTickets = _ticketService.GetEscalatedTickets(pageIndex, pageSize, sortField, sortOrder, searchQuery);
             return Ok(escalatedTickets);
         }
+
         [HttpGet("agentsByDepartmentId")]
         public ActionResult<List<AgentDetailsModel>> GetAgentsByDepartment(int departmentId)
         {

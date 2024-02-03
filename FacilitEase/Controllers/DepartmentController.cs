@@ -1,5 +1,4 @@
-﻿using FacilitEase.Models.EntityModels;
-using FacilitEase.Services;
+﻿using FacilitEase.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +7,7 @@ namespace FacilitEase.Controllers
     [EnableCors("AllowAngularDev")]
     [ApiController]
     [Route("api/[controller]")]
-    public class DepartmentController: ControllerBase
+    public class DepartmentController : ControllerBase
     {
         private readonly IDepartmentService _deptService;
 
@@ -16,7 +15,6 @@ namespace FacilitEase.Controllers
         {
             _deptService = deptService;
         }
-        
 
         [HttpGet]
         public IActionResult GetTickets()
@@ -24,7 +22,5 @@ namespace FacilitEase.Controllers
             var depts = _deptService.GetAllDepartments();
             return Ok(depts);
         }
-
- 
     }
 }

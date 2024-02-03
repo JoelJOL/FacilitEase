@@ -9,6 +9,7 @@ namespace FacilitEase.Models.ApiModels
     {
         [Key]
         public int Id { get; set; }
+
         public string TicketName { get; set; }
 
         public string EmployeeName { get; set; }
