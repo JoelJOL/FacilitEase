@@ -7,6 +7,8 @@ namespace FacilitEase.Models.ApiModels
     public class TicketStatusChangeRequest
     {
         public bool IsApproved { get; set; }
-       
+
+        public int? ControllerId { get; set; }
+
     }
 }
