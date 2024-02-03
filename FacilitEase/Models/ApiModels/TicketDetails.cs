@@ -16,5 +16,7 @@
         public string DeptName { get; set; }
         public byte[] DocumentLink { get; set; }
         public int ProjectCode { get; set; }
+        public string Notes { get; set; }
+        public string LastUpdate { get; set; }
     }
 }

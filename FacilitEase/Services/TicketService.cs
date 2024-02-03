@@ -3,12 +3,10 @@ using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.Repositories;
 using FacilitEase.UnitOfWork;
-using Microsoft.EntityFrameworkCore;
-using System;
 using System.Linq.Dynamic.Core;
-using FacilitEase.Repositories;
 using System.Linq;
 using Microsoft.Net.Http.Headers;
+
 
 namespace FacilitEase.Services
 {
@@ -26,6 +24,7 @@ namespace FacilitEase.Services
             _documentRepository = documentRepository;
             _unitOfWork = unitOfWork;//Avinash
         }
+
         //Avinash
         /// <summary>
         /// Changes the status of a ticket.
@@ -43,9 +42,12 @@ namespace FacilitEase.Services
                     return false;
 
                 // Set status based on IsApproved flag
-                var newStatusId = request.IsApproved ? 3 : 2;
+                var newStatusId = request.IsApproved ? 2 : 5;
 
                 ticket.StatusId = newStatusId;
+
+                // Set ControllerId based on IsApproved flag
+                ticket.ControllerId = request.IsApproved ? ticket.AssignedTo : null;
 
                 _unitOfWork.TicketRepository.Update(ticket);
                 _unitOfWork.Complete();
@@ -60,7 +62,7 @@ namespace FacilitEase.Services
         }
 
         /// <summary>
-        /// Get - Retrieves a list of tickets raised by the emloyees working under a specific manager and the total number of tickets 
+        /// Get - Retrieves a list of tickets raised by the emloyees working under a specific manager and the total number of tickets
         /// Includes pagination,searching and sorting functionality.
         /// </summary>
         /// <param name="managerId"></param>
@@ -122,7 +124,6 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
-
 
         /// <summary>
         /// Get - Retrieves all the data required when the manager accesses the detailed view of a specific employee ticket
@@ -187,7 +188,7 @@ namespace FacilitEase.Services
         }
 
         /// <summary>
-        /// Get - Retrieves a list of tickets raised by the emloyees that need approval from the manager and the total number of waiting tickets 
+        /// Get - Retrieves a list of tickets raised by the emloyees that need approval from the manager and the total number of waiting tickets
         /// Includes pagination,searching and sorting functionality.
         /// </summary>
         /// <param name="managerId"></param>
@@ -272,7 +273,6 @@ namespace FacilitEase.Services
             }
             _unitOfWork.Complete();
         }
-
 
         /// <summary>
         /// Post - Updates the priority id according to the priority specified by the Manager
@@ -365,8 +365,6 @@ namespace FacilitEase.Services
 
         /*public void CreateTicketWithDocuments(TicketDto ticketDto)
         {
-
-
             var ticketEntity = new TBL_TICKET
             {
                 TicketName = ticketDto.TicketName,
@@ -381,7 +379,6 @@ namespace FacilitEase.Services
             _context.Add(ticketEntity);
 
             _context.SaveChanges();
-
 
             foreach (var documentLink in ticketDto.DocumentLink)
             {
@@ -449,8 +446,6 @@ namespace FacilitEase.Services
             }
         }
 
-
-
         /// <summary>
         /// retrieve detailed information about a specific ticket
         /// </summary>
@@ -458,8 +453,8 @@ namespace FacilitEase.Services
         /// <returns></returns>
         public TicketDetails GetTicketDetails(int desiredTicketId)
         {
-            var ticketDetails = (from ticket in _context.TBL_TICKET
-                                 join user in _context.TBL_USER on ticket.UserId equals user.Id
+            var ticketDetailsList = (from ticket in _context.TBL_TICKET
+                                     join user in _context.TBL_USER on ticket.UserId equals user.Id
                                  join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
                                  join employeeDetail in _context.TBL_EMPLOYEE_DETAIL on employee.Id equals employeeDetail.EmployeeId
                                  join location in _context.TBL_LOCATION on employeeDetail.LocationId equals location.Id
@@ -471,27 +466,50 @@ namespace FacilitEase.Services
                                  join projectcode in _context.TBL_PROJECT_CODE_GENERATION on project.ProjectId equals projectcode.ProjectId
                                  join manager in _context.TBL_EMPLOYEE on employee.ManagerId equals manager.Id into managerJoin
                                  from manager in managerJoin.DefaultIfEmpty()
-                                 where ticket.Id == desiredTicketId
-                                 select new TicketDetails
-                                 {
-                                     Id = ticket.Id,
-                                     TicketName = ticket.TicketName,
-                                     TicketDescription = ticket.TicketDescription,
-                                     StatusName = status.StatusName,
-                                     PriorityName = priority.PriorityName,
-                                     SubmittedDate = ticket.SubmittedDate,
-                                     RaisedEmployeeName = $"{employee.FirstName} {employee.LastName}",
-                                     ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : null,
-                                     ManagerId = employee.ManagerId,
-                                     LocationName = location.LocationName,
-                                     DeptName = department.DeptName,
-                                     DocumentLink = document.DocumentLink,
-                                     ProjectCode = projectcode.ProjectCode
-                                 })
-            .FirstOrDefault();
+                                     where ticket.Id == desiredTicketId
+                                     select new TicketDetails
+                                     {
+                                         Id = ticket.Id,
+                                         TicketName = ticket.TicketName,
+                                         TicketDescription = ticket.TicketDescription,
+                                         StatusName = status.StatusName,
+                                         PriorityName = priority.PriorityName,
+                                         SubmittedDate = ticket.SubmittedDate,
+                                         RaisedEmployeeName = $"{employee.FirstName} {employee.LastName}",
+                                         ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : null,
+                                         ManagerId = employee.ManagerId,
+                                         LocationName = location.LocationName,
+                                         DeptName = department.DeptName,
+                                         DocumentLink = document.DocumentLink,
+                                     })
+        .ToList();  // Materialize the main query first
+            Console.WriteLine(ticketDetailsList);
+            var ticketDetails = ticketDetailsList.FirstOrDefault();
+
+            // Now execute subqueries separately
+            if (ticketDetails != null)
+            {
+                ticketDetails.Notes = _context.TBL_COMMENT
+                    .Where(comment => comment.TicketId == desiredTicketId && comment.Category == "Note")
+                    .Select(comment => comment.Text)
+                    .FirstOrDefault();
+
+                ticketDetails.LastUpdate = _context.TBL_COMMENT
+                    .Where(comment => comment.TicketId == desiredTicketId)
+                    .OrderByDescending(comment => comment.UpdatedDate)
+                    .Select(comment =>
+                        (comment.UpdatedDate != null)
+                            ? (DateTime.Now - comment.UpdatedDate).TotalMinutes < 60
+                                ? $"{(int)(DateTime.Now - comment.UpdatedDate).TotalMinutes}M"
+                                : (DateTime.Now - comment.UpdatedDate).TotalHours < 24
+                                    ? $"{(int)(DateTime.Now - comment.UpdatedDate).TotalHours}H"
+                                    : $"{(int)(DateTime.Now - comment.UpdatedDate).TotalDays}D"
+                            : null
+                    )
+                    .FirstOrDefault();
+            }
 
             return ticketDetails;
-
         }
 
         /// <summary>
@@ -578,8 +596,6 @@ namespace FacilitEase.Services
 
                     Console.WriteLine($"Ticket {ticketId} assigned to agent {agentId} successfully.");
                 }
-
-
                 else
                 {
                     Console.WriteLine($"Agent not found with ID: {agentId}");
@@ -712,6 +728,7 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
+
         //me
         /// <summary>
         /// Retrieves the details of a ticket for a department head or manager.
@@ -816,9 +833,6 @@ namespace FacilitEase.Services
                 Data = queryList,
                 TotalDataCount = totalCount
             };
-
         }
-
-
     }
 }

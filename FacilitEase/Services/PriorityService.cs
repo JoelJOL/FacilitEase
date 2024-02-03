@@ -24,7 +24,7 @@ namespace FacilitEase.Services
         }
 
         /// <summary>
-        /// The function takes a collection of TBL_PRIORITY entities and maps each entity to a PriorityDto using the MapToPriorityDto function. 
+        /// The function takes a collection of TBL_PRIORITY entities and maps each entity to a PriorityDto using the MapToPriorityDto function.
         /// It returns an IEnumerable<PriorityDto> containing the mapped PriorityDto objects.
         /// </summary>
         /// <param name="priorities"></param>
@@ -33,7 +33,6 @@ namespace FacilitEase.Services
         {
             return priorities.Select(MapToPriorityDto);
         }
-
 
         /// <summary>
         /// This function takes a single TBL_PRIORITY entity and maps its properties to a new PriorityDto object.

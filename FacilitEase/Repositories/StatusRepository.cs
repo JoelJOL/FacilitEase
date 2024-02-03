@@ -5,6 +5,8 @@ namespace FacilitEase.Repositories
 {
     public class StatusRepository : Repository<TBL_STATUS>, IStatusRepository
     {
-        public StatusRepository(AppDbContext context) : base(context) { }
+        public StatusRepository(AppDbContext context) : base(context)
+        {
+        }
     }
 }
