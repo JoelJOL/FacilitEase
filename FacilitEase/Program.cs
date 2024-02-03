@@ -54,6 +54,7 @@ builder.Services.AddScoped<ITicketDetailsService, TicketDetailsService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IManagerService, ManagerService>();
 builder.Services.AddScoped<IL1AdminService, L1AdminService>();
+builder.Services.AddScoped<MailJetService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(); ;
@@ -66,9 +67,11 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-}
 
 app.UseCors("AllowAngularDev");
+  
+app.UseCors("AllowLocalhost");
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
