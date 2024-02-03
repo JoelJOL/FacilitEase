@@ -83,18 +83,20 @@ namespace FacilitEase.Services
                             Status = $"{status.StatusName}",
                         };
 
+            var queryList = query.ToList();
+
             // Apply Sorting
             if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
             {
                 string orderByString = $"{sortField} {sortOrder}";
-                query = query.OrderBy(orderByString);
+                queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
             }
 
             // Apply Pagination
             var totalCount = query.Count();
-            query = query.Skip(pageIndex * pageSize).Take(pageSize);
+            queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
-            var queryList = query.ToList();
+
 
             return new ManagerTicketResponse<ManagerEmployeeTickets>
             {
@@ -183,19 +185,20 @@ namespace FacilitEase.Services
                             Priority = $"{priority.PriorityName}",
                             Status = $"{status.StatusName}",
                         };
+            var queryList = query.ToList();
 
             // Apply Sorting
             if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
             {
                 string orderByString = $"{sortField} {sortOrder}";
-                query = query.OrderBy(orderByString);
+                queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
             }
 
             // Apply Pagination
             var totalCount = query.Count();
-            query = query.Skip(pageIndex * pageSize).Take(pageSize);
+            queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
-            var queryList = query.ToList();
+            
 
             return new ManagerTicketResponse<ManagerEmployeeTickets>
             {

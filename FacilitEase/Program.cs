@@ -41,7 +41,7 @@ builder.Services.AddScoped<IReportService, ReportService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(); ;
-
+builder.Services.AddHostedService<EscalationHostedService>();
 
 var app = builder.Build();
 
