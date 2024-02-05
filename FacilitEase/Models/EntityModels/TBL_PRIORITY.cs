@@ -6,6 +6,7 @@ namespace FacilitEase.Models.EntityModels
     {
         [Key]
         public int Id { get; set; }
+
         public string PriorityName { get; set; }
         public int CreatedBy { get; set; }
         public int UpdatedBy { get; set; }

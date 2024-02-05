@@ -16,6 +16,5 @@
         public string LastUpdate { get; set; }
         public string? TicketDescription { get; set; }
         public string? DocumentLink { get; set; }
-
     }
 }

@@ -1,25 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
-using FacilitEase.Data;
-using FacilitEase.Services;
-using FacilitEase.UnitOfWork;
-using System.Net.Sockets;
-using Microsoft.Data.SqlClient;
 using System.Linq.Dynamic.Core;
+
 namespace FacilitEase.Services
 {
     public class TicketDetailsService : ITicketDetailsService
     {
-
         private readonly AppDbContext _context;
 
         public TicketDetailsService(AppDbContext context)
         {
-
             _context = context;
         }
-       
+
         /// <summary>
         /// To get all the tickets raised by an employee
         /// </summary>
@@ -30,45 +23,70 @@ namespace FacilitEase.Services
         /// <param name="pageSize"></param>
         /// <param name="searchQuery"></param>
         /// <returns></returns>
-        public EmployeeTicketResponse<TicketDetailsDto> GetTicketDetailsByUserId(int userId,  string sortField, string sortOrder, int pageIndex, int pageSize, string  searchQuery)
+        public EmployeeTicketResponse<TicketDetailsDto> GetTicketDetailsByUserId(int userId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             var query = from t in _context.TBL_TICKET
                         join ts in _context.TBL_STATUS on t.StatusId equals ts.Id
                         join tp in _context.TBL_PRIORITY on t.PriorityId equals tp.Id
-                        join u in _context.TBL_USER on t.AssignedTo equals u.Id
-            where t.UserId == userId
+                        join u in _context.TBL_USER on t.AssignedTo equals u.Id into userJoin
+                        from u in userJoin.DefaultIfEmpty()  // Left Join
+                        join e in _context.TBL_EMPLOYEE on u.Id equals e.Id into employeeJoin
+                        from e in employeeJoin.DefaultIfEmpty()  // Left Join
+                        where t.UserId == userId
                         where string.IsNullOrEmpty(searchQuery) || t.TicketName.Contains(searchQuery)
                         select new TicketDetailsDto
                         {
                             Id = t.Id,
                             TicketName = t.TicketName,
                             TicketDescription = t.TicketDescription,
-                            StatusId = ts.StatusName,
-                            AssignedTo = u.Email,
-                            PriorityId = tp.PriorityName
+                            Status = ts.StatusName,
+                            AssignedTo = e != null ? e.FirstName : null,  // Check for null to handle left join
+                            Priority = tp.PriorityName
                         };
-
-            var queryList = query.ToList();
 
             // Apply Sorting
             if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
             {
                 string orderByString = $"{sortField} {sortOrder}";
-                queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
+                query = query.OrderBy(orderByString);
             }
 
             // Apply Pagination
-            var totalCount = queryList.Count();
-            queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            var totalCount = query.Count();
+            var paginatedQuery = query.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
             // Return the results in a paginated response object.
             return new EmployeeTicketResponse<TicketDetailsDto>
             {
-                Data = queryList,
+                Data = paginatedQuery,
                 TotalDataCount = totalCount
             };
         }
-    
+
+        public TicketDetailsDto GetTicketDetailsById(int ticketId)
+        {
+            var query = from t in _context.TBL_TICKET
+                        join ts in _context.TBL_STATUS on t.StatusId equals ts.Id
+                        join tp in _context.TBL_PRIORITY on t.PriorityId equals tp.Id
+                        join u in _context.TBL_USER on t.AssignedTo equals u.Id into userJoin
+                        from u in userJoin.DefaultIfEmpty()
+                        join e in _context.TBL_EMPLOYEE on u.Id equals e.Id into employeeJoin
+                        from e in employeeJoin.DefaultIfEmpty()
+                        where t.Id == ticketId
+                        select new TicketDetailsDto
+                        {
+                            Id = t.Id,
+                            TicketName = t.TicketName,
+                            TicketDescription = t.TicketDescription,
+                            Status = ts.StatusName,
+                            AssignedTo = e != null ? e.FirstName : null,
+                            Priority = tp.PriorityName,
+                            SubmissionDate = t.SubmittedDate 
+                        };
+
+            return query.FirstOrDefault();
+        }
+
         /// <summary>
         /// To cancel a particular ticket
         /// </summary>
@@ -78,15 +96,23 @@ namespace FacilitEase.Services
         {
             var ticket = _context.TBL_TICKET.FirstOrDefault(t => t.Id == ticketId);
 
-            if (ticket == null)
+            if (ticket == null || !IsValidTicketStatus(ticket.StatusId))
             {
                 return false;
             }
 
-            ticket.StatusId = 6;
+            ticket.StatusId = 7;
+            ticket.ControllerId = ticket.AssignedTo; 
             _context.SaveChanges();
 
             return true;
         }
+
+        private bool IsValidTicketStatus(int? statusId)
+        {
+            // Check if the status is open or in progress (1, 2, 3)
+            return statusId.HasValue && (statusId == 1 || statusId == 2 || statusId == 3 || statusId == 6);
+        }
+
     }
 }

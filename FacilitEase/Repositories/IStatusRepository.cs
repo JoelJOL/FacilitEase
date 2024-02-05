@@ -2,7 +2,7 @@
 
 namespace FacilitEase.Repositories
 {
-    public interface IStatusRepository: IRepository<TBL_STATUS>
+    public interface IStatusRepository : IRepository<TBL_STATUS>
     {
     }
 }

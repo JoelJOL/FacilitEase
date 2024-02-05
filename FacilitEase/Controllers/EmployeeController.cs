@@ -1,10 +1,9 @@
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.Services;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-
+using System.Net.Http.Headers;
 
 namespace FacilitEase.Controllers
 {
@@ -19,13 +18,16 @@ namespace FacilitEase.Controllers
         private readonly IEmployeeService _employeeService;
         private readonly ITicketDetailsService _ticketDetailsService;
         private readonly ICommentService _commentService;
+        private readonly IAssetService _assetService;
+
         public EmployeeController(IDepartmentService departmentService,
             ICategoryService categoryService,
             IPriorityService priorityService,
             ITicketService ticketService,
             IEmployeeService employeeService,
             ITicketDetailsService ticketDetailsService,
-            ICommentService commentService)
+            ICommentService commentService,
+            IAssetService assetService)
         {
             _departmentService = departmentService;
             _categoryService = categoryService;
@@ -34,6 +36,7 @@ namespace FacilitEase.Controllers
             _employeeService = employeeService;
             _ticketDetailsService = ticketDetailsService;
             _commentService = commentService;
+            _assetService = assetService;   
         }
 
         [HttpGet("departments")]
@@ -55,6 +58,7 @@ namespace FacilitEase.Controllers
             var locations = _employeeService.GetLocations();
             return Ok(locations);
         }
+
         [HttpGet("categories")]
         public ActionResult<IEnumerable<CategoryDto>> GetCategory()
         {
@@ -69,19 +73,23 @@ namespace FacilitEase.Controllers
             return Ok(priority);
         }
 
-        [HttpPost("raiseticket")]
-        public IActionResult CreateTicket([FromBody] TicketDto ticketApiModel)
+        [HttpPost("create-with-documents")]
+        public IActionResult CreateTicketWithDocuments([FromForm] TicketDto ticketDto, [FromForm] IFormFile file)
         {
-            if (ticketApiModel == null)
+            try
             {
-                return BadRequest("Invalid ticket data");
+                _ticketService.CreateTicketWithDocuments(ticketDto, file);
+                return Ok(new { Message = "Ticket created successfully." });
             }
-
-            _ticketService.CreateTicketWithDocuments(ticketApiModel);
-
-            return Ok("Ticket created successfully");
+            catch (Exception ex)
+            {
+                
+                return BadRequest(new { Message = $"Error creating ticket: {ex.Message}" });
+            }
         }
-        [HttpPost("AddEmployees")]
+       
+
+    [HttpPost("AddEmployees")]
         public IActionResult AddEmployees([FromBody] IEnumerable<EmployeeInputModel> employeeInputs)
         {
             if (employeeInputs == null || !employeeInputs.Any())
@@ -113,6 +121,7 @@ namespace FacilitEase.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
         [HttpPatch("cancel-request/{ticketId}")]
         public IActionResult RequestToCancelTicket(int ticketId)
         {
@@ -127,10 +136,10 @@ namespace FacilitEase.Controllers
                 return NotFound(new { Message = "Ticket not found or cancellation request failed." });
             }
         }
-        [HttpGet("myTickets/{userId}")]
+        [HttpGet("tickets/{userId}")]
         public IActionResult GetTicketDetailsByUserId(int userId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
-            var ticketDetails = _ticketDetailsService.GetTicketDetailsByUserId( userId,  sortField,  sortOrder,  pageIndex,  pageSize,   searchQuery);
+            var ticketDetails = _ticketDetailsService.GetTicketDetailsByUserId(userId, sortField, sortOrder, pageIndex, pageSize, searchQuery);
 
             if (ticketDetails == null)
             {
@@ -139,6 +148,21 @@ namespace FacilitEase.Controllers
 
             return Ok(ticketDetails);
         }
+
+
+        [HttpGet("ticket/{ticketId}")]
+        public IActionResult GetTicketDetailsById(int ticketId)
+        {
+            var ticketDetails = _ticketDetailsService.GetTicketDetailsById(ticketId);
+
+            if (ticketDetails == null)
+            {
+                return NotFound($"Ticket with ID {ticketId} not found.");
+            }
+
+            return Ok(ticketDetails);
+        }
+
         [HttpGet("GetCategoryByDepartmentId/{departmentId}")]
         public IActionResult GetCategoryByDepartmentId(int departmentId)
         {
@@ -152,6 +176,7 @@ namespace FacilitEase.Controllers
                 return BadRequest("Error processing the request. Please try again later.");
             }
         }
+
         [HttpGet("GetCommentsByTicketId/{ticketId}")]
         public IActionResult GetCommentsByTicketId(int ticketId)
         {
@@ -165,13 +190,18 @@ namespace FacilitEase.Controllers
                 return BadRequest("Error retrieving comments. Please try again later.");
             }
         }
+
         [HttpGet("{id}")]
-        public IActionResult GetEmployeeDetails(int id) 
+        public IActionResult GetEmployeeDetails(int id)
         {
-            
             return Ok(_employeeService.GetEmployeeDetails(id));
+        }
+        [HttpGet("employee/{employeeId}")]
+        public IActionResult GetAssetsByEmployeeId(int employeeId)
+        {
+            var assets = _assetService.GetAssetsByEmployeeId(employeeId);
+            return Ok(assets);
         }
     }
     
 }
-

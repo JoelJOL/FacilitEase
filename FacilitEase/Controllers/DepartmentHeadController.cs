@@ -1,8 +1,8 @@
 ﻿// TicketController.cs
-using Microsoft.AspNetCore.Mvc;
-using FacilitEase.Services;
 using FacilitEase.Models.ApiModels;
+using FacilitEase.Services;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FacilitEase.Controllers
 {
@@ -34,7 +34,6 @@ namespace FacilitEase.Controllers
             else
                 return BadRequest("Failed to change ticket status");
         }
-
 
         [HttpGet("GetApprovalTicket/{departmentHeadId}")]
         public IActionResult DHGetApprovalTicket(int departmentHeadId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
