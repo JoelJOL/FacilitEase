@@ -117,8 +117,8 @@ namespace FacilitEase.Services
             // Apply Sorting
             if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
             {
-                string orderByString = $"{sortField} {sortOrder}";
-                queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
+                    string orderByString = $"{sortField} {sortOrder}";
+                    queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
             }
 
             // Apply Pagination
