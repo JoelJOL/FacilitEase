@@ -6,27 +6,29 @@ using System.Diagnostics;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
-
-    public UnitOfWork(AppDbContext context)
-    {
-        _context = context;
-        EmployeeRepository = new EmployeeRepository(_context);
-        Departments = new DepartmentRepository(_context);
-        Category = new CategoryRepository(_context);
-        Priority = new PriorityRepository(_context);
-        Ticket = new TicketRepository(_context);
-        Document = new DocumentRepository(_context);
-        User = new UserRepository(_context);
-        Employee = new EmployeeRepository(_context);
+        public UnitOfWork(AppDbContext context)
+        {
+            _context = context;
+            EmployeeRepository = new EmployeeRepository(_context);
+            Departments = new DepartmentRepository(_context);
+            Category = new CategoryRepository(_context);
+            Priority = new PriorityRepository(_context);
+            Ticket = new TicketRepository(_context);
+            Document = new DocumentRepository(_context);
+            User = new UserRepository(_context);
+            Employee = new EmployeeRepository(_context);
         EmployeeDetailRepository = new EmployeeDetailRepository(_context);
-        Status = new StatusRepository(_context);
-        Employees = new EmployeeRepository(_context);
-        Tickets = new TicketRepository(_context);
-        Department = new DepartmentRepository(_context);
-        TicketRepository = new TicketRepository(_context);
-        Location = new LocationRepository(_context);
-        Position = new PositionRepository(_context);
-    }
+            Status = new StatusRepository(_context);
+            Employees = new EmployeeRepository(_context);
+            Tickets = new TicketRepository(_context);
+            Department = new DepartmentRepository(_context);
+            TicketRepository = new TicketRepository(_context);
+            Location = new LocationRepository(_context);
+            Position = new PositionRepository(_context);
+        Notification = new NotificationRepository(_context);
+
+
+        }
 
     public IDepartmentRepository Departments { get; set; }
     public ICategoryRepository Category { get; set; }
@@ -36,14 +38,13 @@ public class UnitOfWork : IUnitOfWork
     public IUserRepository User { get; set; }
     public IStatusRepository Status { get; set; }
     public IEmployeeRepository Employee { get; set; }
-    public IEmployeeRepository Employees { get; }
-
+    public IEmployeeRepository Employees { get; }    
+    public INotificationRepository Notification { get; set; }
     public IEmployeeDetailRepository EmployeeDetailRepository { get; set; }
     public ITicketRepository Tickets { get; }
     public IDepartmentRepository Department { get; }
     public ILocationRepository Location { get; set; }
     public IPositionRepository Position { get; set; }
-
     public IEmployeeRepository EmployeeRepository { get; set; }
     public ITicketRepository TicketRepository { get; set; }
     public IL3AdminRepository L3Admin { get; set; }

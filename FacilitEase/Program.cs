@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using FacilitEase.Models.EntityModels;
+using FacilitEase.Hubs;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.FileProviders;
 using FacilitEase.NewFolder4;
@@ -23,6 +24,7 @@ builder.Services.AddControllers()
                options.JsonSerializerOptions.Converters.Add(new DateOnlyConverter());
            });
 
+builder.Services.AddSignalR();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -91,6 +93,8 @@ builder.Services.AddScoped<ITicketDetailsService, TicketDetailsService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IManagerService, ManagerService>();
 builder.Services.AddScoped<IL1AdminService, L1AdminService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IAssetService, AssetService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 
@@ -116,8 +120,25 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 
+//configuring the http request for signal R
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
 app.UseCors("AllowAngularDev");
-  
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapHub<NotificationHub>("/notificationHub"); // Map the NotificationHub
+});
+
 app.UseCors("CorsPolicy");
 app.UseMiddleware<LogMiddleware>();
 app.UseStaticFiles();
