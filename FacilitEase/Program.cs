@@ -3,7 +3,10 @@ using FacilitEase.Models.EntityModels;
 using FacilitEase.Repositories;
 using FacilitEase.Services;
 using FacilitEase.UnitOfWork;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using FacilitEase.Models.EntityModels;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.FileProviders;
@@ -30,6 +33,35 @@ builder.Services.AddCors(options =>
                           .AllowAnyMethod()
                           .AllowAnyHeader());
 });
+
+var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
+var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
+var jwtAudience = builder.Configuration.GetSection("Jwt:Audience").Get<string>();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Employee", policy => policy.RequireRole("Employee"));
+    options.AddPolicy("Manager", policy => policy.RequireRole("Manager"));
+    options.AddPolicy("DepartmentHead", policy => policy.RequireRole("DepartmentHead"));
+    options.AddPolicy("L1Admin", policy => policy.RequireRole("L1Admin"));
+    options.AddPolicy("L2Admin", policy => policy.RequireRole("L2Admin"));
+    options.AddPolicy("L3Admin", policy => policy.RequireRole("L3Admin"));
+});
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+ .AddJwtBearer(options =>
+ {
+     options.TokenValidationParameters = new TokenValidationParameters
+     {
+         ValidateIssuer = true,
+         ValidateAudience = true,
+         ValidateLifetime = true,
+         ValidateIssuerSigningKey = true,
+         ValidIssuer = jwtIssuer,
+         ValidAudience = jwtAudience,
+         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+     };
+ });
+
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IEmployeeDetailRepository, EmployeeDetailRepository>();
@@ -58,6 +90,7 @@ builder.Services.AddScoped<ITicketDetailsService, TicketDetailsService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IManagerService, ManagerService>();
 builder.Services.AddScoped<IL1AdminService, L1AdminService>();
+builder.Services.AddScoped<ILoginService, LoginService>();
 
 builder.Services.Configure<FormOptions>(o =>
 {
@@ -95,7 +128,6 @@ app.UseCors("AllowLocalhost");
   
 app.UseHttpsRedirection();
 
-app.UseTokenValidationMiddleware("https://login.microsoftonline.com/5b751804-232f-410d-bb2f-714e3bb466eb/v2.0", "d7104f84-ab29-436f-8f06-82fcf8d81381");
 
 app.UseAuthorization();
 

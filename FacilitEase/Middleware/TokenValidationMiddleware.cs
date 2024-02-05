@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using FacilitEase.Data;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Protocols;
@@ -13,8 +14,8 @@ using System.Threading.Tasks;
 public class TokenValidationMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly string _authority = "https://login.microsoftonline.com/5b751804-232f-410d-bb2f-714e3bb466eb/v2.0";
-    private readonly string _audience = "d7104f84-ab29-436f-8f06-82fcf8d81381";
+    private readonly string _authority;
+    private readonly string _audience;
 
     public TokenValidationMiddleware(RequestDelegate next, string authority, string audience)
     {
@@ -38,6 +39,13 @@ public class TokenValidationMiddleware
             var handler = new JwtSecurityTokenHandler();
             var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
 
+            var usernameClaim = jsonToken.Claims.FirstOrDefault(claim => claim.Type == "preferred_username");
+
+            if (usernameClaim != null)
+            {
+                var username = usernameClaim.Value;
+            }
+
             Console.WriteLine($"Issuer from Token: {jsonToken.Issuer}");
 
             var parameters = new TokenValidationParameters
@@ -55,6 +63,9 @@ public class TokenValidationMiddleware
 
             ClaimsPrincipal principal = handler.ValidateToken(token, parameters, out _);
             context.User = principal;
+
+
+
 
             await _next(context);
         }
