@@ -90,26 +90,6 @@ namespace FacilitEase.Services
                             SubmittedDate = ticket.SubmittedDate,
                             Priority = $"{priority.PriorityName}",
                             Status = $"{status.StatusName}",
-                            EmployeeName = _context.TBL_USER
-                        .Where(user => user.Id == ticket.UserId)
-                        .Select(user => _context.TBL_EMPLOYEE
-                            .Where(employee => employee.Id == user.EmployeeId)
-                            .Select(employee => $"{employee.FirstName} {employee.LastName}")
-                            .FirstOrDefault())
-                        .FirstOrDefault(),
-                            AssignedTo = _context.TBL_EMPLOYEE
-                        .Where(employee => employee.Id == ticket.AssignedTo)
-                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
-                        .FirstOrDefault(),
-                            SubmittedDate = ticket.SubmittedDate,
-                            Priority = _context.TBL_PRIORITY
-                        .Where(priority => priority.Id == ticket.PriorityId)
-                        .Select(priority => $"{priority.PriorityName}")
-                        .FirstOrDefault(),
-                            Status = _context.TBL_STATUS
-                        .Where(status => status.Id == ticket.StatusId)
-                        .Select(status => $"{status.StatusName}")
-                        .FirstOrDefault(),
                         };
 
             var queryList = query.ToList();
