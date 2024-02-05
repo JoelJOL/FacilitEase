@@ -1,16 +1,11 @@
 using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
-using FacilitEase.Repositories;
-using FacilitEase.Services;
 using FacilitEase.UnitOfWork;
-using Microsoft.OpenApi.Models;
-using System;
 using System.Diagnostics;
 
 namespace FacilitEase.Services
 {
-
     public class EmployeeService : IEmployeeService
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -22,13 +17,11 @@ namespace FacilitEase.Services
             _context = context;
         }
 
-
         /// <summary>
         /// Adds a list of employees to the database.
         /// </summary>
         public void AddEmployees(IEnumerable<EmployeeInputModel> employeeInputs, params EmployeeInputModel[] additionalEmployeeInputs)
         {
-         
             /// <param name="employeeInputs">The list of employees to add.</param>
             /// <param name="additionalEmployeeInputs">Additional employees to add.</param>
             if (employeeInputs == null || !employeeInputs.Any())
@@ -82,9 +75,6 @@ namespace FacilitEase.Services
                 throw;
             }
         }
-
-
-
 
         /// <summary>
         /// Deletes an employee from the database.
@@ -154,8 +144,6 @@ namespace FacilitEase.Services
             }
         }
 
-
-
         /// retrieve subordinate employees based on the provided managerId
         /// </summary>
         /// <param name="managerId"></param>
@@ -179,7 +167,6 @@ namespace FacilitEase.Services
                         Department = _context.TBL_DEPARTMENT.FirstOrDefault(d => d.Id == employeeDetail.DepartmentId).DeptName,
                         Position = _context.TBL_POSITION.FirstOrDefault(p => p.Id == employeeDetail.PositionId).PositionName,
                         Location = _context.TBL_LOCATION.FirstOrDefault(l => l.Id == employeeDetail.LocationId).LocationName
-
                     })
                 .ToList();
 
@@ -250,7 +237,7 @@ namespace FacilitEase.Services
                     EmployeeCode = emp.EmployeeCode.ToString(),
                     FirstName = emp.FirstName,
                     LastName = emp.LastName,
-                    DOB = emp.DOB,
+                    DOB = emp.DOB.ToString("dd-MM-yyyy"),
                     Email = emp.Email,
                     Gender = emp.Gender
                 })
@@ -258,20 +245,26 @@ namespace FacilitEase.Services
 
             return agentDetails;
         }
+
         public IEnumerable<EmployeeDetails> GetEmployeeDetails(int empId)
         {
             var employeeDetails = from employee in _context.TBL_EMPLOYEE
                                   join user in _context.TBL_USER on employee.Id equals user.EmployeeId
+                                  join ur in _context.TBL_USER_ROLE_MAPPING on user.Id equals ur.UserId
                                   where employee.Id == empId
                                   select new EmployeeDetails
                                   {
                                       EmployeeName = employee.FirstName + " " + employee.LastName,
-                                      DOB = employee.DOB,
+                                      DOB = employee.DOB.ToString("dd-MM-yyyy"),
                                       Gender = employee.Gender,
-                                      Username = user.Email
+                                      Username = user.Email,
+                                      Roles = (from role in _context.TBL_USER_ROLE
+                                               join userRole in _context.TBL_USER_ROLE_MAPPING on role.Id equals userRole.UserRoleId
+                                               where userRole.UserId == user.Id
+                                               select role.UserRoleName).ToArray()
                                   };
+
             return employeeDetails;
         }
-
     }
 }

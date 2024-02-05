@@ -1,10 +1,10 @@
 ﻿using FacilitEase.Models.ApiModels;
-using FacilitEase.UnitOfWork;
 using FacilitEase.Models.EntityModels;
+using FacilitEase.UnitOfWork;
 
 namespace FacilitEase.Services
 {
-    public class DepartmentService:IDepartmentService
+    public class DepartmentService : IDepartmentService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly object employeeDto;
@@ -20,11 +20,9 @@ namespace FacilitEase.Services
         /// <returns></returns>
         public IEnumerable<DepartmentDto> GetDepartments()
         {
-
             var departments = _unitOfWork.Departments.GetAll();
             return MapToDepartmentDtoList(departments);
         }
-
 
         /// <summary>
         /// Mapping a collection of TBL_DEPARTMENT entities to a collection of DepartmentDto objects.
@@ -53,13 +51,13 @@ namespace FacilitEase.Services
                 UpdatedDate = departments.UpdatedDate,
             };
         }
+
         /// <summary>
         /// To add department
         /// </summary>
         /// <param name="departmentDto"></param>
         public void CreateDepartment(DepartmentDto departmentDto)
         {
-            
             var departmentEntity = MapToTBL_DEPARTMENT(departmentDto);
             _unitOfWork.Departments.Add(departmentEntity);
             _unitOfWork.Complete();
@@ -72,7 +70,6 @@ namespace FacilitEase.Services
         /// <returns></returns>
         private TBL_DEPARTMENT MapToTBL_DEPARTMENT(DepartmentDto departmentDto)
         {
-            
             return new TBL_DEPARTMENT
             {
                 Id = departmentDto.Id,

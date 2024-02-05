@@ -2,8 +2,6 @@
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.UnitOfWork;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System.Linq.Dynamic.Core;
 
 namespace FacilitEase.Services
@@ -12,6 +10,7 @@ namespace FacilitEase.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppDbContext _context;
+
         public L3AdminService(IUnitOfWork unitOfWork, AppDbContext context)
         {
             _unitOfWork = unitOfWork;
@@ -32,7 +31,6 @@ namespace FacilitEase.Services
                 ticketToClose.StatusId = 3;
                 _context.SaveChanges();
             }
-
         }
 
         /// <summary>
@@ -80,7 +78,6 @@ namespace FacilitEase.Services
                 ticketToUpdate.ControllerId = adminEmployeeId;
                 _context.SaveChanges();
             }
-
         }
 
         /// <summary>
@@ -95,7 +92,6 @@ namespace FacilitEase.Services
 
             return adminRole?.Id ?? 0;
         }
-
 
         /// <summary>
         /// Method to forward ticket to the manager of the employee who raised the ticket
@@ -112,7 +108,7 @@ namespace FacilitEase.Services
             {
                 ticketToForward.StatusId = 5;
 
-                if (manager?.ManagerId != null)
+                if (manager?.Id != null)
                 {
                     ticketToForward.ControllerId = managerId;
                     _context.SaveChanges();
@@ -122,18 +118,15 @@ namespace FacilitEase.Services
                     throw new InvalidOperationException("ManagerId is null or invalid.");
                 }
                 _context.SaveChanges();
-
             }
-
         }
 
         public void AddTicket(TBL_TICKET ticket)
         {
-
             _unitOfWork.Ticket.Add(ticket);
             _unitOfWork.Complete();
         }
-        
+
         /// <summary>
         /// This method retrieves the notes associated with a specific ticket ID.
         /// </summary>
@@ -232,7 +225,6 @@ namespace FacilitEase.Services
             var totalCount = queryList.Count();
             queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
-
             // Return the paginated and sorted ticket data along with the total count.
             return new AgentTicketResponse<TicketJoin>
             {
@@ -282,7 +274,6 @@ namespace FacilitEase.Services
 
             yield return result;
         }
-
 
         /// <summary>
         /// This method retrieves resolved tickets assigned to a specific agent with optional sorting and search functionality.
@@ -335,9 +326,7 @@ namespace FacilitEase.Services
                   SubmittedDate = joined.Ticket.SubmittedDate,
                   ResolvedDate = joined.Ticket.UpdatedDate,
                   PriorityName = joined.Priority.PriorityName,
-
               });
-
 
             var materializedQuery = query.ToList();
 
@@ -359,7 +348,7 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
-        
+
         /// <summary>
         /// Function that gets all tickets that have been escalated for that l3 admin
         /// </summary>
@@ -387,6 +376,5 @@ namespace FacilitEase.Services
             var results = query.ToList();
             return results;
         }
-
     }
 }

@@ -2,7 +2,6 @@
 using FacilitEase.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 
 namespace FacilitEase.Controllers
 {
@@ -15,18 +14,19 @@ namespace FacilitEase.Controllers
         private readonly IEmployeeService _employeeService;
         private readonly IManagerService _managerService;
 
-        public ManagerController(ITicketService ticketService,IEmployeeService employeeService,IManagerService managerService)
+        public ManagerController(ITicketService ticketService, IEmployeeService employeeService, IManagerService managerService)
         {
             _ticketService = ticketService;
             _employeeService = employeeService;
-             _managerService = managerService;
+            _managerService = managerService;
         }
+
         [HttpGet("GetTicketByManager/{managerId}")]
         public IActionResult GetTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             try
             {
-                var tickets = _ticketService.GetTicketByManager(managerId, sortField,sortOrder, pageIndex,pageSize,searchQuery);
+                var tickets = _ticketService.GetTicketByManager(managerId, sortField, sortOrder, pageIndex, pageSize, searchQuery);
                 return Ok(tickets);
             }
             catch (Exception ex)
@@ -104,6 +104,7 @@ namespace FacilitEase.Controllers
                 return BadRequest($"An error occurred: {ex.Message}");
             }
         }
+
         [HttpGet("{managerId}/subordinates")]
         public ActionResult<List<ManagerSubordinateEmployee>> GetSubordinates(int managerId)
         {
@@ -119,12 +120,12 @@ namespace FacilitEase.Controllers
                 return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
         }
-         [HttpGet]
+
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<ManagerAPI>>> GetManagers()
         {
             var managers = await _managerService.GetManagersAsync();
             return Ok(managers);
         }
-        }
-        }
-
+    }
+}

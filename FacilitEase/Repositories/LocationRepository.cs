@@ -1,8 +1,5 @@
 ﻿using FacilitEase.Data;
 using FacilitEase.Models.EntityModels;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace FacilitEase.Repositories
 {
