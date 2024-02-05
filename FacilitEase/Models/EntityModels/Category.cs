@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FacilitEase.Models.EntityModels
 {
     [Table("TBL_CATEGORY")]
-    public class Category
+    public class TBL_CATEGORY
     {
         [Key]
         public int Id { get; set; }

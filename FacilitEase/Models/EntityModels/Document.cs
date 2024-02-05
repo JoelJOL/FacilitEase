@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace FacilitEase.Models.EntityModels
 {
     [Table("TBL_DOCUMENT")]
-    public class Document
+    public class TBL_DOCUMENT
     {
         [Key]
         public int Id { get; set; }

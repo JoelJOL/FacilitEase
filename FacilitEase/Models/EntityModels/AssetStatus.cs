@@ -3,7 +3,7 @@
 namespace FacilitEase.Models.EntityModels
 {
     [Table("TBL_ASSET_STATUS")]
-    public class AssetStatus
+    public class TBL_ASSET_STATUS
     {
         public int Id { get; set; }
         public string Status { get; set; }

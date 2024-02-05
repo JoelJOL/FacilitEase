@@ -3,8 +3,8 @@ using System.Net.Sockets;
 
 namespace FacilitEase.Models.EntityModels
 {
-    [Table("Notification")]
-    public class Notification
+    [Table("TBL_NOTIFICATION")]
+    public class TBL_NOTIFICATION
     {
         public int Id { get; set; }
         public string Content { get; set; }

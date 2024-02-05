@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace FacilitEase.Models.EntityModels
 {
     [Table("TBL_PROJECT_CODE_GENERATION")]
-    public class ProjectCodeGeneration
+    public class TBL_PROJECT_CODE_GENERATION
     {
         [Key]
         public int ProjectCode { get; set; }

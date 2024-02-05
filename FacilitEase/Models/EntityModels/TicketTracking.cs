@@ -3,7 +3,7 @@
 namespace FacilitEase.Models.EntityModels
 {
     [Table("TBL_TICKET_TRACKING")]
-    public class TicketTracking
+    public class TBL_TICKET_TRACKING
     {
         public int Id { get; set; }
         public int TicketId { get; set; }

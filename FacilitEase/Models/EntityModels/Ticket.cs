@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 namespace FacilitEase.Models.EntityModels
 {
     [Table("TBL_TICKET")]
-    public class Ticket
+    public class TBL_TICKET
     {
         [Key]
         public int Id { get; set; }

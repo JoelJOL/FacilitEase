@@ -3,7 +3,7 @@
 namespace FacilitEase.Models.EntityModels
 {
     [Table("TBL_COMMENT")]
-    public class Comment
+    public class TBL_COMMENT
     {
         public int Id { get; set; }
         public int TicketId { get; set; }

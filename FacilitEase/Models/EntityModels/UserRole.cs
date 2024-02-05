@@ -3,7 +3,7 @@
 namespace FacilitEase.Models.EntityModels
 {
     [Table("TBL_USER_ROLE")]
-    public class UserRole
+    public class TBL_USER_ROLE
     {
         public int Id { get; set; }
         public string UserRoleName { get; set; }

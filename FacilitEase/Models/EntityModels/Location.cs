@@ -5,7 +5,7 @@ namespace FacilitEase.Models.EntityModels
 {
 
     [Table("TBL_LOCATION")]
-    public class Location
+    public class TBL_LOCATION
     {
         public int Id { get; set; }
         public string LocationName { get; set; }

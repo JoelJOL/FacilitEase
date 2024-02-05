@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace FacilitEase.Models.EntityModels
 {
     [Table("TBL_BUDGET_CODE_GENERATION")]
-    public class BudgetCodeGeneration
+    public class TBL_BUDGET_CODE_GENERATION
     {
         [Key]
         public int Id { get; set; }

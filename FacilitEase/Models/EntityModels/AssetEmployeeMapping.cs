@@ -3,7 +3,7 @@
 namespace FacilitEase.Models.EntityModels
 {
     [Table("TBL_ASSET_EMPLOYEE_MAPPING")]
-    public class AssetEmployeeMapping
+    public class TBL_ASSET_EMPLOYEE_MAPPING
     {
         public int Id { get; set; }
         public int AssetId { get; set; }

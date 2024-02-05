@@ -4,7 +4,7 @@ using FacilitEase.Models.EntityModels;
 
 namespace FacilitEase.Repositories
 {
-    public class EmployeeRepository : Repository<Employee>, IEmployeeRepository
+    public class EmployeeRepository : Repository<TBL_EMPLOYEE>, IEmployeeRepository
     {
         public EmployeeRepository(AppDbContext context) : base(context)
         {

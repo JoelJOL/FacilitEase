@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FacilitEase.Models.EntityModels
 {
     [Table("TBL_USER_ROLE_MAPPING")]
-    public class UserRoleMapping
+    public class TBL_USER_ROLE_MAPPING
     {
         [Key]
         public int Id { get; set; }
