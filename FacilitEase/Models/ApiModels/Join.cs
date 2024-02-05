@@ -19,7 +19,7 @@ namespace FacilitEase.Models.ApiModels
         public required string ManagerName { get; set; }
         public required string  DeptName { get; set; }
         public int? ManagerId { get; set; }
-        public required byte[] DocumentLink { get; set; }
+        public required string DocumentLink { get; set; }
         public required int ProjectCode { get; set;}
     }
 }

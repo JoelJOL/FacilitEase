@@ -20,13 +20,15 @@ namespace FacilitEase.Controllers
         private readonly IEmployeeService _employeeService;
         private readonly ITicketDetailsService _ticketDetailsService;
         private readonly ICommentService _commentService;
+        private readonly IAssetService _assetService;
         public EmployeeController(IDepartmentService departmentService,
             ICategoryService categoryService,
             IPriorityService priorityService,
             ITicketService ticketService,
             IEmployeeService employeeService,
             ITicketDetailsService ticketDetailsService,
-            ICommentService commentService)
+            ICommentService commentService,
+            IAssetService assetService)
         {
             _departmentService = departmentService;
             _categoryService = categoryService;
@@ -35,6 +37,7 @@ namespace FacilitEase.Controllers
             _employeeService = employeeService;
             _ticketDetailsService = ticketDetailsService;
             _commentService = commentService;
+            _assetService = assetService;   
         }
 
         [HttpGet("departments")]
@@ -70,82 +73,21 @@ namespace FacilitEase.Controllers
             return Ok(priority);
         }
 
-        /*[HttpPost("raiseticket")]
-        public IActionResult CreateTicket([FromBody] TicketDto ticketApiModel)
-        {
-            if (ticketApiModel == null)
-            {
-                return BadRequest("Invalid ticket data");
-            }
-
-            _ticketService.CreateTicketWithDocuments(ticketApiModel);
-
-            return Ok("Ticket created successfully");
-        }*/
-        /* [HttpPost("upload")]
-         public IActionResult Upload()
-         {
-             try
-             {
-                 var file = Request.Form.Files[0];
-                 var folderName = Path.Combine("Resources", "Images");
-                 var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
-
-                 if (file.Length > 0 )
-                 {
-                     var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
-                     var fullPath = Path.Combine(pathToSave, fileName);
-                     var dbPath = Path.Combine(folderName, fileName);
-
-                     using (var stream = new FileStream(fullPath, FileMode.Create))
-                     {
-                         file.CopyTo(stream);
-                     }
-
-                     return Ok( new {dbPath});
-                 }
-                 else { return BadRequest(); }
-             }
-             catch (Exception ex)
-             {
-                 return BadRequest(ex.Message);
-             }
-         }*/
-
         [HttpPost("create-with-documents")]
         public IActionResult CreateTicketWithDocuments([FromForm] TicketDto ticketDto, [FromForm] IFormFile file)
         {
             try
             {
-                // Call the service method to create the ticket with documents
                 _ticketService.CreateTicketWithDocuments(ticketDto, file);
-
-                // Return a success response if the ticket creation is successful
                 return Ok(new { Message = "Ticket created successfully." });
             }
             catch (Exception ex)
             {
-                // Return a bad request response if an exception occurs during the process
+                
                 return BadRequest(new { Message = $"Error creating ticket: {ex.Message}" });
             }
         }
-        private readonly string _imagesPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "Images");
-        [HttpGet("{imageName}")]
-        public IActionResult GetImage(string imageName)
-        {
-            var imagePath = Path.Combine(_imagesPath, imageName);
-
-            if (System.IO.File.Exists(imagePath))
-            {
-                var imageBytes = System.IO.File.ReadAllBytes(imagePath);
-                return File(imageBytes, "image/jpeg"); // Adjust the content type based on your image format
-            }
-            else
-            {
-                return NotFound();
-            }
-        }
-    
+       
 
     [HttpPost("AddEmployees")]
         public IActionResult AddEmployees([FromBody] IEnumerable<EmployeeInputModel> employeeInputs)
@@ -193,14 +135,28 @@ namespace FacilitEase.Controllers
                 return NotFound(new { Message = "Ticket not found or cancellation request failed." });
             }
         }
-        [HttpGet("myTickets/{userId}")]
+        [HttpGet("tickets/{userId}")]
         public IActionResult GetTicketDetailsByUserId(int userId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
-            var ticketDetails = _ticketDetailsService.GetTicketDetailsByUserId( userId,  sortField,  sortOrder,  pageIndex,  pageSize,   searchQuery);
+            var ticketDetails = _ticketDetailsService.GetTicketDetailsByUserId(userId, sortField, sortOrder, pageIndex, pageSize, searchQuery);
 
             if (ticketDetails == null)
             {
                 return NotFound("No ticket details found for the specified user ID.");
+            }
+
+            return Ok(ticketDetails);
+        }
+
+
+        [HttpGet("ticket/{ticketId}")]
+        public IActionResult GetTicketDetailsById(int ticketId)
+        {
+            var ticketDetails = _ticketDetailsService.GetTicketDetailsById(ticketId);
+
+            if (ticketDetails == null)
+            {
+                return NotFound($"Ticket with ID {ticketId} not found.");
             }
 
             return Ok(ticketDetails);
@@ -236,6 +192,12 @@ namespace FacilitEase.Controllers
         {
             
             return Ok(_employeeService.GetEmployeeDetails(id));
+        }
+        [HttpGet("employee/{employeeId}")]
+        public IActionResult GetAssetsByEmployeeId(int employeeId)
+        {
+            var assets = _assetService.GetAssetsByEmployeeId(employeeId);
+            return Ok(assets);
         }
     }
     
