@@ -28,7 +28,9 @@ public class UnitOfWork : IUnitOfWork
             TicketRepository = new TicketRepository(_context);
             Location = new LocationRepository(_context);
             Position = new PositionRepository(_context);
-            
+        Notification = new NotificationRepository(_context);
+
+
         }
 
 
@@ -51,6 +53,8 @@ public class UnitOfWork : IUnitOfWork
         public IEmployeeRepository EmployeeRepository { get; set; }
         public ITicketRepository TicketRepository { get; set; }
          public IL3AdminRepository L3Admin { get; set; }
+        
+        public INotificationRepository Notification { get; set; }
 
 
     public int Complete()

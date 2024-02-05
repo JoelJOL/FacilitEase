@@ -17,6 +17,8 @@ namespace FacilitEase.UnitOfWork
         ITicketRepository TicketRepository { get; }
         IEmployeeDetailRepository EmployeeDetailRepository { get; }
 
+        INotificationRepository Notification { get; set; }
+
        ILocationRepository Location { get; }
         IPositionRepository Position { get; }
         Task<int> CompleteAsync();
