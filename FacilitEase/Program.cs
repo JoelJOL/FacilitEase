@@ -10,6 +10,7 @@ using System.Text;
 using FacilitEase.Models.EntityModels;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.FileProviders;
+using FacilitEase.NewFolder4;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -90,6 +91,7 @@ builder.Services.AddScoped<ITicketDetailsService, TicketDetailsService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IManagerService, ManagerService>();
 builder.Services.AddScoped<IL1AdminService, L1AdminService>();
+builder.Services.AddScoped<IAssetService, AssetService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 
 builder.Services.Configure<FormOptions>(o =>
@@ -117,6 +119,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAngularDev");
   
 app.UseCors("CorsPolicy");
+app.UseMiddleware<LogMiddleware>();
 app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
 {
