@@ -11,6 +11,6 @@
         public string EmployeeName { get; set; }
         public DateTime SubmittedDate { get; set; }
         public DateTime ResolvedDate { get; set; }
-        public string PriorityName { get; set; }
+        public string Priority { get; set; }
     }
 }
