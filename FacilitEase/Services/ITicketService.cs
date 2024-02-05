@@ -30,6 +30,8 @@ namespace FacilitEase.Services
 
         Task<bool> ChangeTicketStatus(int ticketId, TicketStatusChangeRequest request);
 
+        ManagerTicketResponse<TicketApiModel> GetAssignedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery);
+
         //Nathaniel
         TicketDetails GetTicketDetails(int desiredTicketId);
 
