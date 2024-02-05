@@ -229,7 +229,7 @@ namespace FacilitEase.Controllers
             try
             {
                 // Create a new Comment object with predefined values and provided text and TicketId
-                Comment comment = new Comment
+                TBL_COMMENT comment = new TBL_COMMENT
                 {
                     TicketId = commentRequestDto.TicketId,
                     Text = commentRequestDto.Text,

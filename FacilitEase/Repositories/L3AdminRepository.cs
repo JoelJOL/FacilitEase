@@ -7,7 +7,7 @@ using System.Net.Sockets;
 
 namespace FacilitEase.Repositories
 {
-    public class L3AdminRepository : Repository<Ticket>, IL3AdminRepository
+    public class L3AdminRepository : Repository<TBL_TICKET>, IL3AdminRepository
     {
         public L3AdminRepository(AppDbContext context) : base(context) { }
        

@@ -2,7 +2,7 @@
 
 namespace FacilitEase.Repositories
 {
-    public interface ICategoryRepository : IRepository<Category>
+    public interface ICategoryRepository : IRepository<TBL_CATEGORY>
     {
     }
 }

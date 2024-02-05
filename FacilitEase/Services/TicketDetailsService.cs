@@ -32,10 +32,10 @@ namespace FacilitEase.Services
         /// <returns></returns>
         public EmployeeTicketResponse<TicketDetailsDto> GetTicketDetailsByUserId(int userId,  string sortField, string sortOrder, int pageIndex, int pageSize, string  searchQuery)
         {
-            var query = from t in _context.Ticket
-                        join ts in _context.Status on t.StatusId equals ts.Id
-                        join tp in _context.Priority on t.PriorityId equals tp.Id
-                        join u in _context.User on t.AssignedTo equals u.Id
+            var query = from t in _context.TBL_TICKET
+                        join ts in _context.TBL_STATUS on t.StatusId equals ts.Id
+                        join tp in _context.TBL_PRIORITY on t.PriorityId equals tp.Id
+                        join u in _context.TBL_USER on t.AssignedTo equals u.Id
             where t.UserId == userId
                         where string.IsNullOrEmpty(searchQuery) || t.TicketName.Contains(searchQuery)
                         select new TicketDetailsDto
@@ -76,7 +76,7 @@ namespace FacilitEase.Services
         /// <returns></returns>
         public bool RequestToCancelTicket(int ticketId)
         {
-            var ticket = _context.Ticket.FirstOrDefault(t => t.Id == ticketId);
+            var ticket = _context.TBL_TICKET.FirstOrDefault(t => t.Id == ticketId);
 
             if (ticket == null)
             {

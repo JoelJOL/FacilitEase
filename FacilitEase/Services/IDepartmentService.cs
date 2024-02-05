@@ -7,7 +7,7 @@ namespace FacilitEase.Services
     {
         IEnumerable<DepartmentDto> GetDepartments();
         void CreateDepartment(DepartmentDto departmentDto);
-        public IEnumerable<Department> GetAllDepartments();
+        public IEnumerable<TBL_DEPARTMENT> GetAllDepartments();
         public List<DeptCategoryDto> GetCategoriesByDepartmentId(int departmentId);
     }
 }

@@ -25,7 +25,7 @@ namespace FacilitEase.Services
         /// <param name="ticketId"></param>
         public void CloseTicket(int ticketId)
         {
-            var ticketToClose = _context.Ticket
+            var ticketToClose = _context.TBL_TICKET
                 .FirstOrDefault(t => t.Id == ticketId);
 
             if (ticketToClose != null)
@@ -37,7 +37,7 @@ namespace FacilitEase.Services
 
         public void AcceptTicketCancellation(int ticketId)
         {
-            var ticketToClose = _context.Ticket
+            var ticketToClose = _context.TBL_TICKET
                 .FirstOrDefault(t => t.Id == ticketId);
 
             if (ticketToClose != null)
@@ -50,7 +50,7 @@ namespace FacilitEase.Services
 
         public void DenyTicketCancellation(int ticketId)
         {
-            var ticketToClose = _context.Ticket
+            var ticketToClose = _context.TBL_TICKET
                 .FirstOrDefault(t => t.Id == ticketId);
 
             if (ticketToClose != null)
@@ -70,24 +70,24 @@ namespace FacilitEase.Services
         public void ForwardTicketToDept(int ticketId, int categoryId)
         {
             // Retrieve the department ID associated with the specified category.
-            var category = _context.Category.FirstOrDefault(c => c.Id == categoryId);
+            var category = _context.TBL_CATEGORY.FirstOrDefault(c => c.Id == categoryId);
             int deptId = category.DepartmentId;
 
             // Get the role ID associated with administrators.
             int adminRoleId = GetAdminRoleId();
 
             // Find an administrator in the specified department with the admin role. This isn't needed
-            int adminEmployeeId = _context.User_Role_Mapping
+            int adminEmployeeId = _context.TBL_USER_ROLE_MAPPING
                 .Where(mapping => mapping.UserRoleId == adminRoleId && mapping.UserId != null)
-                .Join(_context.UserRole,
+                .Join(_context.TBL_USER_ROLE,
                     mapping => mapping.UserRoleId,
                     userRole => userRole.Id,
                     (mapping, userRole) => new { UserId = mapping.UserId, UserRoleName = userRole.UserRoleName })
-                .Join(_context.User,
+                .Join(_context.TBL_USER,
                     userMapping => userMapping.UserId,
                     user => user.Id,
                     (userMapping, user) => new { UserId = userMapping.UserId, user.EmployeeId })
-                .Join(_context.EmployeeDetail,
+                .Join(_context.TBL_EMPLOYEE_DETAIL,
                     user => user.UserId,
                     employeeDetail => employeeDetail.EmployeeId,
                     (user, employeeDetail) => new { user.EmployeeId, employeeDetail.DepartmentId })
@@ -96,7 +96,7 @@ namespace FacilitEase.Services
                 .FirstOrDefault();
 
             // Retrieve the ticket to update.
-            var ticketToUpdate = _context.Ticket
+            var ticketToUpdate = _context.TBL_TICKET
                .FirstOrDefault(t => t.Id == ticketId);
 
             // Check if the ticket exists.
@@ -118,7 +118,7 @@ namespace FacilitEase.Services
         public int GetAdminRoleId()
         {
             // Replace "Admin" with the actual role name for administrators
-            var adminRole = _context.UserRole
+            var adminRole = _context.TBL_USER_ROLE
                 .FirstOrDefault(role => role.UserRoleName == "Admin");
 
             return adminRole?.Id ?? 0;
@@ -133,9 +133,9 @@ namespace FacilitEase.Services
         /// <exception cref="InvalidOperationException"></exception>
         public void ForwardTicket(int ticketId, int managerId)
         {
-            var ticketToForward = _context.Ticket
+            var ticketToForward = _context.TBL_TICKET
                 .FirstOrDefault(t => t.Id == ticketId);
-            var manager = _context.Employee.FirstOrDefault(e => e.Id == managerId);
+            var manager = _context.TBL_EMPLOYEE.FirstOrDefault(e => e.Id == managerId);
             if (ticketToForward != null)
             {
                 ticketToForward.StatusId = 5;
@@ -155,7 +155,7 @@ namespace FacilitEase.Services
 
         }
 
-        public void AddTicket(Ticket ticket)
+        public void AddTicket(TBL_TICKET ticket)
         {
 
             _unitOfWork.Ticket.Add(ticket);
@@ -169,7 +169,7 @@ namespace FacilitEase.Services
         /// <returns></returns>
         public string GetCommentTextByTicketId(int ticketId)
         {
-            var commentText = _context.Comment
+            var commentText = _context.TBL_COMMENT
                 .Where(comment => comment.TicketId == ticketId)
                 .Where(comment => comment.Category == "Note")
                 .Select(comment => comment.Text)
@@ -186,7 +186,7 @@ namespace FacilitEase.Services
         public void UpdateCommentTextByTicketId(int ticketId, string newText)
         {
             // Retrieving the first comment related to the specified ticket ID.
-            var comment = _context.Comment
+            var comment = _context.TBL_COMMENT
                 .FirstOrDefault(c => c.TicketId == ticketId);
 
             // Checking if a comment is found for the specified ticket ID.
@@ -201,9 +201,9 @@ namespace FacilitEase.Services
         /// This method adds the comment of a particular ticket
         /// </summary>
         /// <param name="comment"></param>
-        public void AddComment(Comment comment)
+        public void AddComment(TBL_COMMENT comment)
         {
-            _context.Comment.Add(comment);
+            _context.TBL_COMMENT.Add(comment);
             _context.SaveChanges();
         }
 
@@ -217,11 +217,11 @@ namespace FacilitEase.Services
         {
             try
             {
-                var comment = await _context.Comment.FirstOrDefaultAsync(c => c.TicketId == ticketId);
+                var comment = await _context.TBL_COMMENT.FirstOrDefaultAsync(c => c.TicketId == ticketId);
 
                 if (comment != null)
                 {
-                    _context.Comment.Remove(comment);
+                    _context.TBL_COMMENT.Remove(comment);
                     await _context.SaveChangesAsync();
                     return true; // Successfully deleted
                 }
@@ -251,27 +251,27 @@ namespace FacilitEase.Services
         public AgentTicketResponse<TicketJoin> GetTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             // Joining multiple tables to fetch necessary information about the tickets.
-            var query = _context.Ticket
+            var query = _context.TBL_TICKET
               .Join(
-                  _context.User,
+                  _context.TBL_USER,
                   ticket => ticket.UserId,
                   user => user.Id,
                   (ticket, user) => new { Ticket = ticket, User = user }
               )
               .Join(
-                  _context.Employee,
+                  _context.TBL_EMPLOYEE,
                   joined => joined.User.EmployeeId,
                   employee => employee.Id,
                   (joined, employee) => new { joined.Ticket, joined.User, Employee = employee }
               )
               .Join(
-                  _context.Priority,
+                  _context.TBL_PRIORITY,
                   joined => joined.Ticket.PriorityId,
                   priority => priority.Id,
                   (joined, priority) => new { joined.Ticket, joined.User, joined.Employee, Priority = priority }
               )
               .Join(
-                  _context.Status,
+                  _context.TBL_STATUS,
                   joined => joined.Ticket.StatusId,
                   status => status.Id,
                   (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Priority, Status = status }
@@ -319,18 +319,18 @@ namespace FacilitEase.Services
 
         public IEnumerable<Join> GetTicketDetailByAgent(int desiredTicketId)
         {
-            var result = (from ticket in _context.Ticket
-                          join user in _context.User on ticket.UserId equals user.Id
-                          join employee in _context.Employee on user.EmployeeId equals employee.Id
-                          join employeeDetail in _context.EmployeeDetail on employee.Id equals employeeDetail.EmployeeId
-                          join location in _context.Location on employeeDetail.LocationId equals location.Id
-                          join department in _context.Department on employeeDetail.DepartmentId equals department.Id
-                          join status in _context.Status on ticket.StatusId equals status.Id
-                          join priority in _context.Priority on ticket.PriorityId equals priority.Id
-                          join document in _context.Document on ticket.Id equals document.TicketId
-                          join project in _context.ProjectEmployeeMapping on employee.Id equals project.EmployeeId
-                          join projectcode in _context.ProjectCodeGeneration on project.ProjectId equals projectcode.ProjectId
-                          join manager in _context.Employee on employee.ManagerId equals manager.Id into managerJoin
+            var result = (from ticket in _context.TBL_TICKET
+                          join user in _context.TBL_USER on ticket.UserId equals user.Id
+                          join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
+                          join employeeDetail in _context.TBL_EMPLOYEE_DETAIL on employee.Id equals employeeDetail.EmployeeId
+                          join location in _context.TBL_LOCATION on employeeDetail.LocationId equals location.Id
+                          join department in _context.TBL_DEPARTMENT on employeeDetail.DepartmentId equals department.Id
+                          join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
+                          join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
+                          join document in _context.TBL_DOCUMENT on ticket.Id equals document.TicketId
+                          join project in _context.TBL_PROJECT_EMPLOYEE_MAPPING on employee.Id equals project.EmployeeId
+                          join projectcode in _context.TBL_PROJECT_CODE_GENERATION on project.ProjectId equals projectcode.ProjectId
+                          join manager in _context.TBL_EMPLOYEE on employee.ManagerId equals manager.Id into managerJoin
                           from manager in managerJoin.DefaultIfEmpty()
                           where ticket.Id == desiredTicketId
                           select new Join
@@ -367,27 +367,27 @@ namespace FacilitEase.Services
         public AgentTicketResponse<TicketResolveJoin> GetResolvedTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             // Joining multiple tables to fetch necessary information about resolved tickets.
-            var query = _context.Ticket
+            var query = _context.TBL_TICKET
               .Join(
-                  _context.User,
+                  _context.TBL_USER,
                   ticket => ticket.UserId,
                   user => user.Id,
                   (ticket, user) => new { Ticket = ticket, User = user }
               )
               .Join(
-                  _context.Employee,
+                  _context.TBL_EMPLOYEE,
                   joined => joined.User.EmployeeId,
                   employee => employee.Id,
                   (joined, employee) => new { joined.Ticket, joined.User, Employee = employee }
               )
               .Join(
-                  _context.Priority,
+                  _context.TBL_PRIORITY,
                   joined => joined.Ticket.PriorityId,
                   priority => priority.Id,
                   (joined, priority) => new { joined.Ticket, joined.User, joined.Employee, Priority = priority }
               )
               .Join(
-                  _context.Status,
+                  _context.TBL_STATUS,
                   joined => joined.Ticket.StatusId,
                   status => status.Id,
                   (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Priority, Status = status }
@@ -438,27 +438,27 @@ namespace FacilitEase.Services
         public AgentTicketResponse<TicketResolveJoin> GetOnHoldTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             // Joining multiple tables to fetch necessary information about resolved tickets.
-            var query = _context.Ticket
+            var query = _context.TBL_TICKET
               .Join(
-                  _context.User,
+                  _context.TBL_USER,
                   ticket => ticket.UserId,
                   user => user.Id,
                   (ticket, user) => new { Ticket = ticket, User = user }
               )
               .Join(
-                  _context.Employee,
+                  _context.TBL_EMPLOYEE,
                   joined => joined.User.EmployeeId,
                   employee => employee.Id,
                   (joined, employee) => new { joined.Ticket, joined.User, Employee = employee }
               )
               .Join(
-                  _context.Priority,
+                  _context.TBL_PRIORITY,
                   joined => joined.Ticket.PriorityId,
                   priority => priority.Id,
                   (joined, priority) => new { joined.Ticket, joined.User, joined.Employee, Priority = priority }
               )
               .Join(
-                  _context.Status,
+                  _context.TBL_STATUS,
                   joined => joined.Ticket.StatusId,
                   status => status.Id,
                   (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Priority, Status = status }
@@ -504,27 +504,27 @@ namespace FacilitEase.Services
         public AgentTicketResponse<TicketResolveJoin> GetCancelRequestTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             // Joining multiple tables to fetch necessary information about resolved tickets.
-            var query = _context.Ticket
+            var query = _context.TBL_TICKET
               .Join(
-                  _context.User,
+                  _context.TBL_USER,
                   ticket => ticket.UserId,
                   user => user.Id,
                   (ticket, user) => new { Ticket = ticket, User = user }
               )
               .Join(
-                  _context.Employee,
+                  _context.TBL_EMPLOYEE,
                   joined => joined.User.EmployeeId,
                   employee => employee.Id,
                   (joined, employee) => new { joined.Ticket, joined.User, Employee = employee }
               )
               .Join(
-                  _context.Priority,
+                  _context.TBL_PRIORITY,
                   joined => joined.Ticket.PriorityId,
                   priority => priority.Id,
                   (joined, priority) => new { joined.Ticket, joined.User, joined.Employee, Priority = priority }
               )
               .Join(
-                  _context.Status,
+                  _context.TBL_STATUS,
                   joined => joined.Ticket.StatusId,
                   status => status.Id,
                   (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Priority, Status = status }

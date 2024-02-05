@@ -29,7 +29,7 @@ namespace FacilitEase.Services
         /// </summary>
         /// <param name="priorities"></param>
         /// <returns></returns>
-        private IEnumerable<PriorityDto> MapToPriorityDtoList(IEnumerable<Priority> priorities)
+        private IEnumerable<PriorityDto> MapToPriorityDtoList(IEnumerable<TBL_PRIORITY> priorities)
         {
             return priorities.Select(MapToPriorityDto);
         }
@@ -41,7 +41,7 @@ namespace FacilitEase.Services
         /// </summary>
         /// <param name="priority"></param>
         /// <returns></returns>
-        private PriorityDto MapToPriorityDto(Priority priority)
+        private PriorityDto MapToPriorityDto(TBL_PRIORITY priority)
         {
             return new PriorityDto
             {

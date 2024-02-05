@@ -2,7 +2,7 @@
 
 namespace FacilitEase.Repositories
 {
-    public interface IDocumentRepository : IRepository<Document>
+    public interface IDocumentRepository : IRepository<TBL_DOCUMENT>
     {
     }
 }

@@ -10,8 +10,8 @@ namespace FacilitEase.Services
         IEnumerable<AgentDetailsModel> GetAgentsByDepartment(int departmentId);        
         void AddEmployees(IEnumerable<EmployeeInputModel> employeeInputs1, params EmployeeInputModel[] employeeInputs);
         void DeleteEmployee(int id);
-        public  IEnumerable<Location> GetLocations();
-        public IEnumerable<Position> GetPositions();
+        public  IEnumerable<TBL_LOCATION> GetLocations();
+        public IEnumerable<TBL_POSITION> GetPositions();
         IEnumerable<EmployeeDetails> GetEmployeeDetails(int empId);
     }
 }

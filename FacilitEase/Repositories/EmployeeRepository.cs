@@ -12,7 +12,7 @@ namespace FacilitEase.Repositories
 
     /*Dont use Repository<ManagerSubordinateEmployee> it is an api model*/
 
-        public void AddRange(IEnumerable<Employee> employees)
+        public void AddRange(IEnumerable<TBL_EMPLOYEE> employees)
         {
             // This implementation will call the AddRange method from the base class (generic repository)
             base.AddRange(employees);

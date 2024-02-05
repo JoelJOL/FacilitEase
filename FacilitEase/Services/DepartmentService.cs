@@ -101,7 +101,7 @@ namespace FacilitEase.Services
 
         public List<DeptCategoryDto> GetCategoriesByDepartmentId(int departmentId)
         {
-            return _context.Category
+            return _context.TBL_CATEGORY
                 .Where(category => category.DepartmentId == departmentId)
                 .Select(category => new DeptCategoryDto
                 {

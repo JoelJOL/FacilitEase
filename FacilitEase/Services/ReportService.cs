@@ -18,13 +18,13 @@ namespace FacilitEase.Services
         public Report GetReportData(int id)
         {
             Report report = new Report();
-            report.Unresolved = (from ta in _context.TicketAssignment
+            report.Unresolved = (from ta in _context.TBL_TICKET_ASSIGNMENT
                                  where ta.EmployeeId == id && ta.EmployeeStatus == "unresolved"
                                  select ta).Count();
-            report.Resolved = (from ta in _context.TicketAssignment
+            report.Resolved = (from ta in _context.TBL_TICKET_ASSIGNMENT
                                where ta.EmployeeId == id && ta.EmployeeStatus == "resolved"
                                select ta).Count();
-            report.Escalated = (from ta in _context.TicketAssignment
+            report.Escalated = (from ta in _context.TBL_TICKET_ASSIGNMENT
                                 where ta.EmployeeId == id && ta.EmployeeStatus == "escalated"
                                 select ta).Count();
             report.Total = report.Unresolved + report.Resolved + report.Escalated;
@@ -49,7 +49,7 @@ namespace FacilitEase.Services
                 December = new int[] { 0, 0, 0 }
             };
 
-            var ticketCountsByMonth = _context.TicketAssignment
+            var ticketCountsByMonth = _context.TBL_TICKET_ASSIGNMENT
                 .Where(ta => ta.EmployeeId == id)
                 .GroupBy(ta => ta.TicketAssignedTimestamp.Month)
                 .Select(group => new
@@ -86,26 +86,26 @@ namespace FacilitEase.Services
         public ProfileData GetProfileData(int id)
         {
             ProfileData profileData = new ProfileData();
-            profileData.EmpId=(from u in _context.User
+            profileData.EmpId=(from u in _context.TBL_USER
                                where u.Id == id
                                select u.EmployeeId).FirstOrDefault();
-            profileData.EmployeeFirstName = (from p in _context.Employee
-                                             join u in _context.User on p.Id equals u.EmployeeId
+            profileData.EmployeeFirstName = (from p in _context.TBL_EMPLOYEE
+                                             join u in _context.TBL_USER on p.Id equals u.EmployeeId
                                              where u.EmployeeId == id
                                              select p.FirstName).FirstOrDefault()?.ToString() ?? "";
 
-            profileData.EmployeeLastName = (from p in _context.Employee
-                                            join u in _context.User on p.Id equals u.EmployeeId
+            profileData.EmployeeLastName = (from p in _context.TBL_EMPLOYEE
+                                            join u in _context.TBL_USER on p.Id equals u.EmployeeId
                                             where u.EmployeeId == id
                                             select p.LastName).FirstOrDefault()?.ToString() ?? "";
 
-            profileData.Username = (from u in _context.User
+            profileData.Username = (from u in _context.TBL_USER
                                     where u.Id == id
                                     select u.Email).FirstOrDefault()?.ToString()??"";
 
-            profileData.JobTitle= (from p in _context.Position
-                                join ed in _context.EmployeeDetail on p.Id equals ed.PositionId
-                                join u in _context.User on ed.EmployeeId equals u.EmployeeId
+            profileData.JobTitle= (from p in _context.TBL_POSITION
+                                join ed in _context.TBL_EMPLOYEE_DETAIL on p.Id equals ed.PositionId
+                                join u in _context.TBL_USER on ed.EmployeeId equals u.EmployeeId
                                 where u.EmployeeId == id
                                 select p.PositionName).FirstOrDefault()?.ToString()??"";
             return profileData;

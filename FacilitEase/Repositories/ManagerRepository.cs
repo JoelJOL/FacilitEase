@@ -27,11 +27,11 @@ public class ManagerRepository : IManagerRepository
     {
         try
         {
-            var managers = await (from userRole in _context.UserRole
+            var managers = await (from userRole in _context.TBL_USER_ROLE
                                   where userRole.UserRoleName == "Manager"
-                                  join userRoleMapping in _context.User_Role_Mapping on userRole.Id equals userRoleMapping.UserRoleId
-                                  join user in _context.User on userRoleMapping.UserId equals user.Id
-                                  join employee in _context.Employee on user.Id equals employee.Id
+                                  join userRoleMapping in _context.TBL_USER_ROLE_MAPPING on userRole.Id equals userRoleMapping.UserRoleId
+                                  join user in _context.TBL_USER on userRoleMapping.UserId equals user.Id
+                                  join employee in _context.TBL_EMPLOYEE on user.Id equals employee.Id
                                   select new ManagerAPI
                                   {
                                       ManagerId = employee.Id,

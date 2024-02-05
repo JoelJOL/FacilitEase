@@ -42,7 +42,7 @@ namespace FacilitEase.Services
                 var allEmployeeInputs = employeeInputs.Concat(additionalEmployeeInputs);
 
                 // Map the input models to your entity models
-                var employeeEntities = allEmployeeInputs.Select(employeeInput => new Employee
+                var employeeEntities = allEmployeeInputs.Select(employeeInput => new TBL_EMPLOYEE
                 {
                     EmployeeCode = employeeInput.EmployeeCode,
                     FirstName = employeeInput.FirstName,
@@ -62,7 +62,7 @@ namespace FacilitEase.Services
                 var addedEmployees = employeeEntities;
 
                 // Map the input models to TBL_EMPLOYEE_DETAIL entities
-                var employeeDetailEntities = allEmployeeInputs.Select(employeeInput => new EmployeeDetail
+                var employeeDetailEntities = allEmployeeInputs.Select(employeeInput => new TBL_EMPLOYEE_DETAIL
                 {
                     EmployeeId = addedEmployees.Single(e => e.EmployeeCode == employeeInput.EmployeeCode).Id,
                     DepartmentId = employeeInput.DepartmentId,
@@ -118,7 +118,7 @@ namespace FacilitEase.Services
         /// Retrieves all positions from the database.
         /// </summary>
         /// <returns>A list of all positions.</returns>
-        public IEnumerable<Position> GetPositions()
+        public IEnumerable<TBL_POSITION> GetPositions()
         {
             try
             {
@@ -138,7 +138,7 @@ namespace FacilitEase.Services
         /// Retrieves all locations from the database.
         /// </summary>
         /// <returns>A list of all locations.</returns>
-        public IEnumerable<Location> GetLocations()
+        public IEnumerable<TBL_LOCATION> GetLocations()
         {
             try
             {
@@ -162,10 +162,10 @@ namespace FacilitEase.Services
         /// <returns></returns>
         public List<ManagerSubordinateEmployee> GetSubordinates(int managerId)
         {
-            var result = _context.Employee
+            var result = _context.TBL_EMPLOYEE
                 .Where(e => e.ManagerId == managerId)
                 .Join(
-                    _context.EmployeeDetail,
+                    _context.TBL_EMPLOYEE_DETAIL,
                     employee => employee.Id,
                     employeeDetail => employeeDetail.EmployeeId,
                     (employee, employeeDetail) => new ManagerSubordinateEmployee
@@ -176,9 +176,9 @@ namespace FacilitEase.Services
                         DOB = employee.DOB,
                         Email = employee.Email,
                         Gender = employee.Gender,
-                        Department = _context.Department.FirstOrDefault(d => d.Id == employeeDetail.DepartmentId).DeptName,
-                        Position = _context.Position.FirstOrDefault(p => p.Id == employeeDetail.PositionId).PositionName,
-                        Location = _context.Location.FirstOrDefault(l => l.Id == employeeDetail.LocationId).LocationName
+                        Department = _context.TBL_DEPARTMENT.FirstOrDefault(d => d.Id == employeeDetail.DepartmentId).DeptName,
+                        Position = _context.TBL_POSITION.FirstOrDefault(p => p.Id == employeeDetail.PositionId).PositionName,
+                        Location = _context.TBL_LOCATION.FirstOrDefault(l => l.Id == employeeDetail.LocationId).LocationName
 
                     })
                 .ToList();
@@ -193,7 +193,7 @@ namespace FacilitEase.Services
         /// <returns></returns>
         public IEnumerable<AgentApiModel> GetAgents(int departmentId)
         {
-            var agentRoleId = _context.UserRole
+            var agentRoleId = _context.TBL_USER_ROLE
                 .Where(role => role.UserRoleName == "Agent")
                 .Select(role => role.Id)
                 .FirstOrDefault();
@@ -203,18 +203,18 @@ namespace FacilitEase.Services
                 return new List<AgentApiModel>();
             }
 
-            var agents = _context.User_Role_Mapping
+            var agents = _context.TBL_USER_ROLE_MAPPING
                 .Where(mapping => mapping.UserRoleId == agentRoleId)
-                .Join(_context.User, mapping => mapping.UserId, user => user.Id, (mapping, user) => new
+                .Join(_context.TBL_USER, mapping => mapping.UserId, user => user.Id, (mapping, user) => new
                 {
                     UserId = user.Id,
-                    DepartmentId = _context.EmployeeDetail
+                    DepartmentId = _context.TBL_EMPLOYEE_DETAIL
                         .Where(detail => detail.EmployeeId == user.EmployeeId)
                         .Select(detail => detail.DepartmentId)
                         .FirstOrDefault()
                 })
                 .Where(mapping => mapping.DepartmentId == departmentId)
-                .Join(_context.Employee, mapping => mapping.UserId, employee => employee.Id, (mapping, employee) => new AgentApiModel
+                .Join(_context.TBL_EMPLOYEE, mapping => mapping.UserId, employee => employee.Id, (mapping, employee) => new AgentApiModel
                 {
                     AgentId = employee.Id,
                     AgentName = $"{employee.FirstName} {employee.LastName}"
@@ -231,21 +231,21 @@ namespace FacilitEase.Services
         /// <returns></returns>
         public IEnumerable<AgentDetailsModel> GetAgentsByDepartment(int departmentId)
         {
-            var agentRoleId = _context.UserRole
+            var agentRoleId = _context.TBL_USER_ROLE
                 .Where(role => role.UserRoleName == "Agent")
                 .Select(role => role.Id)
                 .FirstOrDefault();
 
-            var agentDetails = _context.User_Role_Mapping
+            var agentDetails = _context.TBL_USER_ROLE_MAPPING
                 .Where(ur => ur.UserRoleId == agentRoleId)
-                .Join(_context.User, ur => ur.UserId, u => u.Id, (ur, u) => u)
-                .Join(_context.EmployeeDetail, u => u.EmployeeId, ed => ed.EmployeeId, (u, ed) => new
+                .Join(_context.TBL_USER, ur => ur.UserId, u => u.Id, (ur, u) => u)
+                .Join(_context.TBL_EMPLOYEE_DETAIL, u => u.EmployeeId, ed => ed.EmployeeId, (u, ed) => new
                 {
                     EmployeeId = u.EmployeeId,
                     DepartmentId = ed.DepartmentId
                 })
                 .Where(ed => ed.DepartmentId == departmentId)
-                .Join(_context.Employee, e => e.EmployeeId, emp => emp.Id, (e, emp) => new AgentDetailsModel
+                .Join(_context.TBL_EMPLOYEE, e => e.EmployeeId, emp => emp.Id, (e, emp) => new AgentDetailsModel
                 {
                     EmployeeCode = emp.EmployeeCode.ToString(),
                     FirstName = emp.FirstName,
@@ -260,8 +260,8 @@ namespace FacilitEase.Services
         }
         public IEnumerable<EmployeeDetails> GetEmployeeDetails(int empId)
         {
-            var employeeDetails = from employee in _context.Employee
-                                  join user in _context.User on employee.Id equals user.EmployeeId
+            var employeeDetails = from employee in _context.TBL_EMPLOYEE
+                                  join user in _context.TBL_USER on employee.Id equals user.EmployeeId
                                   where employee.Id == empId
                                   select new EmployeeDetails
                                   {

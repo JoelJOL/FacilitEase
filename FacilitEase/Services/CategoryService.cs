@@ -50,7 +50,7 @@ namespace FacilitEase.Services
         /// <returns></returns>
         public IEnumerable<CategoryDto> GetCategoryByDepartmentId(int departmentId)
         {
-            var categories = _context.Category
+            var categories = _context.TBL_CATEGORY
                 .Where(category => category.DepartmentId == departmentId)
                 .ToList();
             var categoryDtos = categories.Select(category => new CategoryDto

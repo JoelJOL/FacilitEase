@@ -3,8 +3,8 @@ using FacilitEase.Models.EntityModels;
 using FacilitEase.Repositories;
 using System.Collections.Generic;
 
-public interface IEmployeeRepository : IRepository<Employee>
+public interface IEmployeeRepository : IRepository<TBL_EMPLOYEE>
 {
-    void AddRange(IEnumerable<Employee> employees);
+    void AddRange(IEnumerable<TBL_EMPLOYEE> employees);
 
 }

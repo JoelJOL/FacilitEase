@@ -5,7 +5,7 @@ namespace FacilitEase.Services
 {
     public interface IL3AdminService
     {
-        void AddTicket(Ticket ticket);
+        void AddTicket(TBL_TICKET ticket);
         void CloseTicket(int ticketId);
         public void AcceptTicketCancellation(int ticketId);
         public void DenyTicketCancellation(int ticketId);
@@ -14,7 +14,7 @@ namespace FacilitEase.Services
         void ForwardTicketToDept(int ticketId, int deptId);
         public string GetCommentTextByTicketId(int ticketId);
         public void UpdateCommentTextByTicketId(int ticketId, string newText);
-        public void AddComment(Comment comment);
+        public void AddComment(TBL_COMMENT comment);
         public Task<bool> DeleteCommentAsync(int ticketId);
         IEnumerable<Join> GetTicketDetailByAgent(int ticketId);
         public AgentTicketResponse<TicketJoin> GetTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);

@@ -9,7 +9,7 @@ using FacilitEase.Models.EntityModels;
 
 namespace FacilitEase.Repositories
 {
-    public class TicketRepository : Repository<Ticket>, ITicketRepository
+    public class TicketRepository : Repository<TBL_TICKET>, ITicketRepository
     {
         /*Removed Repository<TicketApiModel> 
         Dont use api model in BearerTokenExtensions inherit in Repository
