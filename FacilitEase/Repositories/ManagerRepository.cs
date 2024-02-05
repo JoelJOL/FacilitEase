@@ -3,15 +3,26 @@ using FacilitEase.Models.ApiModels;
 using FacilitEase.Repositories;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Repository for managing data related to managers.
+/// </summary>
 public class ManagerRepository : IManagerRepository
 {
     private readonly AppDbContext _context;
 
+    /// <summary>
+    /// Initializes a new instance of the ManagerRepository class.
+    /// </summary>
+    /// <param name="context">The application's database context.</param>
     public ManagerRepository(AppDbContext context)
     {
         _context = context;
     }
 
+    /// <summary>
+    /// Asynchronously gets a list of all managers.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a list of Managers.</returns>
     public async Task<IEnumerable<ManagerAPI>> GetManagersAsync()
     {
         try

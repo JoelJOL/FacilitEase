@@ -9,6 +9,7 @@ namespace FacilitEase.Models.ApiModels
     {
         [Key]
         public int Id { get; set; }
+
         public string TicketName { get; set; }
 
         public string EmployeeName { get; set; }
@@ -17,7 +18,5 @@ namespace FacilitEase.Models.ApiModels
         public DateTime SubmittedDate { get; set; }
         public string Priority { get; set; }
         public string Status { get; set; }
-
-
     }
 }

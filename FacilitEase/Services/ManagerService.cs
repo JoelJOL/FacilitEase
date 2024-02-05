@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using FacilitEase.Models.ApiModels;
+﻿using FacilitEase.Models.ApiModels;
 using FacilitEase.Repositories;
 
 namespace FacilitEase.Services

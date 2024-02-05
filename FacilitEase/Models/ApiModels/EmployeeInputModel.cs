@@ -1,10 +1,9 @@
 ﻿// EmployeeInputModel.cs
-using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
-
+/// <summary>
+/// Represents the input model for an employee and employee detail table , which act as a bulk upload model also.
+/// </summary>
 public class EmployeeInputModel
 {
     [Required]
@@ -16,7 +15,7 @@ public class EmployeeInputModel
     [Required]
     public string LastName { get; set; }
 
-
+    [Required]
     public DateOnly DOB { get; set; }
 
     [Required]
@@ -29,5 +28,12 @@ public class EmployeeInputModel
     [Required]
     public int ManagerId { get; set; }
 
-    // Other properties as needed
+    [Required]
+    public int DepartmentId { get; set; }
+
+    [Required]
+    public int PositionId { get; set; }
+
+    [Required]
+    public int LocationId { get; set; }
 }

@@ -1,11 +1,10 @@
-﻿using FacilitEase.Models.EntityModels;
+﻿using FacilitEase.Models.ApiModels;
 using FacilitEase.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FacilitEase.Controllers
 {
-
     [EnableCors("AllowAngularDev")]
     [ApiController]
     [Route("api/[controller]")]
@@ -18,64 +17,69 @@ namespace FacilitEase.Controllers
             _adminService = adminService;
         }
 
-        /* [HttpPost]
-         public IActionResult AddTicket(TBL_TICKET ticket)
-         {
-             _adminService.AddTicket(ticket);
-             return CreatedAtAction(nameof(GetTicketById), new { id = ticket.Id }, ticket);
-         }*/
-
-        /*[HttpGet]
-        public IActionResult GetTickets()
+        public class ApiResponse
         {
-            var tickets = _adminService.GetAllTickets();
-            return Ok(tickets);
+            public string Message { get; set; }
         }
 
-        [HttpGet("assigned-to-agents")]
-        public IActionResult GetTicketsAssignedToAents(int employeeId)
+        [HttpPatch("resolve-ticket/{ticketId}")]
+        public IActionResult CloseRaisedTicketStatus([FromRoute] int ticketId)
         {
-            // Fetch tickets assigned to the current user
-            var tickets = _adminService.GetTicketsByAgent(employeeId);
+            _adminService.CloseTicket(ticketId);
+            return Ok(new ApiResponse { Message = $"Ticket {ticketId} resolved successfully." });
+        }
 
-            return Ok(tickets);
-        }*/
-
-        /*[HttpGet("{id}")]
-        public IActionResult GetTicketById(int id)
+        [HttpGet("forward-ticket/{ticketId}/{managerId}")]
+        public IActionResult ForwardRaisedTicketStatus([FromRoute] int ticketId, [FromRoute] int managerId)
         {
-            var ticket = _adminService.GetTicketById(id);
-            if (ticket == null)
-            {
-                return NotFound();
-            }
-            return Ok(ticket);
-        }*/
+            _adminService.ForwardTicket(ticketId, managerId);
+            return Ok(new ApiResponse { Message = $"Ticket {ticketId} status updated successfully." });
+        }
 
+        [HttpGet("forward-ticket-to-department/{ticketId}/{deptId}")]
+        public IActionResult ForwardRaisedTicketDepartment([FromRoute] int ticketId, [FromRoute] int deptId)
+        {
+            _adminService.ForwardTicketToDept(ticketId, deptId);
+            return Ok(new ApiResponse { Message = $"Ticket {ticketId} status updated successfully." });
+        }
 
-
-        /* [HttpGet("GetTicketsByUserIdId/{employeeId}")]
-         public IEnumerable<TBL_TICKET> GetTicketsByEmployeeId(int employeeId)
-         {
-             return _adminService.GetTicketsByEmployeeId(employeeId);
-         }*/
-
-        [HttpGet("ticketdetails-by-agent/{agentId}")]
-        public IActionResult GetTicketDetailsByAgent([FromRoute] int agentId)
+        [HttpGet("GetRaisedTicketsByAgent/{agentId}")]
+        public IActionResult GetTicketsByAgent(
+             int agentId,
+             string sortField = null,
+             string sortOrder = null,
+             int pageIndex = 0,
+             int pageSize = 10,
+             string searchQuery = null)
         {
             try
             {
-                var tickets = _adminService.GetTicketDetailsByAgent(agentId);
-                if (tickets == null)
-                {
-                    return NotFound();
-                }
-
+                var tickets = _adminService.GetTicketsByAgent(agentId, sortField, sortOrder, pageIndex, pageSize, searchQuery);
                 return Ok(tickets);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Error retrieving ticket details");
+                return BadRequest($"An error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpGet("GetResolvedTicketsByAgent/{agentId}")]
+        public IActionResult GetResolvedTicketsByAgent(
+         int agentId,
+         string sortField = null,
+         string sortOrder = null,
+         int pageIndex = 0,
+         int pageSize = 10,
+         string searchQuery = null)
+        {
+            try
+            {
+                var tickets = _adminService.GetResolvedTicketsByAgent(agentId, sortField, sortOrder, pageIndex, pageSize, searchQuery);
+                return Ok(tickets);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"An error occurred: {ex.Message}");
             }
         }
 
@@ -94,39 +98,44 @@ namespace FacilitEase.Controllers
             }
             catch (Exception ex)
             {
-                
                 return StatusCode(500, "Error retrieving ticket details");
             }
         }
 
-        [HttpPatch("resolve-ticket/{ticketId}")]
-        public IActionResult CloseRaisedTicketStatus([FromRoute] int ticketId)
+        [HttpGet("ticket-commenttext/{ticketId}")]
+        public ActionResult<string> GetCommentTextByTicketId(int ticketId)
         {
-            _adminService.CloseTicket(ticketId);
-            return Ok($"Ticket {ticketId} status updated successfully.");
+            var commentText = _adminService.GetCommentTextByTicketId(ticketId);
+
+            if (commentText == null)
+            {
+                return NotFound($"No comment text found for TicketId: {ticketId}");
+            }
+
+            return Ok(commentText);
         }
 
-        [HttpGet("forward-ticket/{ticketId}/{managerId}")]
-        public IActionResult ForwardRaisedTicketStatus([FromRoute] int ticketId, [FromRoute] int managerId)
-        {
-            _adminService.ForwardTicket(ticketId, managerId);
-            return Ok($"Ticket {ticketId} status updated successfully.");
-        }
-
-        [HttpGet("forward-ticket-to-department/{ticketId}/{deptId}")]
-        public IActionResult ForwardRaisedTicketDepartment([FromRoute] int ticketId, [FromRoute] int deptId)
-        {
-            _adminService.ForwardTicketToDept(ticketId, deptId);
-            return Ok($"Ticket {ticketId} status updated successfully.");
-        }
-
-
-        [HttpGet("resolved-tickets-by-agent/{agentId}")]
-        public IActionResult GetResolvedTicketsByAgent([FromRoute] int agentId)
+        [HttpPatch("update-comment/{ticketId}")]
+        public IActionResult UpdateComment([FromRoute] int ticketId, [FromBody] UpdateCommentDto model)
         {
             try
             {
-                var tickets = _adminService.GetResolvedTicketsByAgent(agentId);
+                _adminService.UpdateCommentTextByTicketId(ticketId, model.NewText);
+                return Ok("Comment updated successfully");
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions according to your application's needs
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("escalted-tickets-by-agent/{agentId}")]
+        public IActionResult GetEscalatedTicketsByAgent([FromRoute] int agentId)
+        {
+            try
+            {
+                var tickets = _adminService.GetEscalatedTicketsByAgent(agentId);
                 if (tickets == null)
                 {
                     return NotFound();
@@ -136,32 +145,8 @@ namespace FacilitEase.Controllers
             }
             catch (Exception ex)
             {
-              
                 return StatusCode(500, "Error retrieving ticket details");
             }
         }
-
-        [HttpGet("latest-tickets-by-agent-desc/{agentId}")]
-        public IActionResult GetLatestTicketsByAgent([FromRoute] int agentId)
-        {
-            try
-            {
-                var tickets = _adminService.GetLatestTicketsByAgent(agentId);
-                if (tickets == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(tickets);
-            }
-            catch (Exception ex)
-            {
-             
-                return StatusCode(500, "Error retrieving ticket details");
-            }
-        }
-
-
-
     }
 }
