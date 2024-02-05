@@ -14,7 +14,7 @@ namespace FacilitEase.Services
         }
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _timer = new System.Threading.Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMinutes(60));
+            _timer = new System.Threading.Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMinutes(61));
             return Task.CompletedTask;
         }
 
