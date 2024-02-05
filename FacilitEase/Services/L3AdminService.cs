@@ -108,7 +108,7 @@ namespace FacilitEase.Services
             {
                 ticketToForward.StatusId = 5;
 
-                if (manager?.ManagerId != null)
+                if (manager?.Id != null)
                 {
                     ticketToForward.ControllerId = managerId;
                     _context.SaveChanges();

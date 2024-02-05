@@ -38,16 +38,12 @@ namespace FacilitEase.Services
 
         //Nathaniel
         void AssignTicketToAgent(int ticketId, int agentId);
-
-        //Nathaniel
-        ManagerTicketResponse<TicketApiModel> GetAssignedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery);
-
+      
         //Nathaniel
         ManagerTicketResponse<TicketApiModel> GetEscalatedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery);
-
         //Hema
-        void CreateTicketWithDocuments(TicketDto ticket);
-
+        //void CreateTicketWithDocuments(TicketDto ticket);
+        void CreateTicketWithDocuments(TicketDto ticketDto, IFormFile file);
         //Hema
     }
 }
