@@ -95,6 +95,8 @@ builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IManagerService, ManagerService>();
 builder.Services.AddScoped<IL1AdminService, L1AdminService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<IAssetService, AssetService>();
+
 builder.Services.Configure<FormOptions>(o =>
 {
     o.ValueLengthLimit = int.MaxValue;

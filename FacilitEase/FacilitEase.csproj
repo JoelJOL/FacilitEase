@@ -28,10 +28,22 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\HomeController.cs" />
+    
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Images\046157e4-2e92-4cb8-be0a-ebe08e46bdfd.docx" />
+    <None Remove="Resources\Images\0a1aee9a-253c-4496-b45d-8c96cadd6da4.svg" />
+    <None Remove="Resources\Images\129f6f9a-31a9-4dc0-94e9-0131f6313953.svg" />
+    <None Remove="Resources\Images\25bfaac4-c21c-481a-9a7b-1738d797f506.pdf" />
+    <None Remove="Resources\Images\379034b1-8b3f-41bb-8939-c6f3f1d259db.pdf" />
+    <None Remove="Resources\Images\71c44042-9814-49e6-af46-420606d10447.svg" />
+    <None Remove="Resources\Images\b21ed1c3-2472-4150-a111-c79555e093d2.svg" />
+    <None Remove="Resources\Images\b34ad633-9335-435d-b101-9a26b03d9728.png" />
+    <None Remove="Resources\Images\checkbox %281%29 1 - Copy.png" />
+    <None Remove="Resources\Images\EF__Navigation_Property.pdf" />
     <None Remove="Resources\Images\folder-solid.svg" />
+    <None Remove="Resources\Images\ILP_DBMS_ASSIGNMENT2 %281%29.pdf" />
     <None Remove="Resources\Images\ILP_MAIN PROJECT_ADMIN FACILITIES.pdf" />
     <None Remove="Resources\Images\office 1 - Copy %282%29.svg" />
   </ItemGroup>

@@ -1,8 +1,10 @@
 ﻿using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
-using Microsoft.AspNetCore.Mvc;
+using FacilitEase.Models.EntityModels;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace FacilitEase.Services
 {
@@ -15,38 +17,71 @@ namespace FacilitEase.Services
             _context = context;
         }
 
-         public IEnumerable<Asset> GetAssetsByEmployeeId(int employeeId)
-            {
-                var assets = (from mapping in _context.TBL_ASSET_EMPLOYEE_MAPPING
-                              join asset in _context.TBL_ASSET on mapping.AssetId equals asset.Id
-                              join location in _context.TBL_LOCATION on asset.LocationId equals location.Id
-                              join assetType in _context.TBL_ASSET_TYPE on asset.TypeId equals assetType.Id
-                              join assetStatus in _context.TBL_ASSET_STATUS on asset.StatusId equals assetStatus.Id
-                              join employee in _context.TBL_EMPLOYEE on mapping.EmployeeId equals employee.Id
-                              join ticket in _context.TBL_TICKET on mapping.TicketId equals ticket.Id into ticketJoin
-                              from ticket in ticketJoin.DefaultIfEmpty()
-                              where mapping.EmployeeId == employeeId
-                              select new Asset
-                              {
-                                  AssetId = asset.Id,
-                                  AssetName = asset.AssetName,
-                                  WarrantyInfo = asset.WarrantyInfo,
-                                  LastMaintenanceDate = asset.LastMaintenanceDate,
-                                  NextMaintenanceDate = asset.NextMaintenanceDate,
-                                  LocationName = location.LocationName,
-                                  TypeName = assetType.Type,
-                                  StatusName = assetStatus.Status,
-                                  EmployeeName = employee.FirstName + " " + employee.LastName,
-                                  Status = mapping.Status,
-                                  TicketId = mapping.TicketId,
-                                  CreatedDate = mapping.CreatedDate,
-                                  UpdatedDate = mapping.UpdatedDate
-                              })
-                              .ToList();
+        public IEnumerable<Asset> GetAssetsByEmployeeId(int employeeId)
+        {
+            var query = from aem in _context.TBL_ASSET_EMPLOYEE_MAPPING
+                        join a in _context.TBL_ASSET on aem.AssetId equals a.Id
+                        join at in _context.TBL_ASSET_TYPE on a.TypeId equals at.Id
+                        where aem.AssignedTo == employeeId
+                        select new Asset
+                        {
+                            AssetId = a.Id,
+                            AssetName = a.AssetName,
+                            WarrantyInfo = a.WarrantyInfo,
+                            LastMaintenanceDate = a.LastMaintenanceDate,
+                            NextMaintenanceDate = a.NextMaintenanceDate,
+                            AssetType = at.Type
+                        };
 
-                return assets;
+            return query.ToList();
+        }
+
+        public IEnumerable<Asset> GetUnassignedAssets()
+        {
+            var unassignedAssets = from a in _context.TBL_ASSET
+                                   join at in _context.TBL_ASSET_TYPE on a.TypeId equals at.Id
+                                   where a.StatusId == 2
+                                   select new Asset
+                                   {
+                                       AssetId = a.Id,
+                                       AssetName = a.AssetName,
+                                       WarrantyInfo = a.WarrantyInfo,
+                                       LastMaintenanceDate = a.LastMaintenanceDate,
+                                       NextMaintenanceDate = a.NextMaintenanceDate,
+                                       AssetType = at.Type
+                                   };
+
+            return unassignedAssets.ToList();
+        }
+
+        public void AssignUnassignedAssets(int employeeId)
+        {
+            var unassignedAssets = from a in _context.TBL_ASSET
+                                   where !_context.TBL_ASSET_EMPLOYEE_MAPPING.Any(e => e.AssetId == a.Id)
+                                   select a;
+
+            foreach (var asset in unassignedAssets)
+            {
+                // Assuming you have a method to create a new assignment record
+                AssignAssetToEmployee(asset.Id, employeeId);
             }
 
-        
+            _context.SaveChanges();
+        }
+
+        private void AssignAssetToEmployee(int assetId, int employeeId)
+        {
+            // Create a new assignment record
+            var assignment = new TBL_ASSET_EMPLOYEE_MAPPING
+            {
+                AssetId = assetId,
+                AssignedTo = employeeId,
+                Status = "Assigned",
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now
+            };
+
+            _context.TBL_ASSET_EMPLOYEE_MAPPING.Add(assignment);
+        }
     }
 }
