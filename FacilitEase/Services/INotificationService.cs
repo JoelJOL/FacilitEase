@@ -2,7 +2,7 @@
 {
     public interface INotificationService
     {
-        Task MonitorTicketChanges();
+        Task MonitorTicketChanges(CancellationToken cancellationToken);
     }
 
 }
