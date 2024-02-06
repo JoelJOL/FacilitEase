@@ -6,6 +6,7 @@ using FacilitEase.UnitOfWork;
 using System.Linq.Dynamic.Core;
 using System.Linq;
 using Microsoft.Net.Http.Headers;
+using Microsoft.AspNetCore.Mvc;
 
 
 namespace FacilitEase.Services
@@ -332,6 +333,19 @@ namespace FacilitEase.Services
                 _documentRepository.Add(documentEntity);
                 _context.SaveChanges();
             }
+        }
+
+        public IEnumerable<DocumentDto> GetDocumentsByTicketId(int ticketId)
+        {
+            var documents = _context.TBL_DOCUMENT
+                .Where(d => d.TicketId == ticketId)
+                .Select(d => new DocumentDto
+                {
+                    documentLink = d.DocumentLink,
+                })
+                .ToList();
+
+            return documents;
         }
 
         /// <summary>
