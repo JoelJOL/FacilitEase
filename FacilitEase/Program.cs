@@ -1,17 +1,22 @@
 using FacilitEase.Data;
 using FacilitEase.Hubs;
+using FacilitEase.Models.EntityModels;
 using FacilitEase.NewFolder4;
+using FacilitEase.Repositories;
 using FacilitEase.Services;
+using FacilitEase.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using DotNetEnv;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+Env.Load();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -21,8 +26,7 @@ builder.Services.AddControllers()
 
 builder.Services.AddSignalR();
 builder.Services.AddControllers();
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 builder.Services.AddCors(options =>
 {
@@ -33,10 +37,13 @@ builder.Services.AddCors(options =>
                .AllowAnyMethod();
     });
 });
+string connectionString = Env.GetString("ConnectionStrings__DefaultConnection");
+var jwtKey = Env.GetString("JWT__Key");
+var jwtIssuer = Env.GetString("JWT__Issuer");
+var jwtAudience = Env.GetString("JWT__Audience");
 
-var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
-var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
-var jwtAudience = builder.Configuration.GetSection("Jwt:Audience").Get<string>();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(connectionString));
 
 builder.Services.AddAuthorization(options =>
 {
@@ -58,8 +65,35 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// Add your other services here...
-
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<IEmployeeDetailRepository, EmployeeDetailRepository>();
+builder.Services.AddScoped<IManagerRepository, ManagerRepository>();
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<IManagerService, ManagerService>();
+builder.Services.AddScoped<IManagerRepository, ManagerRepository>();
+builder.Services.AddScoped<IManagerService, ManagerService>();
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
+builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<IPriorityService, PriorityService>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<IL3AdminService, L3AdminService>();
+builder.Services.AddScoped<IRepository<TBL_TICKET>, Repository<TBL_TICKET>>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IPositionRepository, PositionRepository>();
+builder.Services.AddScoped<ILocationRepository, LocationRepository>();
+builder.Services.AddScoped<IManagerService, ManagerService>();
+builder.Services.AddScoped<IRepository<TBL_TICKET>, Repository<TBL_TICKET>>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<ITicketDetailsService, TicketDetailsService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<IManagerService, ManagerService>();
+builder.Services.AddScoped<IL1AdminService, L1AdminService>();
+builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.Configure<FormOptions>(o =>
 {
     o.ValueLengthLimit = int.MaxValue;

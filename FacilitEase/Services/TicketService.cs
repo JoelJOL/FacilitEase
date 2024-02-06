@@ -363,7 +363,7 @@ namespace FacilitEase.Services
                                          StatusName = status.StatusName,
                                          PriorityName = priority.PriorityName,
                                          SubmittedDate = ticket.SubmittedDate,
-                                         RaisedEmployeeName = $"{employee.FirstName} {employee.LastName}",
+                                         EmployeeName = $"{employee.FirstName} {employee.LastName}",
                                          ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : null,
                                          ManagerId = employee.ManagerId,
                                          LocationName = location.LocationName,
