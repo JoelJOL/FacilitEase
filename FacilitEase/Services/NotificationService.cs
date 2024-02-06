@@ -109,7 +109,7 @@ namespace FacilitEase.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                 unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-                users = unitOfWork.User.GetAllQ().AsNoTracking().ToList();
+                users = unitOfWork.User.GetAll().ToList();
             }
 
             var messages = new List<Message>();
