@@ -28,6 +28,20 @@ namespace FacilitEase.Controllers
             public string Message { get; set; }
         }
 
+        [HttpGet("tracking-details/{ticketId}")]
+        public IActionResult GetTicketDetails(int ticketId)
+        {
+            try
+            {
+                var trackingDetails = _adminService.GetTicketDetails(ticketId);
+                return Ok(trackingDetails);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
         [HttpPatch("resolve-ticket/{ticketId}")]
         public IActionResult CloseRaisedTicketStatus([FromRoute] int ticketId)
         {

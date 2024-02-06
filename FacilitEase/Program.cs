@@ -78,10 +78,10 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<IL3AdminService, L3AdminService>();
 builder.Services.AddScoped<IPriorityService, PriorityService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-builder.Services.AddScoped<IL3AdminService, L3AdminService>();
 builder.Services.AddScoped<IRepository<TBL_TICKET>, Repository<TBL_TICKET>>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IPositionRepository, PositionRepository>();
@@ -133,7 +133,6 @@ app.UseEndpoints(endpoints =>
     endpoints.MapHub<NotificationHub>("/notificationHub"); // Map the NotificationHub
 });
 
-app.UseCors("CorsPolicy");
 app.UseMiddleware<LogMiddleware>();
 app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
@@ -142,7 +141,7 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = new PathString("/Resources")
 });
 
-app.UseCors("AllowLocalhost");
+app.UseCors("AllowAngularDev");
 
 app.UseHttpsRedirection();
 app.UseAuthorization();

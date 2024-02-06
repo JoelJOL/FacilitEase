@@ -13,10 +13,12 @@ namespace FacilitEase.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppDbContext _context;
-        public L3AdminService(IUnitOfWork unitOfWork, AppDbContext context)
+        private readonly ITicketService _ticketService;
+        public L3AdminService(IUnitOfWork unitOfWork, AppDbContext context, ITicketService ticketService)
         {
             _unitOfWork = unitOfWork;
             _context = context;
+            _ticketService = ticketService;
         }
 
         /// <summary>
@@ -32,7 +34,15 @@ namespace FacilitEase.Services
             {
                 ticketToClose.StatusId = 3;
                 _context.SaveChanges();
+                _ticketService.UpdateTicketTracking(
+                ticketToClose.Id,3,
+                ticketToClose.AssignedTo,
+                ticketToClose.ControllerId,
+                ticketToClose.SubmittedDate,
+                ticketToClose.UpdatedBy
+        );
             }
+            
         }
 
         public void AcceptTicketCancellation(int ticketId)
@@ -44,6 +54,13 @@ namespace FacilitEase.Services
             {
                 ticketToClose.StatusId = 3;
                 _context.SaveChanges();
+                _ticketService.UpdateTicketTracking(
+            ticketToClose.Id,3,
+            ticketToClose.AssignedTo,
+            ticketToClose.ControllerId,
+            ticketToClose.SubmittedDate,
+            ticketToClose.UpdatedBy
+        );
             }
 
         }
@@ -58,6 +75,13 @@ namespace FacilitEase.Services
                 ticketToClose.StatusId = 2;
 
                 _context.SaveChanges();
+                _ticketService.UpdateTicketTracking(
+            ticketToClose.Id,2,
+            ticketToClose.AssignedTo,
+            ticketToClose.ControllerId,
+            ticketToClose.SubmittedDate,
+            ticketToClose.UpdatedBy
+        );
             }
 
         }
@@ -144,12 +168,20 @@ namespace FacilitEase.Services
                 {
                     ticketToForward.ControllerId = managerId;
                     _context.SaveChanges();
+                    _ticketService.UpdateTicketTracking(
+                    ticketToForward.Id,5,
+                    ticketToForward.AssignedTo,
+                    ticketToForward.ControllerId,
+                    ticketToForward.SubmittedDate,
+                    ticketToForward.UpdatedBy
+                );
                 }
                 else
                 {
                     throw new InvalidOperationException("ManagerId is null or invalid.");
                 }
                 _context.SaveChanges();
+
 
             }
 
@@ -317,7 +349,7 @@ namespace FacilitEase.Services
         /// <param name="desiredTicketId"></param>
         /// <returns></returns>
 
-        public IEnumerable<Join> GetTicketDetailByAgent(int desiredTicketId)
+        public Join GetTicketDetailByAgent(int desiredTicketId)
         {
             var result = (from ticket in _context.TBL_TICKET
                           join user in _context.TBL_USER on ticket.UserId equals user.Id
@@ -341,7 +373,7 @@ namespace FacilitEase.Services
                               StatusName = status.StatusName,
                               PriorityName = priority.PriorityName,
                               SubmittedDate = ticket.SubmittedDate,
-                              RaisedEmployeeName = $"{employee.FirstName} {employee.LastName}",
+                              EmployeeName = $"{employee.FirstName} {employee.LastName}",
                               ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : null,
                               ManagerId = employee.ManagerId,
                               LocationName = location.LocationName,
@@ -350,7 +382,7 @@ namespace FacilitEase.Services
                               ProjectCode = projectcode.ProjectCode
                           }).FirstOrDefault();
 
-            yield return result;
+             return result;
         }
 
 
@@ -566,6 +598,45 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
+
+        /// <summary>
+        /// Method to retrieve all data from ticket tracking table
+        /// </summary>
+        /// <param name="ticketId"></param>
+        /// <returns></returns>
+        public List<TrackingDetailsDto> GetTicketDetails(int ticketId)
+        {
+            var result = _context.TBL_TICKET_TRACKING
+                .Where(tracking => tracking.TicketId == ticketId)
+                .Select(tracking => new TrackingDetailsDto
+                {
+                    TicketId = tracking.TicketId,
+                    StatusName = _context.TBL_STATUS
+                                    .Where(status => status.Id == tracking.TicketStatusId)
+                                    .Select(status => status.StatusName)
+                                    .FirstOrDefault(),
+                    SubmittedByEmployeeName = _context.TBL_EMPLOYEE
+                        .Where(employee => employee.Id == tracking.CreatedBy)
+                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                        .FirstOrDefault() ?? "Not Assigned",
+                    AssignedToEmployeeName = _context.TBL_EMPLOYEE
+                        .Where(employee => employee.Id == tracking.AssignedTo)
+                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                        .FirstOrDefault() ?? "Not Assigned",
+                    ApproverEmployeeName = _context.TBL_EMPLOYEE
+                        .Where(employee => employee.Id == tracking.ApproverId)
+                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                        .FirstOrDefault() ?? "Not Assigned",
+                    TrackingCreatedDate = tracking.CreatedDate
+                    // Add other properties as needed
+                })
+                .ToList();
+
+            return result;
+        }
+
+
+
 
     }
 }
