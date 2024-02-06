@@ -1,5 +1,4 @@
 ﻿using FacilitEase.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace FacilitEase.Repositories
 {

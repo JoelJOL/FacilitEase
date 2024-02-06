@@ -5,6 +5,8 @@ namespace FacilitEase.Repositories
 {
     public class UserRepository : Repository<TBL_USER>, IUserRepository
     {
-        public UserRepository(AppDbContext context) : base(context) { }
+        public UserRepository(AppDbContext context) : base(context)
+        {
+        }
     }
 }

@@ -5,6 +5,8 @@ namespace FacilitEase.Repositories
 {
     public class CategoryRepository : Repository<TBL_CATEGORY>, ICategoryRepository
     {
-        public CategoryRepository(AppDbContext context) : base(context) { }
+        public CategoryRepository(AppDbContext context) : base(context)
+        {
+        }
     }
 }

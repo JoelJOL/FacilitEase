@@ -16,13 +16,14 @@ namespace FacilitEase.UnitOfWork
         IL3AdminRepository L3Admin { get; }
         ITicketRepository TicketRepository { get; }
         IEmployeeDetailRepository EmployeeDetailRepository { get; }
-
         INotificationRepository Notification { get; set; }
-
-       ILocationRepository Location { get; }
+        ILocationRepository Location { get; }
         IPositionRepository Position { get; }
+
         Task<int> CompleteAsync();
+
         int Complete();
+
         void Dispose();
     }
 }

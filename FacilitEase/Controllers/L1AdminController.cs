@@ -15,16 +15,15 @@ namespace FacilitEase.Controllers
         private readonly ICategoryService _categoryService;
         private readonly IPriorityService _priorityService;
         private readonly ITicketService _ticketService;
-        public EmployeeController(IDepartmentService departmentService, 
-            ICategoryService categoryService, 
-            IPriorityService priorityService, 
+        public EmployeeController(IDepartmentService departmentService,
+            ICategoryService categoryService,
+            IPriorityService priorityService,
             ITicketService ticketService)
         {
             _departmentService = departmentService;
             _categoryService = categoryService;
             _priorityService = priorityService;
             _ticketService = ticketService;
-
         }
 
         [HttpGet("departments")]
@@ -60,7 +59,7 @@ namespace FacilitEase.Controllers
             var priority = _priorityService.GetPriority();
             return Ok(priority);
         }
-        
+
         [HttpPost("raiseticket")]
         public IActionResult CreateTicket([FromBody] TicketDto ticketApiModel)
         {
@@ -94,7 +93,6 @@ using FacilitEase.Models.ApiModels;
 using FacilitEase.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 
 namespace FacilitEase.Controllers
 {

@@ -1,8 +1,7 @@
-﻿using FacilitEase.Models.ApiModels;
-using FacilitEase.UnitOfWork;
+﻿using FacilitEase.Data;
+using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
-using Microsoft.EntityFrameworkCore;
-using FacilitEase.Data;
+using FacilitEase.UnitOfWork;
 
 namespace FacilitEase.Services
 {
@@ -10,6 +9,7 @@ namespace FacilitEase.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppDbContext _context;
+
         public CategoryService(IUnitOfWork unitOfWork, AppDbContext context)
         {
             _unitOfWork = unitOfWork;
@@ -18,11 +18,9 @@ namespace FacilitEase.Services
 
         public IEnumerable<CategoryDto> GetCategory()
         {
-
             var category = _unitOfWork.Category.GetAll();
             return MapToCategoryDtoList(category);
         }
-
 
         private IEnumerable<CategoryDto> MapToCategoryDtoList(IEnumerable<TBL_CATEGORY> departments)
         {
@@ -61,9 +59,9 @@ namespace FacilitEase.Services
 
             return categoryDtos;
         }
+
         public void CreateCategory(CategoryDto categoryDto)
         {
-
             var categoryEntity = MapToTBL_DEPARTMENT(categoryDto);
             _unitOfWork.Category.Add(categoryEntity);
             _unitOfWork.Complete();
@@ -71,12 +69,10 @@ namespace FacilitEase.Services
 
         private TBL_CATEGORY MapToTBL_DEPARTMENT(CategoryDto categoryDto)
         {
-
             return new TBL_CATEGORY
             {
-
                 Id = categoryDto.Id,
-                CategoryName= categoryDto.CategoryName,
+                CategoryName = categoryDto.CategoryName,
                 DepartmentId = categoryDto.DepartmentId,
                 CreatedBy = categoryDto.CreatedBy,
                 CreatedDate = categoryDto.CreatedDate,
