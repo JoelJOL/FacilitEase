@@ -96,6 +96,7 @@ builder.Services.AddScoped<IManagerService, ManagerService>();
 builder.Services.AddScoped<IL1AdminService, L1AdminService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IAssetService, AssetService>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(); 
 builder.Services.AddHostedService<NotificationService>();
