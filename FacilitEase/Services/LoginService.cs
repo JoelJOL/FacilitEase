@@ -60,12 +60,14 @@ namespace FacilitEase.Services
             {
                new Claim(ClaimTypes.Name, newUser.Email),
                new Claim(ClaimTypes.NameIdentifier, newUser.EmployeeId.ToString()),
-               new Claim(ClaimTypes.Role,"L1Admin")
+               new Claim(ClaimTypes.Role,"L1Admin"),
+               new Claim(ClaimTypes.Role,"L2Admin"),
+               new Claim(ClaimTypes.Role,"L3Admin"),
             };
-            /*var roles = from m in _context.UserRoleMappings
-                        join e in _context.Employees on m.UserId equals e.Id
-                        join u in _context.UserRoles on m.UserRoleId equals u.Id
-                        where e.Email == user.Email
+            /*var roles = from m in _context.TBL_USER_ROLE_MAPPING
+                        join e in _context.TBL_EMPLOYEE on m.UserId equals e.Id
+                        join u in _context.TBL_USER_ROLE on m.UserRoleId equals u.Id
+                        where e.Email == newUser.Email
                         select u.UserRoleName;
             foreach (var userRole in roles)
             {

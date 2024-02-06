@@ -1,4 +1,5 @@
 using FacilitEase.Models.ApiModels;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FacilitEase.Services
 {
@@ -45,10 +46,12 @@ namespace FacilitEase.Services
         ManagerTicketResponse<TicketApiModel> GetEscalatedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery);
         //Hema
         //void CreateTicketWithDocuments(TicketDto ticket);
-        void CreateTicketWithDocuments(TicketDto ticketDto, IFormFile file);
-        //Hema
+        void CreateTicketWithDocuments([FromForm] TicketDto ticketDto, [FromForm] IFormFile file);
 
+        //Hema
         //Julia
         public void UpdateTicketTracking(int ticketId, int statusId, int? assignedTo, int? controllerId, DateTime? ticketRaisedTimestamp, int updatedBy);
+
+        IEnumerable<DocumentDto> GetDocumentsByTicketId(int ticketId);
     }
 }

@@ -12,5 +12,6 @@
             public int CategoryId { get; set; }
             public int DepartmentId { get; set; }
             public string DocumentLink { get; set; }
+            public DateTime SubmissionDate { get; set; }
     }
 }

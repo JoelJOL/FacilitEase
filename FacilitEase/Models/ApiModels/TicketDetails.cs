@@ -9,7 +9,7 @@
         public string StatusName { get; set; }
         public string PriorityName { get; set; }
         public DateTime SubmittedDate { get; set; }
-        public string RaisedEmployeeName { get; set; }
+        public string EmployeeName { get; set; }
         public string ManagerName { get; set; }
         public int? ManagerId { get; set; }
         public string LocationName { get; set; }

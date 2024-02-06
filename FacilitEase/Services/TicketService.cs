@@ -6,6 +6,7 @@ using FacilitEase.UnitOfWork;
 using System.Linq.Dynamic.Core;
 using System.Linq;
 using Microsoft.Net.Http.Headers;
+using Microsoft.AspNetCore.Mvc;
 
 
 namespace FacilitEase.Services
@@ -335,6 +336,19 @@ namespace FacilitEase.Services
             }
         }
 
+        public IEnumerable<DocumentDto> GetDocumentsByTicketId(int ticketId)
+        {
+            var documents = _context.TBL_DOCUMENT
+                .Where(d => d.TicketId == ticketId)
+                .Select(d => new DocumentDto
+                {
+                    documentLink = d.DocumentLink,
+                })
+                .ToList();
+
+            return documents;
+        }
+
         /// <summary>
         /// Method to add field to to ticket tracking table
         /// </summary>
@@ -393,7 +407,7 @@ namespace FacilitEase.Services
                                          StatusName = status.StatusName,
                                          PriorityName = priority.PriorityName,
                                          SubmittedDate = ticket.SubmittedDate,
-                                         RaisedEmployeeName = $"{employee.FirstName} {employee.LastName}",
+                                         EmployeeName = $"{employee.FirstName} {employee.LastName}",
                                          ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : null,
                                          ManagerId = employee.ManagerId,
                                          LocationName = location.LocationName,
