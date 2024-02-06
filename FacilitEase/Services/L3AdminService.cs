@@ -2,6 +2,9 @@
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.UnitOfWork;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Linq.Dynamic.Core;
 
 namespace FacilitEase.Services
@@ -10,11 +13,12 @@ namespace FacilitEase.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppDbContext _context;
-
-        public L3AdminService(IUnitOfWork unitOfWork, AppDbContext context)
+        private readonly ITicketService _ticketService;
+        public L3AdminService(IUnitOfWork unitOfWork, AppDbContext context, ITicketService ticketService)
         {
             _unitOfWork = unitOfWork;
             _context = context;
+            _ticketService = ticketService;
         }
 
         /// <summary>
@@ -30,7 +34,56 @@ namespace FacilitEase.Services
             {
                 ticketToClose.StatusId = 3;
                 _context.SaveChanges();
+                _ticketService.UpdateTicketTracking(
+                ticketToClose.Id,3,
+                ticketToClose.AssignedTo,
+                ticketToClose.ControllerId,
+                ticketToClose.SubmittedDate,
+                ticketToClose.UpdatedBy
+        );
             }
+            
+        }
+
+        public void AcceptTicketCancellation(int ticketId)
+        {
+            var ticketToClose = _context.TBL_TICKET
+                .FirstOrDefault(t => t.Id == ticketId);
+
+            if (ticketToClose != null)
+            {
+                ticketToClose.StatusId = 3;
+                _context.SaveChanges();
+                _ticketService.UpdateTicketTracking(
+            ticketToClose.Id,3,
+            ticketToClose.AssignedTo,
+            ticketToClose.ControllerId,
+            ticketToClose.SubmittedDate,
+            ticketToClose.UpdatedBy
+        );
+            }
+
+        }
+
+        public void DenyTicketCancellation(int ticketId)
+        {
+            var ticketToClose = _context.TBL_TICKET
+                .FirstOrDefault(t => t.Id == ticketId);
+
+            if (ticketToClose != null)
+            {
+                ticketToClose.StatusId = 2;
+
+                _context.SaveChanges();
+                _ticketService.UpdateTicketTracking(
+            ticketToClose.Id,2,
+            ticketToClose.AssignedTo,
+            ticketToClose.ControllerId,
+            ticketToClose.SubmittedDate,
+            ticketToClose.UpdatedBy
+        );
+            }
+
         }
 
         /// <summary>
@@ -47,7 +100,7 @@ namespace FacilitEase.Services
             // Get the role ID associated with administrators.
             int adminRoleId = GetAdminRoleId();
 
-            // Find an administrator in the specified department with the admin role.
+            // Find an administrator in the specified department with the admin role. This isn't needed
             int adminEmployeeId = _context.TBL_USER_ROLE_MAPPING
                 .Where(mapping => mapping.UserRoleId == adminRoleId && mapping.UserId != null)
                 .Join(_context.TBL_USER_ROLE,
@@ -75,9 +128,11 @@ namespace FacilitEase.Services
             {
                 ticketToUpdate.StatusId = 1;
                 ticketToUpdate.CategoryId = categoryId;
-                ticketToUpdate.ControllerId = adminEmployeeId;
+                ticketToUpdate.ControllerId = null;
+                ticketToUpdate.AssignedTo = null;
                 _context.SaveChanges();
             }
+
         }
 
         /// <summary>
@@ -92,6 +147,7 @@ namespace FacilitEase.Services
 
             return adminRole?.Id ?? 0;
         }
+
 
         /// <summary>
         /// Method to forward ticket to the manager of the employee who raised the ticket
@@ -112,17 +168,28 @@ namespace FacilitEase.Services
                 {
                     ticketToForward.ControllerId = managerId;
                     _context.SaveChanges();
+                    _ticketService.UpdateTicketTracking(
+                    ticketToForward.Id,5,
+                    ticketToForward.AssignedTo,
+                    ticketToForward.ControllerId,
+                    ticketToForward.SubmittedDate,
+                    ticketToForward.UpdatedBy
+                );
                 }
                 else
                 {
                     throw new InvalidOperationException("ManagerId is null or invalid.");
                 }
                 _context.SaveChanges();
+
+
             }
+
         }
 
         public void AddTicket(TBL_TICKET ticket)
         {
+
             _unitOfWork.Ticket.Add(ticket);
             _unitOfWork.Complete();
         }
@@ -136,6 +203,7 @@ namespace FacilitEase.Services
         {
             var commentText = _context.TBL_COMMENT
                 .Where(comment => comment.TicketId == ticketId)
+                .Where(comment => comment.Category == "Note")
                 .Select(comment => comment.Text)
                 .FirstOrDefault();
 
@@ -158,6 +226,47 @@ namespace FacilitEase.Services
             {
                 comment.Text = newText;
                 _context.SaveChanges();
+            }
+        }
+
+        /// <summary>
+        /// This method adds the comment of a particular ticket
+        /// </summary>
+        /// <param name="comment"></param>
+        public void AddComment(TBL_COMMENT comment)
+        {
+            _context.TBL_COMMENT.Add(comment);
+            _context.SaveChanges();
+        }
+
+        /// <summary>
+        /// This method deletes the comment of a particular ticket
+        /// </summary>
+        /// <param name="ticketId"></param>
+        /// <returns></returns>
+
+        public async Task<bool> DeleteCommentAsync(int ticketId)
+        {
+            try
+            {
+                var comment = await _context.TBL_COMMENT.FirstOrDefaultAsync(c => c.TicketId == ticketId);
+
+                if (comment != null)
+                {
+                    _context.TBL_COMMENT.Remove(comment);
+                    await _context.SaveChangesAsync();
+                    return true; // Successfully deleted
+                }
+                else
+                {
+                    return false; // Comment not found
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log or handle the exception as needed
+                Console.WriteLine($"Error deleting comment: {ex.Message}");
+                return false;
             }
         }
 
@@ -207,8 +316,8 @@ namespace FacilitEase.Services
                   TicketName = joined.Ticket.TicketName,
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
                   SubmittedDate = joined.Ticket.SubmittedDate,
-                  PriorityName = joined.Priority.PriorityName,
-                  StatusName = joined.Status.StatusName,
+                  Priority = joined.Priority.PriorityName,
+                  Status = joined.Status.StatusName,
               });
 
             //Return the query data to a list.
@@ -225,6 +334,7 @@ namespace FacilitEase.Services
             var totalCount = queryList.Count();
             queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
+
             // Return the paginated and sorted ticket data along with the total count.
             return new AgentTicketResponse<TicketJoin>
             {
@@ -239,7 +349,7 @@ namespace FacilitEase.Services
         /// <param name="desiredTicketId"></param>
         /// <returns></returns>
 
-        public IEnumerable<Join> GetTicketDetailByAgent(int desiredTicketId)
+        public Join GetTicketDetailByAgent(int desiredTicketId)
         {
             var result = (from ticket in _context.TBL_TICKET
                           join user in _context.TBL_USER on ticket.UserId equals user.Id
@@ -263,17 +373,18 @@ namespace FacilitEase.Services
                               StatusName = status.StatusName,
                               PriorityName = priority.PriorityName,
                               SubmittedDate = ticket.SubmittedDate,
-                              RaisedEmployeeName = $"{employee.FirstName} {employee.LastName}",
+                              EmployeeName = $"{employee.FirstName} {employee.LastName}",
                               ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : null,
-                              ManagerId = manager.ManagerId,
+                              ManagerId = employee.ManagerId,
                               LocationName = location.LocationName,
                               DeptName = department.DeptName,
                               DocumentLink = document.DocumentLink,
                               ProjectCode = projectcode.ProjectCode
                           }).FirstOrDefault();
 
-            yield return result;
+             return result;
         }
+
 
         /// <summary>
         /// This method retrieves resolved tickets assigned to a specific agent with optional sorting and search functionality.
@@ -325,8 +436,10 @@ namespace FacilitEase.Services
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
                   SubmittedDate = joined.Ticket.SubmittedDate,
                   ResolvedDate = joined.Ticket.UpdatedDate,
-                  PriorityName = joined.Priority.PriorityName,
+                  Priority = joined.Priority.PriorityName,
+
               });
+
 
             var materializedQuery = query.ToList();
 
@@ -354,27 +467,176 @@ namespace FacilitEase.Services
         /// </summary>
         /// <param name="agentId"></param>
         /// <returns></returns>
-        public IEnumerable<TicketJoin> GetEscalatedTicketsByAgent(int agentId)
+        public AgentTicketResponse<TicketResolveJoin> GetOnHoldTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
-            var query = from ticket in _context.TBL_TICKET
-                        join user in _context.TBL_USER on ticket.UserId equals user.Id
-                        join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
-                        join category in _context.TBL_CATEGORY on ticket.CategoryId equals category.Id
-                        join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
-                        join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
-                        where ticket.AssignedTo == agentId & (status.StatusName == "Escalated")
-                        select new TicketJoin
-                        {
-                            Id = ticket.Id,
-                            TicketName = ticket.TicketName,
-                            PriorityName = priority.PriorityName,
-                            StatusName = status.StatusName,
-                            SubmittedDate = ticket.SubmittedDate,
-                            EmployeeName = $"{employee.FirstName} {employee.LastName}",
-                        };
+            // Joining multiple tables to fetch necessary information about resolved tickets.
+            var query = _context.TBL_TICKET
+              .Join(
+                  _context.TBL_USER,
+                  ticket => ticket.UserId,
+                  user => user.Id,
+                  (ticket, user) => new { Ticket = ticket, User = user }
+              )
+              .Join(
+                  _context.TBL_EMPLOYEE,
+                  joined => joined.User.EmployeeId,
+                  employee => employee.Id,
+                  (joined, employee) => new { joined.Ticket, joined.User, Employee = employee }
+              )
+              .Join(
+                  _context.TBL_PRIORITY,
+                  joined => joined.Ticket.PriorityId,
+                  priority => priority.Id,
+                  (joined, priority) => new { joined.Ticket, joined.User, joined.Employee, Priority = priority }
+              )
+              .Join(
+                  _context.TBL_STATUS,
+                  joined => joined.Ticket.StatusId,
+                  status => status.Id,
+                  (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Priority, Status = status }
+              )
+              // Filtering resolved tickets based on agentId and StatusId.
+              .Where(joined => joined.Ticket.AssignedTo == agentId && joined.Ticket.StatusId == 5)
+              // Filtering resolved tickets based on searchQuery (if provided).
+              .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
+              // Selecting the desired fields and creating a new TicketResolveJoin object.
+              .Select(joined => new TicketResolveJoin
+              {
+                  Id = joined.Ticket.Id,
+                  TicketName = joined.Ticket.TicketName,
+                  EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
+                  SubmittedDate = joined.Ticket.SubmittedDate,
+                  ResolvedDate = joined.Ticket.UpdatedDate,
+                  Priority = joined.Priority.PriorityName,
 
-            var results = query.ToList();
-            return results;
+              });
+
+
+            var materializedQuery = query.ToList();
+
+            // Apply Sorting
+            if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
+            {
+                string orderByString = $"{sortField} {sortOrder}";
+                materializedQuery = materializedQuery.AsQueryable().OrderBy(orderByString).ToList();
+            }
+
+            // Apply Pagination
+            var totalCount = materializedQuery.Count();
+            materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+            // Return the paginated and sorted resolved ticket data along with the total count
+            return new AgentTicketResponse<TicketResolveJoin>
+            {
+                Data = materializedQuery,
+                TotalDataCount = totalCount
+            };
         }
+
+        public AgentTicketResponse<TicketResolveJoin> GetCancelRequestTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
+        {
+            // Joining multiple tables to fetch necessary information about resolved tickets.
+            var query = _context.TBL_TICKET
+              .Join(
+                  _context.TBL_USER,
+                  ticket => ticket.UserId,
+                  user => user.Id,
+                  (ticket, user) => new { Ticket = ticket, User = user }
+              )
+              .Join(
+                  _context.TBL_EMPLOYEE,
+                  joined => joined.User.EmployeeId,
+                  employee => employee.Id,
+                  (joined, employee) => new { joined.Ticket, joined.User, Employee = employee }
+              )
+              .Join(
+                  _context.TBL_PRIORITY,
+                  joined => joined.Ticket.PriorityId,
+                  priority => priority.Id,
+                  (joined, priority) => new { joined.Ticket, joined.User, joined.Employee, Priority = priority }
+              )
+              .Join(
+                  _context.TBL_STATUS,
+                  joined => joined.Ticket.StatusId,
+                  status => status.Id,
+                  (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Priority, Status = status }
+              )
+              // Filtering resolved tickets based on agentId and StatusId.
+              .Where(joined => joined.Ticket.AssignedTo == agentId && joined.Ticket.StatusId == 6)
+              // Filtering resolved tickets based on searchQuery (if provided).
+              .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
+              // Selecting the desired fields and creating a new TicketResolveJoin object.
+              .Select(joined => new TicketResolveJoin
+              {
+                  Id = joined.Ticket.Id,
+                  TicketName = joined.Ticket.TicketName,
+                  EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
+                  SubmittedDate = joined.Ticket.SubmittedDate,
+                  ResolvedDate = joined.Ticket.UpdatedDate,
+                  Priority = joined.Priority.PriorityName,
+
+              });
+
+
+            var materializedQuery = query.ToList();
+
+            // Apply Sorting
+            if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
+            {
+                string orderByString = $"{sortField} {sortOrder}";
+                materializedQuery = materializedQuery.AsQueryable().OrderBy(orderByString).ToList();
+            }
+
+            // Apply Pagination
+            var totalCount = materializedQuery.Count();
+            materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+            // Return the paginated and sorted resolved ticket data along with the total count
+            return new AgentTicketResponse<TicketResolveJoin>
+            {
+                Data = materializedQuery,
+                TotalDataCount = totalCount
+            };
+        }
+
+        /// <summary>
+        /// Method to retrieve all data from ticket tracking table
+        /// </summary>
+        /// <param name="ticketId"></param>
+        /// <returns></returns>
+        public List<TrackingDetailsDto> GetTicketDetails(int ticketId)
+        {
+            var result = _context.TBL_TICKET_TRACKING
+                .Where(tracking => tracking.TicketId == ticketId)
+                .Select(tracking => new TrackingDetailsDto
+                {
+                    TicketId = tracking.TicketId,
+                    StatusName = _context.TBL_STATUS
+                                    .Where(status => status.Id == tracking.TicketStatusId)
+                                    .Select(status => status.StatusName)
+                                    .FirstOrDefault(),
+                    SubmittedByEmployeeName = _context.TBL_EMPLOYEE
+                        .Where(employee => employee.Id == tracking.CreatedBy)
+                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                        .FirstOrDefault() ?? "Not Assigned",
+                    AssignedToEmployeeName = _context.TBL_EMPLOYEE
+                        .Where(employee => employee.Id == tracking.AssignedTo)
+                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                        .FirstOrDefault() ?? "Not Assigned",
+                    ApproverEmployeeName = _context.TBL_EMPLOYEE
+                        .Where(employee => employee.Id == tracking.ApproverId)
+                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                        .FirstOrDefault() ?? "Not Assigned",
+                    TrackingCreatedDate = tracking.CreatedDate
+                    // Add other properties as needed
+                })
+                .ToList();
+
+            return result;
+        }
+
+
+
+
     }
 }

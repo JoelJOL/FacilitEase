@@ -332,6 +332,7 @@ namespace FacilitEase.Services
 
                 _documentRepository.Add(documentEntity);
                 _context.SaveChanges();
+                UpdateTicketTracking(ticketEntity.Id, 1, null, null, null, 1);
             }
         }
 
@@ -349,11 +350,40 @@ namespace FacilitEase.Services
         }
 
         /// <summary>
-        /// retrieve detailed information about a specific ticket
+        /// Method to add field to to ticket tracking table
         /// </summary>
-        /// <param name="desiredTicketId"></param>
-        /// <returns></returns>
-        public TicketDetails GetTicketDetails(int desiredTicketId)
+        /// <param name="ticketId"></param>
+        /// <param name="statusId"></param>
+        /// <param name="assignedTo"></param>
+        /// <param name="controllerId"></param>
+        /// <param name="ticketRaisedTimestamp"></param>
+        /// <param name="updatedBy"></param>
+        public void UpdateTicketTracking(int ticketId, int statusId, int? assignedTo, int? controllerId, DateTime? ticketRaisedTimestamp, int updatedBy)
+        {
+            var trackingEntry = new TBL_TICKET_TRACKING
+            {
+                TicketId = ticketId,
+                TicketStatusId = statusId,
+                AssignedTo = assignedTo,
+                ApproverId = controllerId,
+                TicketRaisedTimestamp = ticketRaisedTimestamp ?? DateTime.Now,
+                CreatedBy = updatedBy,
+                UpdatedBy = updatedBy,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now
+            };
+
+            _context.TBL_TICKET_TRACKING.Add(trackingEntry);
+            _context.SaveChanges();
+        }
+    
+
+    /// <summary>
+    /// retrieve detailed information about a specific ticket
+    /// </summary>
+    /// <param name="desiredTicketId"></param>
+    /// <returns></returns>
+    public TicketDetails GetTicketDetails(int desiredTicketId)
         {
             var ticketDetailsList = (from ticket in _context.TBL_TICKET
                                      join user in _context.TBL_USER on ticket.UserId equals user.Id

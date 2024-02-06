@@ -49,6 +49,8 @@ namespace FacilitEase.Services
         void CreateTicketWithDocuments([FromForm] TicketDto ticketDto, [FromForm] IFormFile file);
 
         //Hema
+        //Julia
+        public void UpdateTicketTracking(int ticketId, int statusId, int? assignedTo, int? controllerId, DateTime? ticketRaisedTimestamp, int updatedBy);
 
         IEnumerable<DocumentDto> GetDocumentsByTicketId(int ticketId);
     }
