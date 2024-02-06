@@ -2,7 +2,6 @@ using FacilitEase.Data;
 using FacilitEase.Services;
 using FacilitEase.UnitOfWork;
 using FacilitEase.Repositories;
-using FacilitEase.Services;
 using Microsoft.EntityFrameworkCore;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.Hubs;
@@ -60,8 +59,8 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(); ;
-
+builder.Services.AddSwaggerGen(); 
+builder.Services.AddHostedService<NotificationService>();
 
 var app = builder.Build();
 
@@ -92,7 +91,7 @@ app.UseEndpoints(endpoints =>
 });
 
 
-app.UseHttpsRedirection();
+/*app.UseHttpsRedirection();*/
 
 app.UseAuthorization();
 

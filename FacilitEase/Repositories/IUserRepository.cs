@@ -2,7 +2,8 @@
 
 namespace FacilitEase.Repositories
 {
-    public interface IUserRepository:IRepository<TBL_USER>
+    public interface IUserRepository : IRepository<TBL_USER>
     {
+        object GetAllQ();
     }
 }
