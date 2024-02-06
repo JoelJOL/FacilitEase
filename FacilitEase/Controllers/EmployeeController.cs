@@ -18,7 +18,6 @@ namespace FacilitEase.Controllers
         private readonly IEmployeeService _employeeService;
         private readonly ITicketDetailsService _ticketDetailsService;
         private readonly ICommentService _commentService;
-        private readonly IAssetService _assetService;
 
         public EmployeeController(IDepartmentService departmentService,
             ICategoryService categoryService,
@@ -26,8 +25,8 @@ namespace FacilitEase.Controllers
             ITicketService ticketService,
             IEmployeeService employeeService,
             ITicketDetailsService ticketDetailsService,
-            ICommentService commentService,
-            IAssetService assetService)
+            ICommentService commentService
+            )
         {
             _departmentService = departmentService;
             _categoryService = categoryService;
@@ -36,7 +35,7 @@ namespace FacilitEase.Controllers
             _employeeService = employeeService;
             _ticketDetailsService = ticketDetailsService;
             _commentService = commentService;
-            _assetService = assetService;   
+            
         }
 
         [HttpGet("departments")]
@@ -191,17 +190,32 @@ namespace FacilitEase.Controllers
             }
         }
 
+        [HttpGet("get-documents-by-ticket/{ticketId}")]
+        public IActionResult GetDocumentsByTicketId(int ticketId)
+        {
+            try
+            {
+                var documents = _ticketService.GetDocumentsByTicketId(ticketId);
+
+                if (documents == null || !documents.Any())
+                {
+                    return NotFound($"No documents found for Ticket ID {ticketId}");
+                }
+
+                return Ok(documents);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error retrieving documents: {ex.Message}");
+            }
+        }
+
         [HttpGet("{id}")]
         public IActionResult GetEmployeeDetails(int id)
         {
             return Ok(_employeeService.GetEmployeeDetails(id));
         }
-        [HttpGet("employee/{employeeId}")]
-        public IActionResult GetAssetsByEmployeeId(int employeeId)
-        {
-            var assets = _assetService.GetAssetsByEmployeeId(employeeId);
-            return Ok(assets);
-        }
+        
     }
     
 }

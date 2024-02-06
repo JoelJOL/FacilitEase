@@ -16,6 +16,8 @@ namespace FacilitEase.Repositories
             return Context.Set<T>().ToList();
         }
 
+      
+
         public T GetById(int id)
         {
             return Context.Set<T>().Find(id);

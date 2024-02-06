@@ -16,10 +16,10 @@ namespace FacilitEase.Services
 {
     public class MailJetService
     {
-        private readonly string apiKey = "7d284ad06f2aaf97a612cd4f14269748";
-        private readonly string apiSecret = "25c6da6dc326b7b35eae23514cf099ba";
+        private readonly string apiKey = DotNetEnv.Env.GetString("MailJetApiKey");
+        private readonly string apiSecret = DotNetEnv.Env.GetString("MailJetSecretKey");
         private readonly AppDbContext _context;//Abhijith
-
+        
         public MailJetService(AppDbContext context)
         {
             _context = context;
@@ -56,6 +56,7 @@ namespace FacilitEase.Services
          }*/
         public async Task<UserEmail> GetUserEmailByIdAsync(int userId)
         {
+            Console.WriteLine(apiKey);
             var user = await _context.TBL_USER
                 .Where(u => u.Id == userId)
                 .Join(
