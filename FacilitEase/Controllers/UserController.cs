@@ -22,10 +22,12 @@ namespace FacilitEase.Controllers
         private readonly string _authority = "https://login.microsoftonline.com/5b751804-232f-410d-bb2f-714e3bb466eb/v2.0";
         private readonly string _audience = "d7104f84-ab29-436f-8f06-82fcf8d81381";
         private readonly ILoginService _loginService;
+        private readonly IAzureRoleManagementService _roleManagementService;
 
-        public UserController(ILoginService loginService)
+        public UserController(ILoginService loginService, IAzureRoleManagementService roleManagementService)
         {
-            _loginService=loginService;
+            _loginService = loginService;
+            _roleManagementService = roleManagementService;
         }
 
         [HttpPost]
@@ -33,6 +35,7 @@ namespace FacilitEase.Controllers
         {
             try
             {
+                var accessToken = azureReturn.AccessToken;
                 var token = Request.Headers["Authorization"].ToString()?.Replace("Bearer ", "");
                 string username="";
 
@@ -71,7 +74,8 @@ namespace FacilitEase.Controllers
                 HttpContext.User = principal;
 
                 var appToken=_loginService.CheckUser(username);
-
+/*                var roless=_roleManagementService.GetAppRoles(accessToken);
+*/
                 // You can add your business logic here or return a specific ActionResult
                 return Ok(appToken);
             }
