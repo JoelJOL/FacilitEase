@@ -32,5 +32,10 @@ namespace FacilitEase.Controllers
         {
             return Ok(_reportService.GetProfileData(id));
         }
+        [HttpGet("reportdata/{id}")]
+        public async Task<ActionResult<WeekReport>> GetWeeklyData(int id)
+        {
+            return Ok(_reportService.GetWeeklyData(id));
+        }
     }
 }
