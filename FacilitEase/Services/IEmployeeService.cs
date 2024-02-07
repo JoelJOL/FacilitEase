@@ -22,5 +22,6 @@ namespace FacilitEase.Services
         public IEnumerable<TBL_POSITION> GetPositions();
 
         IEnumerable<EmployeeDetails> GetEmployeeDetails(int empId);
+        List<ProjectEmployeeDetails> GetEmployeesByProject(int userId);
     }
 }

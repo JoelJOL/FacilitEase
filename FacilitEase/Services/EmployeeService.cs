@@ -265,5 +265,59 @@ namespace FacilitEase.Services
 
             return employeeDetails;
         }
+        public List<ProjectEmployeeDetails> GetEmployeesByProject(int userId)
+        {
+            // Step 1: Get EmployeeId from TBL_USER
+            int employeeId = _context.TBL_USER
+                .Where(u => u.Id == userId)
+                .Select(u => u.EmployeeId)
+                .FirstOrDefault();
+
+            if (employeeId == 0)
+            {
+                // Handle the case where the userId does not correspond to a valid employee
+                return new List<ProjectEmployeeDetails>();
+            }
+
+            // Step 2: Get projectId from TBL_PROJECT_EMPLOYEE_MAPPING
+            int projectId = _context.TBL_PROJECT_EMPLOYEE_MAPPING
+                .Where(mapping => mapping.EmployeeId == employeeId)
+                .Select(mapping => mapping.ProjectId)
+                .FirstOrDefault();
+
+            if (projectId == 0)
+            {
+                // Handle the case where the employee is not associated with any project
+                return new List<ProjectEmployeeDetails>();
+            }
+
+            // Step 3: Get all EmployeeIds for the corresponding projectId from TBL_PROJECT_EMPLOYEE_MAPPING
+            var employeeIds = _context.TBL_PROJECT_EMPLOYEE_MAPPING
+                .Where(mapping => mapping.ProjectId == projectId)
+                .Select(mapping => mapping.EmployeeId)
+                .ToList();
+
+            // Step 4: Get details of each employee using the corresponding EmployeeIds from TBL_EMPLOYEE
+            var result = _context.TBL_EMPLOYEE
+                .Where(e => employeeIds.Contains(e.Id))
+                .Join(
+                    _context.TBL_EMPLOYEE_DETAIL,
+                    employee => employee.Id,
+                    employeeDetail => employeeDetail.EmployeeId,
+                    (employee, employeeDetail) => new ProjectEmployeeDetails
+                    {
+                        EmployeeCode = employee.EmployeeCode.ToString(),
+                        Name = $"{employee.FirstName} {employee.LastName}",
+                        DOB = employee.DOB.ToString("dd-MM-yyyy"),
+                        Email = employee.Email,
+                        Gender = employee.Gender,
+                        Department = _context.TBL_DEPARTMENT.FirstOrDefault(d => d.Id == employeeDetail.DepartmentId).DeptName,
+                        Position = _context.TBL_POSITION.FirstOrDefault(p => p.Id == employeeDetail.PositionId).PositionName,
+                        Location = _context.TBL_LOCATION.FirstOrDefault(l => l.Id == employeeDetail.LocationId).LocationName,
+                    })
+                .ToList();
+
+            return result;
+        }
     }
 }
