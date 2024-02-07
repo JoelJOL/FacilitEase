@@ -141,6 +141,7 @@ app.UseEndpoints(endpoints =>
 });
 
 app.UseMiddleware<LogMiddleware>();
+
 app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
 {
