@@ -9,5 +9,6 @@ namespace FacilitEase.Services
         ChartData GetChartData(int id);
 
         ProfileData GetProfileData(int id);
+        WeekReport GetWeeklyData(int id);
     }
 }
