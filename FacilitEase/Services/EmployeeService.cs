@@ -159,9 +159,8 @@ namespace FacilitEase.Services
                     (employee, employeeDetail) => new ManagerSubordinateEmployee
                     {
                         EmployeeCode = employee.EmployeeCode.ToString(),
-                        FirstName = employee.FirstName,
-                        LastName = employee.LastName,
-                        DOB = employee.DOB,
+                        Name = $"{employee.FirstName} {employee.LastName}",
+                        DOB = employee.DOB.ToString("dd-MM-yyyy"),
                         Email = employee.Email,
                         Gender = employee.Gender,
                         Department = _context.TBL_DEPARTMENT.FirstOrDefault(d => d.Id == employeeDetail.DepartmentId).DeptName,
