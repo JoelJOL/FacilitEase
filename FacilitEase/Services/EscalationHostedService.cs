@@ -8,9 +8,11 @@ namespace FacilitEase.Services
     {
         private readonly IServiceProvider _serviceProvider;
         private System.Threading.Timer _timer;
+        private readonly ITicketService _ticketService;
         public EscalationHostedService(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
+         
         }
         public Task StartAsync(CancellationToken cancellationToken)
         {
@@ -30,7 +32,7 @@ namespace FacilitEase.Services
                                         join controllerEmployee in dbContext.TBL_EMPLOYEE on tickets.ControllerId equals controllerEmployee.Id
                                         where sla.PriorityId == tickets.PriorityId
                                         where (tickets.StatusId == 1 || tickets.StatusId == 2 || tickets.StatusId == 6)
-                                        where DateTime.Now > tickets.CreatedDate.AddMinutes(sla.Time)
+                                        where DateTime.Now > tickets.CreatedDate.AddMinutes((double)sla.Time)
                                         select new
                                         {
                                             Ticket = tickets,
@@ -50,10 +52,12 @@ namespace FacilitEase.Services
                         ticketInfo.Ticket.ControllerId = ticketInfo.ControllerManagerId;
                         ticketInfo.Ticket.AssignedTo = ticketInfo.ControllerManagerId;
                     }
-                    
+                   /* _ticketService.UpdateTicketTracking( ticketInfo.Ticket.Id, 3,ticketInfo.Ticket.AssignedTo,ticketInfo.Ticket.ControllerId,ticketInfo.Ticket.SubmittedDate,ticketInfo.Ticket.CreatedBy);*/
+
                 }
 
                 dbContext.SaveChanges();
+      
             }
         }
 

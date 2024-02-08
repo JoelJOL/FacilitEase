@@ -7,6 +7,7 @@ using System.Linq.Dynamic.Core;
 using System.Linq;
 using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 
 namespace FacilitEase.Services
@@ -49,7 +50,7 @@ namespace FacilitEase.Services
 
                 // Set ControllerId based on IsApproved flag
                 ticket.ControllerId = request.IsApproved ? ticket.AssignedTo : null;
-
+                UpdateTicketTracking(ticket.Id, newStatusId, ticket.AssignedTo, ticket.ControllerId, ticket.CreatedDate, ticket.CreatedBy);
                 _unitOfWork.TicketRepository.Update(ticket);
                 _unitOfWork.Complete();
 
@@ -233,10 +234,15 @@ namespace FacilitEase.Services
             else
             {
                 ticket.StatusId = statusId;
-                if (statusId == 2) //If ticket is accepted change the status id to 2 which is id of Status - Inprogress and set Controller id to Agent id
+                if (statusId == 2)
+                {  
+                    //If ticket is accepted change the status id to 2 which is id of Status - Inprogress and set Controller id to Agent id
                     ticket.ControllerId = ticket.AssignedTo;
+                    UpdateTicketTracking(ticket.Id, (int)ticket.StatusId, ticket.AssignedTo, ticket.ControllerId, ticket.CreatedDate, ticket.CreatedBy);
+                }
                 else               //If ticket is rejected change the status id to 5 which is id of Status - Cancelled and set Controller id to null
                     ticket.ControllerId = null;
+                    UpdateTicketTracking(ticket.Id, (int)ticket.StatusId, ticket.AssignedTo, ticket.ControllerId, ticket.CreatedDate, ticket.CreatedBy);
             }
             _unitOfWork.Complete();
         }
@@ -280,6 +286,7 @@ namespace FacilitEase.Services
                 if (manager?.ManagerId != null)
                 {
                     ticket.ControllerId = manager.ManagerId;
+                    UpdateTicketTracking(ticket.Id, (int)ticket.StatusId, ticket.AssignedTo, ticket.ControllerId, ticket.CreatedDate, ticket.CreatedBy);
                 }
                 else
                 {
@@ -332,7 +339,7 @@ namespace FacilitEase.Services
 
                 _documentRepository.Add(documentEntity);
                 _context.SaveChanges();
-                UpdateTicketTracking(ticketEntity.Id, 1, null, null, null, 1);
+                UpdateTicketTracking(ticketEntity.Id, 1, null, null, DateTime.Now, ticketEntity.CreatedBy);
             }
         }
 
@@ -358,7 +365,7 @@ namespace FacilitEase.Services
         /// <param name="controllerId"></param>
         /// <param name="ticketRaisedTimestamp"></param>
         /// <param name="updatedBy"></param>
-        public void UpdateTicketTracking(int ticketId, int statusId, int? assignedTo, int? controllerId, DateTime? ticketRaisedTimestamp, int updatedBy)
+        public void UpdateTicketTracking(int ticketId, int statusId, int? assignedTo, int? controllerId, DateTime? ticketRaisedTimestamp, int createdBy)
         {
             var trackingEntry = new TBL_TICKET_TRACKING
             {
@@ -367,8 +374,8 @@ namespace FacilitEase.Services
                 AssignedTo = assignedTo,
                 ApproverId = controllerId,
                 TicketRaisedTimestamp = ticketRaisedTimestamp ?? DateTime.Now,
-                CreatedBy = updatedBy,
-                UpdatedBy = updatedBy,
+                CreatedBy = createdBy,
+                UpdatedBy = createdBy,
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now
             };
@@ -527,6 +534,13 @@ namespace FacilitEase.Services
                     _context.SaveChanges();
 
                     Console.WriteLine($"Ticket {ticketId} assigned to agent {agentId} successfully.");
+                    UpdateTicketTracking(
+                       ticket.Id, 2,
+                       ticket.AssignedTo,
+                       ticket.ControllerId,
+                       ticket.UpdatedDate,
+                       ticket.CreatedBy
+                        );
                 }
                 else
                 {
