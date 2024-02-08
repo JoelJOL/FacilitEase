@@ -7,5 +7,6 @@
     {
         public int TicketId { get; set; }
         public int AgentId { get; set; }
+        public int UserId { get; set; }
     }
 }

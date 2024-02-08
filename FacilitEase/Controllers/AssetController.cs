@@ -12,13 +12,13 @@ namespace FacilitEase.Controllers
             _assetService = assetService;
         }
 
-        [HttpGet("employee/{employeeId}")]
-        public IActionResult GetAssetsByEmployeeId(int employeeId)
+        [HttpGet("assets/{employeeId}")]
+        public IActionResult GetAssetsByEmployeeId(int employeeId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
-            var assets = _assetService.GetAssetsByEmployeeId(employeeId);
+            var assets = _assetService.GetAssetsByEmployeeId(employeeId, sortField, sortOrder, pageIndex, pageSize, searchQuery);
             return Ok(assets);
         }
-        [HttpPost("assign-unassigned-assets/{employeeId}")]
+        /*[HttpPost("assign-unassigned-assets/{employeeId}")]
         public IActionResult AssignUnassignedAssets(int employeeId)
         {
             try
@@ -30,13 +30,15 @@ namespace FacilitEase.Controllers
             {
                 return BadRequest($"Error assigning assets: {ex.Message}");
             }
-        }
+        }*/
 
-        [HttpGet("asset/GetUnassignedAssets")]
-        public ActionResult<IEnumerable<Asset>> GetUnassignedAssets()
+        [HttpGet("assets/unassigned-assets")]
+
+        public IActionResult GetUnassignedAssets(string sortField, string sortOrder, int pageIndex , int pageSize, string searchQuery)
         {
-            var unassignedAssets = _assetService.GetUnassignedAssets();
+            var unassignedAssets = _assetService.GetUnassignedAssets(sortField, sortOrder, pageIndex, pageSize, searchQuery);
             return Ok(unassignedAssets);
         }
+
     }
 }

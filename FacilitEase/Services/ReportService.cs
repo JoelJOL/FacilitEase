@@ -1,6 +1,7 @@
 ﻿using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
 using FacilitEase.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
 
 namespace FacilitEase.Services
 {
@@ -18,16 +19,15 @@ namespace FacilitEase.Services
         public Report GetReportData(int id)
         {
             Report report = new Report();
-            report.Unresolved = (from ta in _context.TBL_TICKET_ASSIGNMENT
-                                 where ta.EmployeeId == id && ta.EmployeeStatus == "unresolved"
-                                 select ta).Count();
             report.Resolved = (from ta in _context.TBL_TICKET_ASSIGNMENT
-                               where ta.EmployeeId == id && ta.EmployeeStatus == "resolved"
+                               join u in _context.TBL_USER on ta.EmployeeId equals u.EmployeeId 
+                               where u.Id == id && ta.EmployeeStatus == "resolved"
                                select ta).Count();
             report.Escalated = (from ta in _context.TBL_TICKET_ASSIGNMENT
-                                where ta.EmployeeId == id && ta.EmployeeStatus == "escalated"
-                                select ta).Count();
-            report.Total = report.Unresolved + report.Resolved + report.Escalated;
+                               join u in _context.TBL_USER on ta.EmployeeId equals u.EmployeeId
+                               where u.Id == id && ta.EmployeeStatus == "escalated"
+                               select ta).Count();
+            report.Total = report.Resolved + report.Escalated;
 
             return report;
         }
@@ -49,35 +49,32 @@ namespace FacilitEase.Services
                 November = new int[] { 0, 0, 0 },
                 December = new int[] { 0, 0, 0 }
             };
-
-            var ticketCountsByMonth = _context.TBL_TICKET_ASSIGNMENT
-                .Where(ta => ta.EmployeeId == id)
-                .GroupBy(ta => ta.TicketAssignedTimestamp.Month)
-                .Select(group => new
-                {
-                    Month = group.Key,
-                    ResolvedCount = group.Count(ta => ta.EmployeeStatus == "resolved"),
-                    UnresolvedCount = group.Count(ta => ta.EmployeeStatus == "unresolved"),
-                    EscalatedCount = group.Count(ta => ta.EmployeeStatus == "escalated")
-                })
-                 .ToList();
-
+            var ticketCountsByMonth = from ta in _context.TBL_TICKET_ASSIGNMENT
+                                      join u in _context.TBL_USER on ta.EmployeeId equals u.EmployeeId
+                                      where u.Id == id
+                                      group ta by ta.TicketAssignedTimestamp.Month into groupResult
+                                      select new
+                                      {
+                                          Month = groupResult.Key,
+                                          ResolvedCount = groupResult.Count(ta => ta.EmployeeStatus == "resolved"),
+                                          EscalatedCount = groupResult.Count(ta => ta.EmployeeStatus == "escalated")
+                                      };
             foreach (var entry in ticketCountsByMonth)
             {
                 switch (entry.Month)
                 {
-                    case 1: chartData.January = new int[] { entry.ResolvedCount, entry.UnresolvedCount, entry.EscalatedCount }; break;
-                    case 2: chartData.February = new int[] { entry.ResolvedCount, entry.UnresolvedCount, entry.EscalatedCount }; break;
-                    case 3: chartData.March = new int[] { entry.ResolvedCount, entry.UnresolvedCount, entry.EscalatedCount }; break;
-                    case 4: chartData.April = new int[] { entry.ResolvedCount, entry.UnresolvedCount, entry.EscalatedCount }; break;
-                    case 5: chartData.May = new int[] { entry.ResolvedCount, entry.UnresolvedCount, entry.EscalatedCount }; break;
-                    case 6: chartData.June = new int[] { entry.ResolvedCount, entry.UnresolvedCount, entry.EscalatedCount }; break;
-                    case 7: chartData.July = new int[] { entry.ResolvedCount, entry.UnresolvedCount, entry.EscalatedCount }; break;
-                    case 8: chartData.August = new int[] { entry.ResolvedCount, entry.UnresolvedCount, entry.EscalatedCount }; break;
-                    case 9: chartData.September = new int[] { entry.ResolvedCount, entry.UnresolvedCount, entry.EscalatedCount }; break;
-                    case 10: chartData.October = new int[] { entry.ResolvedCount, entry.UnresolvedCount, entry.EscalatedCount }; break;
-                    case 11: chartData.November = new int[] { entry.ResolvedCount, entry.UnresolvedCount, entry.EscalatedCount }; break;
-                    case 12: chartData.December = new int[] { entry.ResolvedCount, entry.UnresolvedCount, entry.EscalatedCount }; break;
+                    case 1: chartData.January = new int[] { entry.ResolvedCount,  entry.EscalatedCount }; break;
+                    case 2: chartData.February = new int[] { entry.ResolvedCount,  entry.EscalatedCount }; break;
+                    case 3: chartData.March = new int[] { entry.ResolvedCount,  entry.EscalatedCount }; break;
+                    case 4: chartData.April = new int[] { entry.ResolvedCount,  entry.EscalatedCount }; break;
+                    case 5: chartData.May = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
+                    case 6: chartData.June = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
+                    case 7: chartData.July = new int[] { entry.ResolvedCount,  entry.EscalatedCount }; break;
+                    case 8: chartData.August = new int[] { entry.ResolvedCount,  entry.EscalatedCount }; break;
+                    case 9: chartData.September = new int[] { entry.ResolvedCount,  entry.EscalatedCount }; break;
+                    case 10: chartData.October = new int[] { entry.ResolvedCount,  entry.EscalatedCount }; break;
+                    case 11: chartData.November = new int[] { entry.ResolvedCount,  entry.EscalatedCount }; break;
+                    case 12: chartData.December = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
                 }
             }
             return chartData;
@@ -109,6 +106,32 @@ namespace FacilitEase.Services
                                     where u.EmployeeId == id
                                     select p.PositionName).FirstOrDefault()?.ToString() ?? "";
             return profileData;
+        }
+        public WeekReport GetWeeklyData(int id)
+        {
+            WeekReport weekReport = new WeekReport();
+
+            DateTime currentDateTime = DateTime.Now;
+            DateTime startDateOfWeek = currentDateTime.AddDays(-(int)currentDateTime.DayOfWeek);
+            DateTime endDateOfWeek = startDateOfWeek.AddDays(6);
+
+            weekReport = (from ta in _context.TBL_TICKET_ASSIGNMENT
+                          join u in _context.TBL_USER on ta.EmployeeId equals u.EmployeeId
+                          where u.EmployeeId == id
+                          group ta by 1 into g
+                          select new WeekReport
+                          {
+                              DailyTickets = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime),
+                              DailyResolved = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime && ta.EmployeeStatus == "resolved"),
+                              DailyUnresolved = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime && ta.EmployeeStatus == "unresolved"),
+                              DailyEscalated = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime && ta.EmployeeStatus == "escalated"),
+                              WeeklyTickets = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek),
+                              WeeklyResolved = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek && ta.EmployeeStatus == "resolved"),
+                              WeeklyUnresolved = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek && ta.EmployeeStatus == "unresolved"),
+                              WeeklyEscalated = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek && ta.EmployeeStatus == "escalated")
+                          }).FirstOrDefault();
+            return weekReport;
+
         }
     }
 }

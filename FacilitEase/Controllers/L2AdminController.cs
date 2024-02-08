@@ -17,11 +17,18 @@ namespace FacilitEase.Controllers
             _ticketService = ticketService;
         }
 
-        [HttpGet("agents")]
-        public IActionResult GetAgents([FromQuery] DepartmentAgentsRequestModel requestModel)
+        [HttpGet("agents/{userId}")]
+        public ActionResult<IEnumerable<AgentApiModel>> GetAgents(int userId)
         {
-            var agents = _employeeService.GetAgents(requestModel.DepartmentId);
-            return Ok(agents);
+            try
+            {
+                var agents = _employeeService.GetAgents(userId);
+                return Ok(agents);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
         }
 
         [HttpGet("ticketById")]
@@ -38,12 +45,12 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpGet("unassigned-tickets")]
-        public ActionResult<ManagerTicketResponse<UnassignedTicketModel>> GetUnassignedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery)
+        [HttpGet("unassigned-tickets/{userId}")]
+        public ActionResult<ManagerTicketResponse<UnassignedTicketModel>> GetUnassignedTickets(int userId, int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery)
         {
             try
             {
-                var unassignedTickets = _ticketService.GetUnassignedTickets(pageIndex, pageSize, sortField, sortOrder, searchQuery);
+                var unassignedTickets = _ticketService.GetUnassignedTickets(userId, pageIndex, pageSize, sortField, sortOrder, searchQuery);
                 return Ok(unassignedTickets);
             }
             catch (Exception ex)
@@ -58,7 +65,7 @@ namespace FacilitEase.Controllers
             try
             {
                 Console.WriteLine($"TicketId: {request.TicketId}, AgentId: {request.AgentId}");
-                _ticketService.AssignTicketToAgent(request.TicketId, request.AgentId);
+                _ticketService.AssignTicketToAgent(request.UserId, request.TicketId, request.AgentId);
                 return Ok(new { Message = "Ticket assigned successfully" });
             }
             catch (Exception ex)
@@ -67,12 +74,12 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpGet("assigned-tickets")]
-        public ActionResult<ManagerTicketResponse<TicketApiModel>> GetAssignedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery)
+        [HttpGet("assigned-tickets/{userId}")]
+        public ActionResult<ManagerTicketResponse<TicketApiModel>> GetAssignedTickets(int userId, int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery)
         {
             try
             {
-                var assignedTickets = _ticketService.GetAssignedTickets(pageIndex, pageSize, sortField, sortOrder, searchQuery);
+                var assignedTickets = _ticketService.GetAssignedTickets(userId, pageIndex, pageSize, sortField, sortOrder, searchQuery);
                 return Ok(assignedTickets);
             }
             catch (Exception ex)
@@ -81,17 +88,17 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpGet("escalated-tickets")]
-        public ActionResult<ManagerTicketResponse<TicketApiModel>> GetEscalatedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery)
+        [HttpGet("escalated-tickets/{userId}")]
+        public ActionResult<ManagerTicketResponse<TicketApiModel>> GetEscalatedTickets(int userId, int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery)
         {
-            var escalatedTickets = _ticketService.GetEscalatedTickets(pageIndex, pageSize, sortField, sortOrder, searchQuery);
+            var escalatedTickets = _ticketService.GetEscalatedTickets(userId, pageIndex, pageSize, sortField, sortOrder, searchQuery);
             return Ok(escalatedTickets);
         }
 
-        [HttpGet("agentsByDepartmentId")]
-        public ActionResult<List<AgentDetailsModel>> GetAgentsByDepartment(int departmentId)
+        [HttpGet("agentsByDepartmentId/{userId}")]
+        public ActionResult<List<AgentDetailsModel>> GetAgentsByDepartment(int userId)
         {
-            var agents = _employeeService.GetAgentsByDepartment(departmentId);
+            var agents = _employeeService.GetAgentsByDepartment(userId);
             return Ok(agents);
         }
     }

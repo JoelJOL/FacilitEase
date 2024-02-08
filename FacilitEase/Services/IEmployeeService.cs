@@ -7,9 +7,9 @@ namespace FacilitEase.Services
     {
         List<ManagerSubordinateEmployee> GetSubordinates(int managerId);
 
-        IEnumerable<AgentApiModel> GetAgents(int departmentId);
+        IEnumerable<AgentApiModel> GetAgents(int userId);
 
-        IEnumerable<AgentDetailsModel> GetAgentsByDepartment(int departmentId);
+        IEnumerable<AgentDetailsModel> GetAgentsByDepartment(int userId);
 
         void AddEmployees(IEnumerable<EmployeeInputModel> employeeInputs1, params EmployeeInputModel[] employeeInputs);
 
@@ -22,5 +22,6 @@ namespace FacilitEase.Services
         public IEnumerable<TBL_POSITION> GetPositions();
 
         IEnumerable<EmployeeDetails> GetEmployeeDetails(int empId);
+        List<ProjectEmployeeDetails> GetEmployeesByProject(int userId);
     }
 }

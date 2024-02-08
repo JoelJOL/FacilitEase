@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Linq.Dynamic.Core;
 namespace FacilitEase.Services
 {
     public class AssetService : IAssetService
@@ -17,71 +17,79 @@ namespace FacilitEase.Services
             _context = context;
         }
 
-        public IEnumerable<Asset> GetAssetsByEmployeeId(int employeeId)
+        public EmployeeAssetsResponse<Asset> GetAssetsByEmployeeId(int employeeId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
-            var query = from aem in _context.TBL_ASSET_EMPLOYEE_MAPPING
-                        join a in _context.TBL_ASSET on aem.AssetId equals a.Id
-                        join at in _context.TBL_ASSET_TYPE on a.TypeId equals at.Id
-                        where aem.AssignedTo == employeeId
-                        select new Asset
-                        {
-                            AssetId = a.Id,
-                            AssetName = a.AssetName,
-                            WarrantyInfo = a.WarrantyInfo,
-                            LastMaintenanceDate = a.LastMaintenanceDate,
-                            NextMaintenanceDate = a.NextMaintenanceDate,
-                            AssetType = at.Type
-                        };
+            var employeeAssets = from aem in _context.TBL_ASSET_EMPLOYEE_MAPPING
+                                 join asset in _context.TBL_ASSET on aem.AssetId equals asset.Id
+                                 join assetType in _context.TBL_ASSET_TYPE on asset.TypeId equals assetType.Id
+                                 where aem.AssignedTo == employeeId
+                                 where string.IsNullOrEmpty(searchQuery) || asset.AssetName.Contains(searchQuery) || assetType.Type.Contains(searchQuery)
+                                 select new Asset
+                                 {
+                                     Id = asset.Id,
+                                     AssetName = asset.AssetName,
+                                     WarrantyInfo = asset.WarrantyInfo,
+                                     LastMaintenanceDate = asset.LastMaintenanceDate,
+                                     NextMaintenanceDate = asset.NextMaintenanceDate,
+                                     AssetType = assetType.Type
+                                 };
 
-            return query.ToList();
-        }
-
-        public IEnumerable<Asset> GetUnassignedAssets()
-        {
-            var unassignedAssets = from a in _context.TBL_ASSET
-                                   join at in _context.TBL_ASSET_TYPE on a.TypeId equals at.Id
-                                   where a.StatusId == 2
-                                   select new Asset
-                                   {
-                                       AssetId = a.Id,
-                                       AssetName = a.AssetName,
-                                       WarrantyInfo = a.WarrantyInfo,
-                                       LastMaintenanceDate = a.LastMaintenanceDate,
-                                       NextMaintenanceDate = a.NextMaintenanceDate,
-                                       AssetType = at.Type
-                                   };
-
-            return unassignedAssets.ToList();
-        }
-
-        public void AssignUnassignedAssets(int employeeId)
-        {
-            var unassignedAssets = from a in _context.TBL_ASSET
-                                   where !_context.TBL_ASSET_EMPLOYEE_MAPPING.Any(e => e.AssetId == a.Id)
-                                   select a;
-
-            foreach (var asset in unassignedAssets)
+            // Apply Sorting
+            if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
             {
-                // Assuming you have a method to create a new assignment record
-                AssignAssetToEmployee(asset.Id, employeeId);
+                string orderByString = $"{sortField} {sortOrder}";
+                employeeAssets = employeeAssets.OrderBy(orderByString);
             }
 
-            _context.SaveChanges();
+            // Apply Pagination
+            var totalCount = employeeAssets.Count();
+            var paginatedAssets = employeeAssets.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+            // Return the results in a paginated response object.
+            return new EmployeeAssetsResponse<Asset>
+            {
+                Data = paginatedAssets,
+                TotalDataCount = totalCount
+            };
         }
 
-        private void AssignAssetToEmployee(int assetId, int employeeId)
-        {
-            // Create a new assignment record
-            var assignment = new TBL_ASSET_EMPLOYEE_MAPPING
-            {
-                AssetId = assetId,
-                AssignedTo = employeeId,
-                Status = "Assigned",
-                CreatedDate = DateTime.Now,
-                UpdatedDate = DateTime.Now
-            };
 
-            _context.TBL_ASSET_EMPLOYEE_MAPPING.Add(assignment);
+
+        public UnassignedAssetResponse<Asset> GetUnassignedAssets(string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
+        {
+            var unassignedAssetsQuery = from asset in _context.TBL_ASSET
+                                        join status in _context.TBL_ASSET_STATUS on asset.StatusId equals status.Id
+                                        join assetType in _context.TBL_ASSET_TYPE on asset.TypeId equals assetType.Id
+                                        where status.Id == 2
+                                        where string.IsNullOrEmpty(searchQuery) || asset.AssetName.Contains(searchQuery) || assetType.Type.Contains(searchQuery)
+                                        select new Asset
+                                        {
+                                            Id = asset.Id,
+                                            AssetName = asset.AssetName,
+                                            WarrantyInfo = asset.WarrantyInfo,
+                                            LastMaintenanceDate = asset.LastMaintenanceDate,
+                                            NextMaintenanceDate = asset.NextMaintenanceDate,
+                                            AssetType = assetType.Type
+                                        };
+
+            // Apply Sorting
+            if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
+            {
+                string orderByString = $"{sortField} {sortOrder}";
+                unassignedAssetsQuery = unassignedAssetsQuery.OrderBy(orderByString);
+            }
+
+            // Apply Pagination
+            var totalCount = unassignedAssetsQuery.Count();
+            var paginatedAssets = unassignedAssetsQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+            // Return the results in a paginated response object.
+            return new UnassignedAssetResponse<Asset>
+            {
+                Data = paginatedAssets,
+                TotalDataCount = totalCount
+            };
         }
     }
 }
+

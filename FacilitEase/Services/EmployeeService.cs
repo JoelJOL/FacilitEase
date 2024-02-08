@@ -148,8 +148,15 @@ namespace FacilitEase.Services
         /// </summary>
         /// <param name="managerId"></param>
         /// <returns></returns>
-        public List<ManagerSubordinateEmployee> GetSubordinates(int managerId)
+        public List<ManagerSubordinateEmployee> GetSubordinates(int userId)
         {
+            // Step 1: Retrieve managerId (employeeId) based on userId
+            var managerId = _context.TBL_USER
+                .Where(user => user.Id == userId)
+                .Select(user => user.EmployeeId)
+                .FirstOrDefault();
+
+            // Step 2: Get subordinates for the retrieved managerId
             var result = _context.TBL_EMPLOYEE
                 .Where(e => e.ManagerId == managerId)
                 .Join(
@@ -159,9 +166,8 @@ namespace FacilitEase.Services
                     (employee, employeeDetail) => new ManagerSubordinateEmployee
                     {
                         EmployeeCode = employee.EmployeeCode.ToString(),
-                        FirstName = employee.FirstName,
-                        LastName = employee.LastName,
-                        DOB = employee.DOB,
+                        Name = $"{employee.FirstName} {employee.LastName}",
+                        DOB = employee.DOB.ToString("dd-MM-yyyy"),
                         Email = employee.Email,
                         Gender = employee.Gender,
                         Department = _context.TBL_DEPARTMENT.FirstOrDefault(d => d.Id == employeeDetail.DepartmentId).DeptName,
@@ -173,15 +179,26 @@ namespace FacilitEase.Services
             return result;
         }
 
+
         /// <summary>
         /// Retrieve agents based on the RoleId, UserId and DepartmentId
         /// </summary>
         /// <param name="departmentId"></param>
         /// <returns></returns>
-        public IEnumerable<AgentApiModel> GetAgents(int departmentId)
+        public IEnumerable<AgentApiModel> GetAgents(int userId)
         {
+            // Step 1: Retrieve DepartmentId based on UserId
+            var departmentId = _context.TBL_EMPLOYEE_DETAIL
+                .Where(employeeDetail => employeeDetail.EmployeeId == _context.TBL_USER
+                    .Where(user => user.Id == userId)
+                    .Select(user => user.EmployeeId)
+                    .FirstOrDefault())
+                .Select(employeeDetail => employeeDetail.DepartmentId)
+                .FirstOrDefault();
+
+            // Step 2: Get Agents for the retrieved DepartmentId
             var agentRoleId = _context.TBL_USER_ROLE
-                .Where(role => role.UserRoleName == "Agent")
+                .Where(role => role.UserRoleName == "L3Admin")
                 .Select(role => role.Id)
                 .FirstOrDefault();
 
@@ -211,15 +228,26 @@ namespace FacilitEase.Services
             return agents;
         }
 
+
         /// <summary>
         /// retrieve the detailed informations of the agents in a department
         /// </summary>
         /// <param name="departmentId"></param>
         /// <returns></returns>
-        public IEnumerable<AgentDetailsModel> GetAgentsByDepartment(int departmentId)
+        public IEnumerable<AgentDetailsModel> GetAgentsByDepartment(int userId)
         {
+            // Step 1: Retrieve DepartmentId based on UserId
+            var departmentId = _context.TBL_EMPLOYEE_DETAIL
+                .Where(employeeDetail => employeeDetail.EmployeeId == _context.TBL_USER
+                    .Where(user => user.Id == userId)
+                    .Select(user => user.EmployeeId)
+                    .FirstOrDefault())
+                .Select(employeeDetail => employeeDetail.DepartmentId)
+                .FirstOrDefault();
+
+            // Step 2: Get Agents for the retrieved DepartmentId
             var agentRoleId = _context.TBL_USER_ROLE
-                .Where(role => role.UserRoleName == "Agent")
+                .Where(role => role.UserRoleName == "L3Admin")
                 .Select(role => role.Id)
                 .FirstOrDefault();
 
@@ -246,6 +274,7 @@ namespace FacilitEase.Services
             return agentDetails;
         }
 
+
         public IEnumerable<EmployeeDetails> GetEmployeeDetails(int empId)
         {
             var employeeDetails = from employee in _context.TBL_EMPLOYEE
@@ -265,6 +294,60 @@ namespace FacilitEase.Services
                                   };
 
             return employeeDetails;
+        }
+        public List<ProjectEmployeeDetails> GetEmployeesByProject(int userId)
+        {
+            // Step 1: Get EmployeeId from TBL_USER
+            int employeeId = _context.TBL_USER
+                .Where(u => u.Id == userId)
+                .Select(u => u.EmployeeId)
+                .FirstOrDefault();
+
+            if (employeeId == 0)
+            {
+                // Handle the case where the userId does not correspond to a valid employee
+                return new List<ProjectEmployeeDetails>();
+            }
+
+            // Step 2: Get projectId from TBL_PROJECT_EMPLOYEE_MAPPING
+            int projectId = _context.TBL_PROJECT_EMPLOYEE_MAPPING
+                .Where(mapping => mapping.EmployeeId == employeeId)
+                .Select(mapping => mapping.ProjectId)
+                .FirstOrDefault();
+
+            if (projectId == 0)
+            {
+                // Handle the case where the employee is not associated with any project
+                return new List<ProjectEmployeeDetails>();
+            }
+
+            // Step 3: Get all EmployeeIds for the corresponding projectId from TBL_PROJECT_EMPLOYEE_MAPPING
+            var employeeIds = _context.TBL_PROJECT_EMPLOYEE_MAPPING
+                .Where(mapping => mapping.ProjectId == projectId)
+                .Select(mapping => mapping.EmployeeId)
+                .ToList();
+
+            // Step 4: Get details of each employee using the corresponding EmployeeIds from TBL_EMPLOYEE
+            var result = _context.TBL_EMPLOYEE
+                .Where(e => employeeIds.Contains(e.Id))
+                .Join(
+                    _context.TBL_EMPLOYEE_DETAIL,
+                    employee => employee.Id,
+                    employeeDetail => employeeDetail.EmployeeId,
+                    (employee, employeeDetail) => new ProjectEmployeeDetails
+                    {
+                        EmployeeCode = employee.EmployeeCode.ToString(),
+                        Name = $"{employee.FirstName} {employee.LastName}",
+                        DOB = employee.DOB.ToString("dd-MM-yyyy"),
+                        Email = employee.Email,
+                        Gender = employee.Gender,
+                        Department = _context.TBL_DEPARTMENT.FirstOrDefault(d => d.Id == employeeDetail.DepartmentId).DeptName,
+                        Position = _context.TBL_POSITION.FirstOrDefault(p => p.Id == employeeDetail.PositionId).PositionName,
+                        Location = _context.TBL_LOCATION.FirstOrDefault(l => l.Id == employeeDetail.LocationId).LocationName,
+                    })
+                .ToList();
+
+            return result;
         }
     }
 }
