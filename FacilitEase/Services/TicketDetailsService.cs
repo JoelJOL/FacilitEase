@@ -7,10 +7,12 @@ namespace FacilitEase.Services
     public class TicketDetailsService : ITicketDetailsService
     {
         private readonly AppDbContext _context;
+        private readonly TicketService _ticketService;
 
         public TicketDetailsService(AppDbContext context)
         {
             _context = context;
+           
         }
 
         /// <summary>
@@ -40,7 +42,8 @@ namespace FacilitEase.Services
                             TicketName = t.TicketName,
                             Status = ts.StatusName,
                             AssignedTo = e != null ? e.FirstName : null,  // Check for null to handle left join
-                            Priority = tp.PriorityName
+                            Priority = tp.PriorityName,
+                            SubmittedDate = t.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                         };
 
             // Apply Sorting
@@ -79,7 +82,6 @@ namespace FacilitEase.Services
                             Status = ts.StatusName,
                             AssignedTo = e != null ? e.FirstName : null,
                             Priority = tp.PriorityName,
-                            SubmissionDate = t.SubmittedDate 
                         };
 
             return query.FirstOrDefault();
@@ -90,27 +92,7 @@ namespace FacilitEase.Services
         /// </summary>
         /// <param name="ticketId"></param>
         /// <returns></returns>
-        public bool RequestToCancelTicket(int ticketId)
-        {
-            var ticket = _context.TBL_TICKET.FirstOrDefault(t => t.Id == ticketId);
-
-            if (ticket == null || !IsValidTicketStatus(ticket.StatusId))
-            {
-                return false;
-            }
-
-            ticket.StatusId = 7;
-            ticket.ControllerId = ticket.AssignedTo; 
-            _context.SaveChanges();
-
-            return true;
-        }
-
-        private bool IsValidTicketStatus(int? statusId)
-        {
-            // Check if the status is open or in progress (1, 2, 3)
-            return statusId.HasValue && (statusId == 1 || statusId == 2 || statusId == 3 || statusId == 6);
-        }
+        
 
     }
 }
