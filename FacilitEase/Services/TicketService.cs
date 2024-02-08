@@ -91,7 +91,7 @@ namespace FacilitEase.Services
                             TicketName = ticket.TicketName,
                             EmployeeName = $"{employee.FirstName} {employee.LastName}",
                             AssignedTo = $"{_context.TBL_EMPLOYEE.Where(emp => emp.Id == ticket.AssignedTo).Select(emp => $"{emp.FirstName} {emp.LastName}").FirstOrDefault()}",
-                            SubmittedDate = ticket.SubmittedDate,
+                            SubmittedDate = ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                             Priority = $"{priority.PriorityName}",
                             Status = $"{status.StatusName}",
                         };
@@ -103,6 +103,60 @@ namespace FacilitEase.Services
             {
                     string orderByString = $"{sortField} {sortOrder}";
                     queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
+            }
+
+            // Apply Pagination
+            var totalCount = query.Count();
+            queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+
+
+            return new ManagerTicketResponse<ManagerEmployeeTickets>
+            {
+                Data = queryList,
+                TotalDataCount = totalCount
+            };
+        }
+
+        /// <summary>
+        /// Get - Retrieves a list of tickets raised by the emloyees that are currently live,  working under a specific manager and the total number of tickets
+        /// Includes pagination,searching and sorting functionality.
+        /// </summary>
+        /// <param name="managerId"></param>
+        /// <param name="sortField"></param>
+        /// <param name="sortOrder"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="searchQuery"></param>
+        /// <returns>A response of paginated list of tickets of employees associated with a specific manager and the total tickets count</returns>
+        public ManagerTicketResponse<ManagerEmployeeTickets> GetLiveTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
+        {
+            var query = from ticket in _context.TBL_TICKET
+                        join user in _context.TBL_USER on ticket.UserId equals user.Id
+                        join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
+                        join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
+                        join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
+                        where employee.ManagerId == managerId
+                        where ((ticket.Id != 4) || (ticket.Id != 5))
+                        where string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery)
+                        select new ManagerEmployeeTickets
+                        {
+                            Id = ticket.Id,
+                            TicketName = ticket.TicketName,
+                            EmployeeName = $"{employee.FirstName} {employee.LastName}",
+                            AssignedTo = $"{_context.TBL_EMPLOYEE.Where(emp => emp.Id == ticket.AssignedTo).Select(emp => $"{emp.FirstName} {emp.LastName}").FirstOrDefault()}",
+                            SubmittedDate = ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
+                            Priority = $"{priority.PriorityName}",
+                            Status = $"{status.StatusName}",
+                        };
+
+            var queryList = query.ToList();
+
+            // Apply Sorting
+            if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
+            {
+                string orderByString = $"{sortField} {sortOrder}";
+                queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
             }
 
             // Apply Pagination
@@ -145,16 +199,16 @@ namespace FacilitEase.Services
                                  .Select(comment => comment.Text)
                                  .FirstOrDefault(),
                              LastUpdate = _context.TBL_COMMENT
-                                 .Where(comment => comment.TicketId == ticketId)
-                                 .OrderByDescending(comment => comment.UpdatedDate)
-                                 .Select(comment => (comment.UpdatedDate != null)
-                                     ? (DateTime.Now - comment.UpdatedDate).TotalMinutes < 60
-                                         ? $"{(int)(DateTime.Now - comment.UpdatedDate).TotalMinutes}M ago"
-                                         : (DateTime.Now - comment.UpdatedDate).TotalHours < 24
-                                             ? $"{(int)(DateTime.Now - comment.UpdatedDate).TotalHours}H ago"
-                                             : $"{(int)(DateTime.Now - comment.UpdatedDate).TotalDays}D ago"
-                                     : null)
-                                 .FirstOrDefault(),
+                                .Where(comment => comment.TicketId == ticketId)
+                                .OrderByDescending(comment => comment.UpdatedDate)
+                                .Select(comment => (comment.UpdatedDate != null)
+                                    ? (DateTime.Now - comment.UpdatedDate).TotalMinutes < 60
+                                        ? $"{(int)(DateTime.Now - comment.UpdatedDate).TotalMinutes} minute(s) ago"
+                                        : (DateTime.Now - comment.UpdatedDate).TotalHours < 24
+                                            ? $"{(int)(DateTime.Now - comment.UpdatedDate).TotalHours} hour(s) ago"
+                                            : $"{(int)(DateTime.Now - comment.UpdatedDate).TotalDays} day(s) ago"
+                                                                 : null)
+                                                             .FirstOrDefault(),
                              TicketDescription = t.TicketDescription,
                              DocumentLink = string.Join(", ", _context.TBL_DOCUMENT
                                  .Where(documents => documents.TicketId == t.Id)
@@ -192,7 +246,7 @@ namespace FacilitEase.Services
                             TicketName = ticket.TicketName,
                             EmployeeName = $"{employee.FirstName} {employee.LastName}",
                             AssignedTo = $"{_context.TBL_EMPLOYEE.Where(emp => emp.Id == ticket.AssignedTo).Select(emp => $"{emp.FirstName} {emp.LastName}").FirstOrDefault()}",
-                            SubmittedDate = ticket.SubmittedDate,
+                            SubmittedDate = ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                             Priority = $"{priority.PriorityName}",
                             Status = $"{status.StatusName}",
                         };
