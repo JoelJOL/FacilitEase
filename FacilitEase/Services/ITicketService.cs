@@ -31,19 +31,19 @@ namespace FacilitEase.Services
 
         Task<bool> ChangeTicketStatus(int ticketId, TicketStatusChangeRequest request);
 
-        ManagerTicketResponse<TicketApiModel> GetAssignedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery);
+        ManagerTicketResponse<TicketApiModel> GetAssignedTickets(int userId, int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery);
 
         //Nathaniel
         TicketDetails GetTicketDetails(int desiredTicketId);
 
         //Nathaniel
-        ManagerTicketResponse<UnassignedTicketModel> GetUnassignedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery);
+        ManagerTicketResponse<UnassignedTicketModel> GetUnassignedTickets(int userId, int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery);
 
         //Nathaniel
-        void AssignTicketToAgent(int ticketId, int agentId);
+        void AssignTicketToAgent(int userId, int ticketId, int agentId);
       
         //Nathaniel
-        ManagerTicketResponse<TicketApiModel> GetEscalatedTickets(int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery);
+        ManagerTicketResponse<TicketApiModel> GetEscalatedTickets(int userId, int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery);
         //Hema
         //void CreateTicketWithDocuments(TicketDto ticket);
         void CreateTicketWithDocuments([FromForm] TicketDto ticketDto, [FromForm] IFormFile file);
