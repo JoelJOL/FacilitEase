@@ -341,7 +341,7 @@ namespace FacilitEase.Services
                 if (manager?.ManagerId != null)
                 {
                     ticket.ControllerId = manager.ManagerId;
-                    UpdateTicketTracking(ticket.Id, (int)ticket.StatusId, ticket.AssignedTo, ticket.ControllerId, ticket.CreatedDate, ticket.CreatedBy);
+                   UpdateTicketTracking(ticket.Id, (int)ticket.StatusId, ticket.AssignedTo, ticket.ControllerId, ticket.CreatedDate, ticket.CreatedBy);
                 }
                 else
                 {
