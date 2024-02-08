@@ -1,7 +1,6 @@
 using FacilitEase.Data;
 using FacilitEase.Hubs;
 using FacilitEase.Models.EntityModels;
-using FacilitEase.NewFolder4;
 using FacilitEase.Repositories;
 using FacilitEase.Services;
 using FacilitEase.UnitOfWork;
@@ -12,6 +11,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using DotNetEnv;
+using FacilitEase.Middleware;
 
 
 var builder = WebApplication.CreateBuilder(args);
