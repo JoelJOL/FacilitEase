@@ -104,59 +104,66 @@ namespace FacilitEase.Services
         private List<Message> GetMessagesForStatusAndController(int? statusId, int? controllerId, int ticketId)
         {
             IUnitOfWork unitOfWork;
-            List<TBL_USER> users;
+            List<TBL_USER> users = null;
 
             using (var scope = _scopeFactory.CreateScope())
             {
                 unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-                users = unitOfWork.User.GetAll().ToList();
-            }
-
-            var messages = new List<Message>();
-            var ticket = unitOfWork.Ticket.GetById(ticketId);
-
-            // Get the userId for the controllerId and AssignedTo
-            var controllerUserId = users.FirstOrDefault(u => u.EmployeeId == controllerId)?.Id;
-            var assignedToUserId = users.FirstOrDefault(u => u.EmployeeId == ticket.AssignedTo)?.Id;
-
-            if (statusId.HasValue && controllerUserId.HasValue)
-            {
-                switch (statusId)
+                try
                 {
-                    case 1: // Open
-                        messages.Add(new Message { UserId = controllerUserId.Value, Text = "New ticket is generated" });
-                        break;
-                    case 2: // In progress
-                        messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket in progress" });
-                        messages.Add(new Message { UserId = controllerUserId.Value, Text = "Ticket assigned" });
-                        break;
-                    case 3: // Escalated
-                        messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket escalated" });
-                        messages.Add(new Message { UserId = controllerUserId.Value, Text = "Ticket escalated" });
-                        break;
-                    case 4: // Resolved
-                        messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket resolved" });
-                        break;
-                    case 5: // Cancelled
-                        messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket cancelled" });
-                        if (assignedToUserId.HasValue)
-                        {
-                            messages.Add(new Message { UserId = assignedToUserId.Value, Text = "Ticket cancelled" });
-                        }
-                        break;
-                    case 6: // On hold
-                        messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket sent for approval" });
-                        messages.Add(new Message { UserId = controllerUserId.Value, Text = "New Ticket" });
-                        break;
-                    case 7: // Cancel requested
-                        messages.Add(new Message { UserId = controllerUserId.Value, Text = "Cancel request received" });
-                        break;
-                    default:
-                        messages.Add(new Message { UserId = controllerUserId.Value, Text = "Unknown status" });
-                        break;
+                    users = unitOfWork.User.GetAll().ToList();
                 }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+
+                var messages = new List<Message>();
+                var ticket = unitOfWork.Ticket.GetById(ticketId);
+
+                // Get the userId for the controllerId and AssignedTo
+                var controllerUserId = users.FirstOrDefault(u => u.EmployeeId == controllerId)?.Id;
+                var assignedToUserId = users.FirstOrDefault(u => u.EmployeeId == ticket.AssignedTo)?.Id;
+
+                if (statusId.HasValue && (controllerUserId.HasValue || statusId == 5))
+                {
+                    switch (statusId)
+                    {
+                        case 1: // Open
+                            messages.Add(new Message { UserId = controllerUserId.Value, Text = "New ticket is generated" });
+                            break;
+                        case 2: // In progress
+                            messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket in progress" });
+                            messages.Add(new Message { UserId = controllerUserId.Value, Text = "Ticket assigned" });
+                            break;
+                        case 3: // Escalated
+                            messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket escalated" });
+                            messages.Add(new Message { UserId = controllerUserId.Value, Text = "Ticket escalated" });
+                            break;
+                        case 4: // Resolved
+                            messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket resolved" });
+                            break;
+                        case 5: // Cancelled
+                            messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket cancelled" });
+                            if (assignedToUserId.HasValue)
+                            {
+                                messages.Add(new Message { UserId = assignedToUserId.Value, Text = "Ticket cancelled" });
+                            }
+                            break;
+                        case 6: // On hold
+                            messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket sent for approval" });
+                            messages.Add(new Message { UserId = controllerUserId.Value, Text = "New Ticket" });
+                            break;
+                        case 7: // Cancel requested
+                            messages.Add(new Message { UserId = controllerUserId.Value, Text = "Cancel request received" });
+                            break;
+                        default:
+                            messages.Add(new Message { UserId = controllerUserId.Value, Text = "Unknown status" });
+                            break;
+                    }
+                }
+                return messages;
             }
-            return messages;
         }
 
     }
