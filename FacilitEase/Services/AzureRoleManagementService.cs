@@ -1,9 +1,12 @@
-﻿using System.Net.Http.Headers;
+﻿using System;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace FacilitEase.Services
 {
-    public class AzureRoleManagementService:IAzureRoleManagementService
+    public class AzureRoleManagementService : IAzureRoleManagementService
     {
         private readonly HttpClient _httpClient;
 
@@ -11,25 +14,35 @@ namespace FacilitEase.Services
         {
             _httpClient = httpClient;
         }
+
         public async Task<dynamic> GetAppRoles(string accessToken)
         {
             try
             {
-                var requestUrl = $"https://graph.microsoft.com/v1.0/applications/d7104f84-ab29-436f-8f06-82fcf8d81381";
+                // Construct the request URL to fetch application roles
+                var requestUrl = "https://graph.microsoft.com/d7104f84-ab29-436f-8f06-82fcf8d81381/me";
 
-                using var httpClient = new HttpClient();
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                // Set up HttpClient with provided accessToken
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-                var response = await httpClient.GetAsync(requestUrl);
+                // Send GET request
+                var response = await _httpClient.GetAsync(requestUrl);
+
                 if (response.IsSuccessStatusCode)
                 {
+                    // Read response content
                     var responseContent = await response.Content.ReadAsStringAsync();
+
+                    // Deserialize JSON response to dynamic object
                     dynamic application = JsonSerializer.Deserialize<dynamic>(responseContent);
-                    Console.WriteLine(application?.appRoles);
-                    return application?.appRoles;
+
+                    // Log and return application roles
+                    Console.WriteLine(application);
+                    return application;
                 }
                 else
                 {
+                    // Log failure if request was unsuccessful
                     Console.WriteLine($"Failed to fetch application details. StatusCode: {response.StatusCode}");
                     return null;
                 }

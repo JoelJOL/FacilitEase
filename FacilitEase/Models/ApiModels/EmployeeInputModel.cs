@@ -26,7 +26,7 @@ public class EmployeeInputModel
     public string Gender { get; set; }
 
     [Required]
-    public int ManagerId { get; set; }
+    public int? ManagerId { get; set; }
 
     [Required]
     public int DepartmentId { get; set; }
