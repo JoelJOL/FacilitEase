@@ -366,9 +366,12 @@ namespace FacilitEase.Services
                 PriorityId = ticketDto.PriorityId,
                 CategoryId = ticketDto.CategoryId,
                 StatusId = 1,
-                CreatedBy = 1,
-                UpdatedBy = 1,
-                UserId = 1,
+                UserId = ticketDto.UserId,
+                SubmittedDate = DateTime.Now,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now,
+                CreatedBy = ticketDto.CreatedBy,
+                UpdatedBy = ticketDto.UpdatedBy,
             };
 
             _context.Add(ticketEntity);

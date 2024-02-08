@@ -142,7 +142,7 @@ app.UseEndpoints(endpoints =>
     endpoints.MapHub<NotificationHub>("/notificationHub").RequireCors("AllowAngularDev"); 
 });
 
-app.UseMiddleware<LogMiddleware>();
+//app.UseMiddleware<LogMiddleware>();
 
 app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions

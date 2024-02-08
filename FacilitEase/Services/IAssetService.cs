@@ -4,9 +4,9 @@ namespace FacilitEase.Services
 {
     public interface IAssetService
     {
-        IEnumerable<Asset> GetAssetsByEmployeeId(int employeeId);
-        IEnumerable<Asset> GetUnassignedAssets();
-        void AssignUnassignedAssets(int employeeId);
+        EmployeeAssetsResponse<Asset> GetAssetsByEmployeeId(int employeeId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
+        UnassignedAssetResponse<Asset> GetUnassignedAssets(string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
+        //void AssignUnassignedAssets(int employeeId);
     }
 
 }
