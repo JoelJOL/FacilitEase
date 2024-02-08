@@ -1,6 +1,7 @@
 ﻿
 using FacilitEase.Data;
 using FacilitEase.Models.EntityModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace FacilitEase.Services
 {
@@ -16,7 +17,7 @@ namespace FacilitEase.Services
         }
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _timer = new System.Threading.Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
+            _timer = new System.Threading.Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMinutes(5000));
             return Task.CompletedTask;
         }
 
@@ -38,7 +39,7 @@ namespace FacilitEase.Services
                                             Ticket = tickets,
                                             ControllerManagerId = controllerEmployee.ManagerId,
                                         };
-
+              
 
                 foreach (var ticketInfo in ticketsToEscalate)
                 {
@@ -53,6 +54,14 @@ namespace FacilitEase.Services
                         ticketInfo.Ticket.AssignedTo = ticketInfo.ControllerManagerId;
                     }
                    /* _ticketService.UpdateTicketTracking( ticketInfo.Ticket.Id, 3,ticketInfo.Ticket.AssignedTo,ticketInfo.Ticket.ControllerId,ticketInfo.Ticket.SubmittedDate,ticketInfo.Ticket.CreatedBy);*/
+
+                    var ticketassign = (from ta in dbContext.TBL_TICKET_ASSIGNMENT
+                                    where ta.Id == ticketInfo.Ticket.Id
+                                    select ta).FirstOrDefault();
+                                if (ticketassign != null)
+                                {
+                                        ticketassign.EmployeeStatus = "escalated";
+                                }
 
                 }
 

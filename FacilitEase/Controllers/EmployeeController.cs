@@ -215,7 +215,28 @@ namespace FacilitEase.Controllers
         {
             return Ok(_employeeService.GetEmployeeDetails(id));
         }
-        
+
+        [HttpGet("employeesByProject/{userId}")]
+        public ActionResult<IEnumerable<ProjectEmployeeDetails>> GetEmployeesByProject(int userId)
+        {
+            try
+            {
+                var employeesByProject = _employeeService.GetEmployeesByProject(userId);
+
+                if (employeesByProject.Count == 0)
+                {
+                    return NotFound("No employees found for the specified user and project.");
+                }
+
+                return Ok(employeesByProject);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it appropriately
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
+
     }
     
 }

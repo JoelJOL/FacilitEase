@@ -38,7 +38,6 @@ namespace FacilitEase.Services
                         {
                             Id = t.Id,
                             TicketName = t.TicketName,
-                            TicketDescription = t.TicketDescription,
                             Status = ts.StatusName,
                             AssignedTo = e != null ? e.FirstName : null,  // Check for null to handle left join
                             Priority = tp.PriorityName
@@ -77,7 +76,6 @@ namespace FacilitEase.Services
                         {
                             Id = t.Id,
                             TicketName = t.TicketName,
-                            TicketDescription = t.TicketDescription,
                             Status = ts.StatusName,
                             AssignedTo = e != null ? e.FirstName : null,
                             Priority = tp.PriorityName,
