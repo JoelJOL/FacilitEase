@@ -197,17 +197,7 @@ namespace FacilitEase.Services
                                  .Where(comment => comment.TicketId == ticketId && comment.Category == "Note")
                                  .Select(comment => comment.Text)
                                  .FirstOrDefault(),
-                             LastUpdate = _context.TBL_COMMENT
-                                .Where(comment => comment.TicketId == ticketId)
-                                .OrderByDescending(comment => comment.UpdatedDate)
-                                .Select(comment => (comment.UpdatedDate != null)
-                                    ? (DateTime.Now - comment.UpdatedDate).TotalMinutes < 60
-                                        ? $"{(int)(DateTime.Now - comment.UpdatedDate).TotalMinutes} minute(s) ago"
-                                        : (DateTime.Now - comment.UpdatedDate).TotalHours < 24
-                                            ? $"{(int)(DateTime.Now - comment.UpdatedDate).TotalHours} hour(s) ago"
-                                            : $"{(int)(DateTime.Now - comment.UpdatedDate).TotalDays} day(s) ago"
-                                                                 : null)
-                                                             .FirstOrDefault(),
+                             LastUpdate = GetTimeSinceLastUpdate(ticketId),
                              TicketDescription = t.TicketDescription,
                              DocumentLink = string.Join(", ", _context.TBL_DOCUMENT
                                  .Where(documents => documents.TicketId == t.Id)
