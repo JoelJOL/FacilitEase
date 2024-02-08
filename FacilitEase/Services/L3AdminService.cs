@@ -32,15 +32,25 @@ namespace FacilitEase.Services
 
             if (ticketToClose != null)
             {
-                ticketToClose.StatusId = 3;
+                ticketToClose.StatusId = 4;
+                ticketToClose.UpdatedDate = DateTime.Now;
                 _context.SaveChanges();
                 _ticketService.UpdateTicketTracking(
-                ticketToClose.Id,3,
+                ticketToClose.Id,4,
                 ticketToClose.AssignedTo,
                 ticketToClose.ControllerId,
                 ticketToClose.SubmittedDate,
-                ticketToClose.UpdatedBy
+                ticketToClose.CreatedBy
         );
+                //For Updating ticket tracking table
+                var ticketassign = (from ta in _context.TBL_TICKET_ASSIGNMENT
+                                    where ta.Id == ticketId
+                                    select ta).FirstOrDefault();
+                if( ticketassign != null )
+                {
+                    ticketassign.EmployeeStatus = "resolved";
+                    _context.SaveChanges();
+                }
             }
             
         }
@@ -52,15 +62,25 @@ namespace FacilitEase.Services
 
             if (ticketToClose != null)
             {
-                ticketToClose.StatusId = 3;
+                ticketToClose.StatusId = 5;
+                ticketToClose.UpdatedDate = DateTime.Now;
                 _context.SaveChanges();
                 _ticketService.UpdateTicketTracking(
-            ticketToClose.Id,3,
+            ticketToClose.Id,5,
             ticketToClose.AssignedTo,
             ticketToClose.ControllerId,
             ticketToClose.SubmittedDate,
-            ticketToClose.UpdatedBy
+            ticketToClose.CreatedBy
         );
+                //For Updating ticket tracking table
+                var ticketassign = (from ta in _context.TBL_TICKET_ASSIGNMENT
+                                    where ta.Id == ticketId
+                                    select ta).FirstOrDefault();
+                if (ticketassign != null)
+                {
+                    ticketassign.EmployeeStatus = "resolved";
+                    _context.SaveChanges();
+                }
             }
 
         }
@@ -73,14 +93,14 @@ namespace FacilitEase.Services
             if (ticketToClose != null)
             {
                 ticketToClose.StatusId = 2;
-
+                ticketToClose.UpdatedDate = DateTime.Now;
                 _context.SaveChanges();
                 _ticketService.UpdateTicketTracking(
             ticketToClose.Id,2,
             ticketToClose.AssignedTo,
             ticketToClose.ControllerId,
             ticketToClose.SubmittedDate,
-            ticketToClose.UpdatedBy
+            ticketToClose.CreatedBy
         );
             }
 
@@ -96,29 +116,6 @@ namespace FacilitEase.Services
             // Retrieve the department ID associated with the specified category.
             var category = _context.TBL_CATEGORY.FirstOrDefault(c => c.Id == categoryId);
             int deptId = category.DepartmentId;
-
-            // Get the role ID associated with administrators.
-            int adminRoleId = GetAdminRoleId();
-
-            // Find an administrator in the specified department with the admin role. This isn't needed
-            int adminEmployeeId = _context.TBL_USER_ROLE_MAPPING
-                .Where(mapping => mapping.UserRoleId == adminRoleId && mapping.UserId != null)
-                .Join(_context.TBL_USER_ROLE,
-                    mapping => mapping.UserRoleId,
-                    userRole => userRole.Id,
-                    (mapping, userRole) => new { UserId = mapping.UserId, UserRoleName = userRole.UserRoleName })
-                .Join(_context.TBL_USER,
-                    userMapping => userMapping.UserId,
-                    user => user.Id,
-                    (userMapping, user) => new { UserId = userMapping.UserId, user.EmployeeId })
-                .Join(_context.TBL_EMPLOYEE_DETAIL,
-                    user => user.UserId,
-                    employeeDetail => employeeDetail.EmployeeId,
-                    (user, employeeDetail) => new { user.EmployeeId, employeeDetail.DepartmentId })
-                .Where(result => result.DepartmentId == deptId)
-                .Select(result => result.EmployeeId)
-                .FirstOrDefault();
-
             // Retrieve the ticket to update.
             var ticketToUpdate = _context.TBL_TICKET
                .FirstOrDefault(t => t.Id == ticketId);
@@ -130,7 +127,15 @@ namespace FacilitEase.Services
                 ticketToUpdate.CategoryId = categoryId;
                 ticketToUpdate.ControllerId = null;
                 ticketToUpdate.AssignedTo = null;
+                ticketToUpdate.UpdatedDate = DateTime.Now;
                 _context.SaveChanges();
+                _ticketService.UpdateTicketTracking(
+                   ticketToUpdate.Id, 1,
+                   ticketToUpdate.AssignedTo,
+                   ticketToUpdate.ControllerId,
+                   ticketToUpdate.SubmittedDate,
+                   ticketToUpdate.CreatedBy
+                    );
             }
 
         }
@@ -162,14 +167,15 @@ namespace FacilitEase.Services
             var manager = _context.TBL_EMPLOYEE.FirstOrDefault(e => e.Id == managerId);
             if (ticketToForward != null)
             {
-                ticketToForward.StatusId = 5;
+                ticketToForward.StatusId = 6;
 
                 if (manager?.Id != null)
                 {
                     ticketToForward.ControllerId = managerId;
+                    ticketToForward.UpdatedDate = DateTime.Now;
                     _context.SaveChanges();
                     _ticketService.UpdateTicketTracking(
-                    ticketToForward.Id,5,
+                    ticketToForward.Id,6,
                     ticketToForward.AssignedTo,
                     ticketToForward.ControllerId,
                     ticketToForward.SubmittedDate,
@@ -225,9 +231,50 @@ namespace FacilitEase.Services
             if (comment != null)
             {
                 comment.Text = newText;
+                comment.UpdatedDate = DateTime.Now;
                 _context.SaveChanges();
             }
         }
+
+        /// <summary>
+        /// Method to find last comments last updated
+        /// </summary>
+        /// <param name="ticketId"></param>
+        /// <returns></returns>
+        public string GetTimeSinceLastUpdate(int ticketId)
+        {
+            // Retrieving the comment related to the specified ticket ID.
+            var comment = _context.TBL_COMMENT
+                .FirstOrDefault(c => c.TicketId == ticketId);
+
+            // Checking if a comment is found for the specified ticket ID.
+            if (comment != null)
+            {
+                // Calculate the time difference between CreatedDate and UpdatedDate.
+                TimeSpan timeSinceLastUpdate = DateTime.Now - comment.UpdatedDate;
+
+                // Format the time difference accordingly.
+                if (timeSinceLastUpdate.TotalDays >= 1)
+                {
+                    return $"{(int)timeSinceLastUpdate.TotalDays} day(s) ago";
+                }
+                else if (timeSinceLastUpdate.TotalHours >= 1)
+                {
+                    return $"{(int)timeSinceLastUpdate.TotalHours} hour(s) ago";
+                }
+                else if (timeSinceLastUpdate.TotalMinutes >= 1)
+                {
+                    return $"{(int)timeSinceLastUpdate.TotalMinutes} minute(s) ago";
+                }
+                else
+                {
+                    return $"{(int)timeSinceLastUpdate.TotalSeconds} second(s) ago";
+                }
+            }
+
+            return "No comment found for the specified ticket ID";
+        }
+
 
         /// <summary>
         /// This method adds the comment of a particular ticket
@@ -359,9 +406,6 @@ namespace FacilitEase.Services
                           join department in _context.TBL_DEPARTMENT on employeeDetail.DepartmentId equals department.Id
                           join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
                           join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
-                          join document in _context.TBL_DOCUMENT on ticket.Id equals document.TicketId
-                          join project in _context.TBL_PROJECT_EMPLOYEE_MAPPING on employee.Id equals project.EmployeeId
-                          join projectcode in _context.TBL_PROJECT_CODE_GENERATION on project.ProjectId equals projectcode.ProjectId
                           join manager in _context.TBL_EMPLOYEE on employee.ManagerId equals manager.Id into managerJoin
                           from manager in managerJoin.DefaultIfEmpty()
                           where ticket.Id == desiredTicketId
@@ -378,11 +422,22 @@ namespace FacilitEase.Services
                               ManagerId = employee.ManagerId,
                               LocationName = location.LocationName,
                               DeptName = department.DeptName,
-                              DocumentLink = document.DocumentLink,
-                              ProjectCode = projectcode.ProjectCode
+                              DocumentLink = "kk",
+                              ProjectCode = 7
                           }).FirstOrDefault();
+            if (result != null)
+            {
+                result.Notes = _context.TBL_COMMENT
+                    .Where(comment => comment.TicketId == desiredTicketId && comment.Category == "Note")
+                    .Select(comment => comment.Text)
+                    .FirstOrDefault();
 
-             return result;
+                result.LastUpdate = GetTimeSinceLastUpdate(desiredTicketId);
+
+                   
+            }
+            return result;
+
         }
 
 
@@ -425,7 +480,7 @@ namespace FacilitEase.Services
                   (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Priority, Status = status }
               )
               // Filtering resolved tickets based on agentId and StatusId.
-              .Where(joined => joined.Ticket.AssignedTo == agentId && joined.Ticket.StatusId == 3)
+              .Where(joined => joined.Ticket.AssignedTo == agentId && joined.Ticket.StatusId == 4)
               // Filtering resolved tickets based on searchQuery (if provided).
               .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
               // Selecting the desired fields and creating a new TicketResolveJoin object.
@@ -496,7 +551,7 @@ namespace FacilitEase.Services
                   (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Priority, Status = status }
               )
               // Filtering resolved tickets based on agentId and StatusId.
-              .Where(joined => joined.Ticket.AssignedTo == agentId && joined.Ticket.StatusId == 5)
+              .Where(joined => joined.Ticket.AssignedTo == agentId && joined.Ticket.StatusId == 6)
               // Filtering resolved tickets based on searchQuery (if provided).
               .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
               // Selecting the desired fields and creating a new TicketResolveJoin object.
@@ -562,7 +617,7 @@ namespace FacilitEase.Services
                   (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Priority, Status = status }
               )
               // Filtering resolved tickets based on agentId and StatusId.
-              .Where(joined => joined.Ticket.AssignedTo == agentId && joined.Ticket.StatusId == 6)
+              .Where(joined => joined.Ticket.AssignedTo == agentId && joined.Ticket.StatusId == 7)
               // Filtering resolved tickets based on searchQuery (if provided).
               .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
               // Selecting the desired fields and creating a new TicketResolveJoin object.
@@ -628,7 +683,6 @@ namespace FacilitEase.Services
                         .Select(employee => $"{employee.FirstName} {employee.LastName}")
                         .FirstOrDefault() ?? "Not Assigned",
                     TrackingCreatedDate = tracking.CreatedDate
-                    // Add other properties as needed
                 })
                 .ToList();
 
