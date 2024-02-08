@@ -397,10 +397,32 @@ namespace FacilitEase.Services
 
                 _documentRepository.Add(documentEntity);
                 _context.SaveChanges();
-                UpdateTicketTracking(ticketEntity.Id, 1, null, null, DateTime.Now, ticketEntity.CreatedBy);
+               
             }
+            UpdateTicketTracking(ticketEntity.Id, 1, null, null, DateTime.Now, ticketEntity.CreatedBy);
         }
 
+        public bool RequestToCancelTicket(int ticketId)
+        {
+            var ticket = _context.TBL_TICKET.FirstOrDefault(t => t.Id == ticketId);
+
+            if (ticket == null || !IsValidTicketStatus(ticket.StatusId))
+            {
+                return false;
+            }
+
+            ticket.StatusId = (ticket.StatusId == 1) ? 5 : 7;
+            ticket.ControllerId = ticket.AssignedTo;
+            _context.SaveChanges();
+            UpdateTicketTracking(ticket.Id, (int)ticket.StatusId, ticket.AssignedTo, ticket.ControllerId, ticket.CreatedDate, ticket.CreatedBy);
+            return true;
+        }
+
+        private bool IsValidTicketStatus(int? statusId)
+        {
+            // Check if the status is open or in progress (1, 2, 3)
+            return statusId.HasValue && (statusId == 1 || statusId == 2 || statusId == 3 || statusId == 6);
+        }
         public IEnumerable<DocumentDto> GetDocumentsByTicketId(int ticketId)
         {
             var documents = _context.TBL_DOCUMENT
@@ -436,6 +458,7 @@ namespace FacilitEase.Services
                 UpdatedBy = createdBy,
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now
+                
             };
 
             _context.TBL_TICKET_TRACKING.Add(trackingEntry);

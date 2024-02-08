@@ -56,5 +56,7 @@ namespace FacilitEase.Services
 
         IEnumerable<DocumentDto> GetDocumentsByTicketId(int ticketId);
         public string GetTimeSinceLastUpdate(int ticketId);
+
+        bool RequestToCancelTicket(int ticketId);
     }
 }

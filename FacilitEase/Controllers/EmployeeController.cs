@@ -124,7 +124,7 @@ namespace FacilitEase.Controllers
         [HttpPatch("cancel-request/{ticketId}")]
         public IActionResult RequestToCancelTicket(int ticketId)
         {
-            bool success = _ticketDetailsService.RequestToCancelTicket(ticketId);
+            bool success = _ticketService.RequestToCancelTicket(ticketId);
 
             if (success)
             {
