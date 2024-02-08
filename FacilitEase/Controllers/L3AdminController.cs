@@ -314,7 +314,7 @@ namespace FacilitEase.Controllers
         [HttpGet("TimeSinceLastUpdate/{ticketId}")]
         public IActionResult GetTimeSinceLastUpdate(int ticketId)
         {
-            string timeSinceLastUpdate = _ticketService.GetTimeSinceLastUpdate(ticketId);
+            string timeSinceLastUpdate = _adminService.GetTimeSinceLastUpdate(ticketId);
 
             if (timeSinceLastUpdate != null)
             {

@@ -915,7 +915,7 @@ namespace FacilitEase.Services
                 .FirstOrDefault(c => c.TicketId == ticketId);
 
             // Checking if a comment is found for the specified ticket ID.
-            if (comment != null)
+            if (comment != null && comment.UpdatedDate != null)
             {
                 // Calculate the time difference between CreatedDate and UpdatedDate.
                 TimeSpan timeSinceLastUpdate = DateTime.Now - comment.UpdatedDate;
