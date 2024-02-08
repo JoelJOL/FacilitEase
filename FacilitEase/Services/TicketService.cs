@@ -470,7 +470,7 @@ namespace FacilitEase.Services
                                          TicketDescription = ticket.TicketDescription,
                                          StatusName = status.StatusName,
                                          PriorityName = priority.PriorityName,
-                                         SubmittedDate = ticket.SubmittedDate,
+                                         SubmittedDate = ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                                          EmployeeName = $"{employee.FirstName} {employee.LastName}",
                                          ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : null,
                                          ManagerId = employee.ManagerId,
@@ -491,8 +491,8 @@ namespace FacilitEase.Services
                     .Select(comment => comment.Text)
                     .FirstOrDefault();
 
-/*                ticketDetails.LastUpdate = _l3AdminService.GetTimeSinceLastUpdate(desiredTicketId);
-*/            }
+                ticketDetails.LastUpdate = GetTimeSinceLastUpdate(desiredTicketId);
+            }
 
             return ticketDetails;
         }
@@ -516,6 +516,7 @@ namespace FacilitEase.Services
                     .FirstOrDefault())
                 .Select(employeeDetail => employeeDetail.DepartmentId)
                 .FirstOrDefault();
+            Console.WriteLine(departmentId);
 
             // Step 2: Get Categories corresponding to DepartmentId
             var categoriesForDepartment = _context.TBL_CATEGORY
@@ -539,7 +540,7 @@ namespace FacilitEase.Services
                  .FirstOrDefault())
              .Select(employee => $"{employee.FirstName} {employee.LastName}")
              .FirstOrDefault(),
-         RaisedDateTime = ticket.SubmittedDate,
+         RaisedDateTime = ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
          Priority = _context.TBL_PRIORITY
              .Where(priority => priority.Id == ticket.PriorityId)
              .Select(priority => priority.PriorityName)
@@ -680,7 +681,7 @@ namespace FacilitEase.Services
                             .FirstOrDefault())
                         .Select(employee => $"{employee.FirstName} {employee.LastName}")
                         .FirstOrDefault(),
-                    RaisedDateTime = ticket.SubmittedDate,
+                    RaisedDateTime = ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                     Priority = _context.TBL_PRIORITY
                         .Where(priority => priority.Id == ticket.PriorityId)
                         .Select(priority => priority.PriorityName)
@@ -761,7 +762,7 @@ namespace FacilitEase.Services
                             .FirstOrDefault())
                         .Select(employee => $"{employee.FirstName} {employee.LastName}")
                         .FirstOrDefault(),
-                    RaisedDateTime = ticket.SubmittedDate,
+                    RaisedDateTime = ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                     Priority = _context.TBL_PRIORITY
                         .Where(priority => priority.Id == ticket.PriorityId)
                         .Select(priority => priority.PriorityName)
@@ -818,7 +819,7 @@ namespace FacilitEase.Services
                              TicketName = t.TicketName,
                              EmployeeName = $"{e.FirstName} {e.LastName}",
                              AssignedTo = $"{_context.TBL_EMPLOYEE.Where(emp => emp.Id == t.AssignedTo).Select(emp => $"{emp.FirstName} {emp.LastName}").FirstOrDefault()}",
-                             SubmittedDate = t.SubmittedDate,
+                             SubmittedDate = t.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                              priorityName = p.PriorityName,
                              statusName = s.StatusName,
                              Notes = _context.TBL_COMMENT
@@ -877,7 +878,7 @@ namespace FacilitEase.Services
                         .Where(employee => employee.Id == ticket.AssignedTo)
                         .Select(employee => $"{employee.FirstName} {employee.LastName}")
                         .FirstOrDefault(),
-                    SubmittedDate = ticket.SubmittedDate,
+                    SubmittedDate = ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                     Priority = _context.TBL_PRIORITY
                         .Where(priority => priority.Id == ticket.PriorityId)
                         .Select(priority => $"{priority.PriorityName}")

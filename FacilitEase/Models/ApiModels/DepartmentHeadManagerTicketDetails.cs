@@ -6,7 +6,7 @@
         public string TicketName { get; set; }
         public string EmployeeName { get; set; }
         public string AssignedTo { get; set; }
-        public DateTime SubmittedDate { get; set; }
+        public string SubmittedDate { get; set; }
         public string priorityName { get; set; }
         public string statusName { get; set; }
 
