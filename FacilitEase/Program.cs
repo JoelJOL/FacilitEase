@@ -1,7 +1,6 @@
 using FacilitEase.Data;
 using FacilitEase.Hubs;
 using FacilitEase.Models.EntityModels;
-using FacilitEase.NewFolder4;
 using FacilitEase.Repositories;
 using FacilitEase.Services;
 using FacilitEase.UnitOfWork;
@@ -12,6 +11,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using DotNetEnv;
+using FacilitEase.Middleware;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +26,7 @@ builder.Services.AddControllers()
 
 builder.Services.AddSignalR();
 builder.Services.AddControllers();
+builder.Services.AddHttpClient();
 
 
 builder.Services.AddCors(options =>
@@ -42,7 +43,6 @@ string connectionString = Env.GetString("ConnectionStrings__DefaultConnection");
 var jwtKey = Env.GetString("JWT__Key");
 var jwtIssuer = Env.GetString("JWT__Issuer");
 var jwtAudience = Env.GetString("JWT__Audience");
-
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
@@ -99,6 +99,8 @@ builder.Services.AddScoped<IL1AdminService, L1AdminService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IAssetService, AssetService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IAzureRoleManagementService, AzureRoleManagementService>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(); 
 builder.Services.AddHostedService<NotificationService>();
@@ -141,6 +143,7 @@ app.UseEndpoints(endpoints =>
 });
 
 app.UseMiddleware<LogMiddleware>();
+
 app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
 {
@@ -148,13 +151,8 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = new PathString("/Resources")
 });
 
-app.UseCors("AllowAngularDev");
-
 app.UseHttpsRedirection();
 app.UseAuthorization();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
+
 
 app.Run();

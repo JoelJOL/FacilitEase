@@ -35,6 +35,20 @@ namespace FacilitEase.Controllers
             }
         }
 
+        [HttpGet("GetLiveTicketByManager/{managerId}")]
+        public IActionResult GetLiveTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
+        {
+            try
+            {
+                var tickets = _ticketService.GetTicketByManager(managerId, sortField, sortOrder, pageIndex, pageSize, searchQuery);
+                return Ok(tickets);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"An error occurred: {ex.Message}");
+            }
+        }
+
         [HttpGet("GetApprovalTicket/{managerId}")]
         public IActionResult GetApprovalTicket(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
@@ -105,12 +119,12 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpGet("{managerId}/subordinates")]
-        public ActionResult<List<ManagerSubordinateEmployee>> GetSubordinates(int managerId)
+        [HttpGet("{userId}/subordinates")]
+        public ActionResult<List<ManagerSubordinateEmployee>> GetSubordinates(int userId)
         {
             try
             {
-                var subordinates = _employeeService.GetSubordinates(managerId);
+                var subordinates = _employeeService.GetSubordinates(userId);
 
                 return Ok(subordinates);
             }

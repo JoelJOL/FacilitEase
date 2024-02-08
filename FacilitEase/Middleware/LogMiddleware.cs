@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging; // Add this for ILogger
 using System.Threading.Tasks;
 
-namespace FacilitEase.NewFolder4
+namespace FacilitEase.Middleware
 {
     public class LogMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly ILogger<LogMiddleware> _logger; 
+        private readonly ILogger<LogMiddleware> _logger;
 
         public LogMiddleware(RequestDelegate next, ILogger<LogMiddleware> logger)
         {
