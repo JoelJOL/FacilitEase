@@ -9,6 +9,9 @@ namespace FacilitEase.Services
         public ManagerTicketResponse<ManagerEmployeeTickets> GetTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
 
         //Abhijith
+        public ManagerTicketResponse<ManagerEmployeeTickets> GetLiveTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
+
+        //Abhijith
         public ManagerEmployeeTicketDetailed ViewTicketDetails(int ticketId);
 
         //Abhijith
