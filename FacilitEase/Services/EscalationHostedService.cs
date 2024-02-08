@@ -26,6 +26,47 @@ namespace FacilitEase.Services
             using (var scope = _serviceProvider.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                try
+                {
+                    var ControllerManagerIds = (from controllerEmployee in dbContext.TBL_EMPLOYEE
+                                                select new { controllerEmployee.Id, controllerEmployee.ManagerId }).ToList();
+
+                    var ticketsToEscalate = from tickets in dbContext.TBL_TICKET
+                                            let category = dbContext.TBL_CATEGORY.FirstOrDefault(cat => cat.Id == tickets.CategoryId)
+                                            let categoryId = category != null ? category.DepartmentId : (int?)null
+                                            where (tickets.StatusId == 1 || tickets.StatusId == 2 || tickets.StatusId == 6)
+                                                  && (categoryId != null
+                                                      && dbContext.TBL_SLA.Any(sla => sla.DepartmentId == categoryId.Value
+                                                                                   && DateTime.Now > DateTime.Now.AddMinutes(sla.Time))
+                                                      )
+                                            select tickets;
+
+                    foreach (var ticketInfo in ticketsToEscalate)
+                    {
+                        ticketInfo.StatusId = 3;
+
+                        var controllerManager = ControllerManagerIds.FirstOrDefault(c => c.Id == ticketInfo.ControllerId);
+                        if (controllerManager != null)
+                        {
+                            if (ticketInfo.ControllerId != ticketInfo.AssignedTo)
+                            {
+                                ticketInfo.ControllerId = controllerManager.ManagerId;
+                            }
+                            else
+                            {
+                                ticketInfo.ControllerId = controllerManager.ManagerId;
+                                ticketInfo.AssignedTo = controllerManager.ManagerId;
+                            }
+                        }
+                    }
+
+                    dbContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+
                 // Separate queries for each join
                 // Separate queries for each join
                 /*var ticketsQuery = from tickets in dbContext.TBL_TICKET
@@ -74,44 +115,51 @@ namespace FacilitEase.Services
 
                 // Now you can inspect the count or the elements themselves for debugging*/
 
-                var ticketsToEscalate = from tickets in dbContext.TBL_TICKET
-                                        join categories in dbContext.TBL_CATEGORY on tickets.CategoryId equals categories.Id
-                                        join departments in dbContext.TBL_DEPARTMENT on categories.DepartmentId equals departments.Id
-                                        join sla in dbContext.TBL_SLA on departments.Id equals sla.DepartmentId
-                                        join controllerEmployee in dbContext.TBL_EMPLOYEE on tickets.ControllerId equals controllerEmployee.Id
-                                        where sla.PriorityId == tickets.PriorityId
-                                        where (tickets.StatusId == 1 || tickets.StatusId == 2 || tickets.StatusId == 6)
-                                        where DateTime.Now > tickets.CreatedDate.AddMinutes(sla.Time)
-                                        select new
-                                        {
-                                            Ticket = tickets,
-                                            ControllerManagerId = controllerEmployee.ManagerId,
-                                        };
                 try
                 {
+                    /*var ticketsToEscalate = from tickets in dbContext.TBL_TICKET
+                                            join categories in dbContext.TBL_CATEGORY on tickets.CategoryId equals categories.Id
+                                            join departments in dbContext.TBL_DEPARTMENT on categories.DepartmentId equals departments.Id
+                                            join sla in dbContext.TBL_SLA on departments.Id equals sla.DepartmentId
+                                            where (tickets.StatusId == 1 || tickets.StatusId == 2 || tickets.StatusId == 6)
+                                            where DateTime.Now < tickets.SubmittedDate.AddMinutes(sla.Time)
+                                            select tickets;*/
+                    var ticketsToEscalate = from tickets in dbContext.TBL_TICKET
+                                            let category = dbContext.TBL_CATEGORY.FirstOrDefault(cat => cat.Id == tickets.CategoryId)
+                                            let categoryId = category != null ? category.DepartmentId : (int?)null
+                                            where (tickets.StatusId == 1 || tickets.StatusId == 2 || tickets.StatusId == 6)
+                                                  && (categoryId != null
+                                                      && dbContext.TBL_SLA.Any(sla => sla.DepartmentId == categoryId.Value
+                                                                                   && DateTime.Now > DateTime.Now.AddMinutes(sla.Time))
+                                                      )
+                                            select tickets;
 
-                    foreach (var ticketInfo in ticketsToEscalateList)
+
+
+
+
+
+                    foreach (var ticketInfo in ticketsToEscalate)
                     {
-                        ticketInfo.Ticket.StatusId = 3;
-                        if (ticketInfo.Ticket.ControllerId != ticketInfo.Ticket.AssignedTo)
+                        ticketInfo.StatusId = 3;
+                        var ControllerManagerId = (from controllerEmployee in dbContext.TBL_EMPLOYEE
+                                                   where ticketInfo.ControllerId == controllerEmployee.Id
+                                                   select controllerEmployee.ManagerId).FirstOrDefault();
+                    if (ticketInfo.ControllerId != ticketInfo.AssignedTo)
                         {
-                            ticketInfo.Ticket.ControllerId = ticketInfo.ControllerManagerId;
+                            ticketInfo.ControllerId = ControllerManagerId;
                         }
                         else
                         {
-                            ticketInfo.Ticket.ControllerId = ticketInfo.ControllerManagerId;
-                            ticketInfo.Ticket.AssignedTo = ticketInfo.ControllerManagerId;
+                            ticketInfo.ControllerId = ControllerManagerId;
+                            ticketInfo.AssignedTo = ControllerManagerId;
                         }
-                        /*_ticketService.UpdateTicketTracking( ticketInfo.Ticket.Id, 3,ticketInfo.Ticket.AssignedTo,ticketInfo.Ticket.ControllerId,ticketInfo.Ticket.SubmittedDate,ticketInfo.Ticket.CreatedBy);*/
 
-                        var ticketassign = (from ta in dbContext.TBL_TICKET_ASSIGNMENT
-                                            where ta.Id == ticketInfo.Ticket.Id
-                                            select ta).FirstOrDefault();
+                        /*var ticketassign = dbContext.TBL_TICKET_ASSIGNMENT.FirstOrDefault(ta => ta.Id == ticketInfo.Ticket.Id);
                         if (ticketassign != null)
                         {
                             ticketassign.EmployeeStatus = "escalated";
-                        }
-
+                        }*/
                     }
 
                     dbContext.SaveChanges();
@@ -120,6 +168,7 @@ namespace FacilitEase.Services
                 {
                     Console.WriteLine(ex.ToString());
                 }
+
             }
         }
 
