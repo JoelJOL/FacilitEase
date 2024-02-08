@@ -393,7 +393,7 @@ namespace FacilitEase.Services
                     .Select(comment => comment.Text)
                     .FirstOrDefault();
 
-                result.LastUpdate = _ticketService.GetTimeSinceLastUpdate(desiredTicketId);
+                result.LastUpdate = GetTimeSinceLastUpdate(desiredTicketId);
 
                    
             }
@@ -649,7 +649,44 @@ namespace FacilitEase.Services
 
             return result;
         }
+        /// <summary>
+        /// Method to find last comments last updated
+        /// </summary>
+        /// <param name="ticketId"></param>
+        /// <returns></returns>
+        public string GetTimeSinceLastUpdate(int ticketId)
+        {
+            // Retrieving the comment related to the specified ticket ID.
+            var comment = _context.TBL_COMMENT
+                .FirstOrDefault(c => c.TicketId == ticketId);
 
+            // Checking if a comment is found for the specified ticket ID.
+            if (comment != null && comment.UpdatedDate != null)
+            {
+                // Calculate the time difference between CreatedDate and UpdatedDate.
+                TimeSpan timeSinceLastUpdate = DateTime.Now - comment.UpdatedDate;
+
+                // Format the time difference accordingly.
+                if (timeSinceLastUpdate.TotalDays >= 1)
+                {
+                    return $"{(int)timeSinceLastUpdate.TotalDays} day(s) ago";
+                }
+                else if (timeSinceLastUpdate.TotalHours >= 1)
+                {
+                    return $"{(int)timeSinceLastUpdate.TotalHours} hour(s) ago";
+                }
+                else if (timeSinceLastUpdate.TotalMinutes >= 1)
+                {
+                    return $"{(int)timeSinceLastUpdate.TotalMinutes} minute(s) ago";
+                }
+                else
+                {
+                    return $"{(int)timeSinceLastUpdate.TotalSeconds} second(s) ago";
+                }
+            }
+
+            return "No comment found for the specified ticket ID";
+        }
 
 
 
