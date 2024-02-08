@@ -19,15 +19,13 @@ namespace FacilitEase.Services
         private readonly IDocumentRepository _documentRepository;
         private readonly IUnitOfWork _unitOfWork;//Avinash Abhijith
         private readonly AppDbContext _context;//Abhijith
-        private readonly L3AdminService _l3AdminService;
 
-        public TicketService(AppDbContext context, ITicketRepository ticketRepository, IDocumentRepository documentRepository, IUnitOfWork unitOfWork, L3AdminService l3AdminService)
+        public TicketService(AppDbContext context, ITicketRepository ticketRepository, IDocumentRepository documentRepository, IUnitOfWork unitOfWork)
         {
             _context = context;
             _ticketRepository = ticketRepository;
             _documentRepository = documentRepository;
             _unitOfWork = unitOfWork;//Avinash
-            _l3AdminService = l3AdminService;
         }
 
         //Avinash
@@ -493,8 +491,8 @@ namespace FacilitEase.Services
                     .Select(comment => comment.Text)
                     .FirstOrDefault();
 
-                ticketDetails.LastUpdate = _l3AdminService.GetTimeSinceLastUpdate(desiredTicketId);
-            }
+/*                ticketDetails.LastUpdate = _l3AdminService.GetTimeSinceLastUpdate(desiredTicketId);
+*/            }
 
             return ticketDetails;
         }
@@ -528,7 +526,7 @@ namespace FacilitEase.Services
             // Step 3: Filter unassigned tickets based on selected categories
             var unassignedTicketsQuery = _context.TBL_TICKET
      .Where(ticket => (ticket.AssignedTo == null || ticket.AssignedTo == 0) &&
-                      categoriesForDepartment.Contains(ticket.CategoryId ?? 0))
+                      categoriesForDepartment.Contains(ticket.CategoryId))
      .Where(ticket => string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery))
      .Select(ticket => new UnassignedTicketModel
      {
@@ -665,7 +663,7 @@ namespace FacilitEase.Services
             // Step 3: Filter assigned tickets based on selected categories
             var assignedTicketsQuery = _context.TBL_TICKET
                 .Where(ticket => ticket.AssignedTo != null &&
-                                 categoriesForDepartment.Contains(ticket.CategoryId ?? 0))
+                                 categoriesForDepartment.Contains(ticket.CategoryId))
                 .Where(ticket => string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery))
                 .Select(ticket => new TicketApiModel
                 {
@@ -750,7 +748,7 @@ namespace FacilitEase.Services
             var escalatedTicketsQuery = _context.TBL_TICKET
                 .Where(ticket => ticket.AssignedTo != null)
                 .Where(ticket => ticket.StatusId == escalatedStatusId)
-                .Where(ticket => categoriesForDepartment.Contains(ticket.CategoryId ?? 0))
+                .Where(ticket => categoriesForDepartment.Contains(ticket.CategoryId))
                 .Where(ticket => string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery))
                 .Select(ticket => new TicketApiModel
                 {
@@ -904,6 +902,44 @@ namespace FacilitEase.Services
                 Data = queryList,
                 TotalDataCount = totalCount
             };
+        }
+        /// <summary>
+        /// Method to find last comments last updated
+        /// </summary>
+        /// <param name="ticketId"></param>
+        /// <returns></returns>
+        public string GetTimeSinceLastUpdate(int ticketId)
+        {
+            // Retrieving the comment related to the specified ticket ID.
+            var comment = _context.TBL_COMMENT
+                .FirstOrDefault(c => c.TicketId == ticketId);
+
+            // Checking if a comment is found for the specified ticket ID.
+            if (comment != null)
+            {
+                // Calculate the time difference between CreatedDate and UpdatedDate.
+                TimeSpan timeSinceLastUpdate = DateTime.Now - comment.UpdatedDate;
+
+                // Format the time difference accordingly.
+                if (timeSinceLastUpdate.TotalDays >= 1)
+                {
+                    return $"{(int)timeSinceLastUpdate.TotalDays} day(s) ago";
+                }
+                else if (timeSinceLastUpdate.TotalHours >= 1)
+                {
+                    return $"{(int)timeSinceLastUpdate.TotalHours} hour(s) ago";
+                }
+                else if (timeSinceLastUpdate.TotalMinutes >= 1)
+                {
+                    return $"{(int)timeSinceLastUpdate.TotalMinutes} minute(s) ago";
+                }
+                else
+                {
+                    return $"{(int)timeSinceLastUpdate.TotalSeconds} second(s) ago";
+                }
+            }
+
+            return "No comment found for the specified ticket ID";
         }
     }
 }
