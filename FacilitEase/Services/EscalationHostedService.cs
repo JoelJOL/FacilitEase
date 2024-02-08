@@ -26,6 +26,54 @@ namespace FacilitEase.Services
             using (var scope = _serviceProvider.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                // Separate queries for each join
+                // Separate queries for each join
+                /*var ticketsQuery = from tickets in dbContext.TBL_TICKET
+                                   where (tickets.StatusId == 1 || tickets.StatusId == 2 || tickets.StatusId == 6)
+                                   select tickets;
+
+                var categoriesQuery = from tickets in ticketsQuery
+                                      join categories in dbContext.TBL_CATEGORY
+                                      on tickets.CategoryId equals categories.Id into categoryJoin
+                                      from category in categoryJoin.DefaultIfEmpty()
+                                      select category;
+
+
+                var departmentsQuery = from departments in dbContext.TBL_DEPARTMENT
+                                       join categories in categoriesQuery on departments.Id equals categories.DepartmentId
+                                       select departments;
+
+                var slaQuery = from sla in dbContext.TBL_SLA
+                               join departments in departmentsQuery on sla.DepartmentId equals departments.Id
+                               join categories in categoriesQuery on departments.Id equals categories.DepartmentId // Joining with categoriesQuery
+                               select new { SLA = sla, Category = categories }; // Including category information
+
+                var controllerEmployeeQuery = from controllerEmployee in dbContext.TBL_EMPLOYEE
+                                              join tickets in ticketsQuery on controllerEmployee.Id equals tickets.ControllerId
+                                              select controllerEmployee;
+
+                // Main query combining all the above queries
+                var ticketsToEscalateQuery = from tickets in ticketsQuery
+                                             join slaInfo in slaQuery on tickets.CategoryId equals slaInfo.Category.Id
+                                             join controllerEmployee in controllerEmployeeQuery on tickets.ControllerId equals controllerEmployee.Id
+                                             where DateTime.Now > tickets.CreatedDate.AddMinutes(slaInfo.SLA.Time)
+                                             select new
+                                             {
+                                                 Ticket = tickets,
+                                                 ControllerManagerId = controllerEmployee.ManagerId,
+                                             };
+
+                // Materialize the query to a list for easier debugging
+                var ticketsToEscalateList = ticketsToEscalateQuery.ToList();
+
+                // Get the count of elements
+                int countOfElements = ticketsToEscalateList.Count;
+
+                // Now you can inspect the count or the elements themselves for debugging
+
+
+                // Now you can inspect the count or the elements themselves for debugging*/
+
                 var ticketsToEscalate = from tickets in dbContext.TBL_TICKET
                                         join categories in dbContext.TBL_CATEGORY on tickets.CategoryId equals categories.Id
                                         join departments in dbContext.TBL_DEPARTMENT on categories.DepartmentId equals departments.Id
@@ -42,7 +90,7 @@ namespace FacilitEase.Services
                 try
                 {
 
-                    foreach (var ticketInfo in ticketsToEscalate)
+                    foreach (var ticketInfo in ticketsToEscalateList)
                     {
                         ticketInfo.Ticket.StatusId = 3;
                         if (ticketInfo.Ticket.ControllerId != ticketInfo.Ticket.AssignedTo)
@@ -54,7 +102,7 @@ namespace FacilitEase.Services
                             ticketInfo.Ticket.ControllerId = ticketInfo.ControllerManagerId;
                             ticketInfo.Ticket.AssignedTo = ticketInfo.ControllerManagerId;
                         }
-                        /* _ticketService.UpdateTicketTracking( ticketInfo.Ticket.Id, 3,ticketInfo.Ticket.AssignedTo,ticketInfo.Ticket.ControllerId,ticketInfo.Ticket.SubmittedDate,ticketInfo.Ticket.CreatedBy);*/
+                        /*_ticketService.UpdateTicketTracking( ticketInfo.Ticket.Id, 3,ticketInfo.Ticket.AssignedTo,ticketInfo.Ticket.ControllerId,ticketInfo.Ticket.SubmittedDate,ticketInfo.Ticket.CreatedBy);*/
 
                         var ticketassign = (from ta in dbContext.TBL_TICKET_ASSIGNMENT
                                             where ta.Id == ticketInfo.Ticket.Id
