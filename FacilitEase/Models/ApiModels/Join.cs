@@ -17,7 +17,10 @@
         public string ManagerName { get; set; }
         public string DeptName { get; set; }
         public int? ManagerId { get; set; }
+  
         public required string DocumentLink { get; set; }
         public required int ProjectCode { get; set;}
+        public string Notes { get; set; }
+        public string LastUpdate { get; set; }
     }
 }

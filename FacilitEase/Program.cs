@@ -11,6 +11,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using DotNetEnv;
+using FacilitEase.Middleware;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,7 +35,8 @@ builder.Services.AddCors(options =>
     {
         builder.WithOrigins("http://localhost:4200")
                .AllowAnyHeader()
-               .AllowAnyMethod();
+               .AllowAnyMethod()
+                 .AllowCredentials();
     });
 });
 string connectionString = Env.GetString("ConnectionStrings__DefaultConnection");
@@ -96,6 +98,7 @@ builder.Services.AddScoped<IManagerService, ManagerService>();
 builder.Services.AddScoped<IL1AdminService, L1AdminService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IAssetService, AssetService>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IAzureRoleManagementService, AzureRoleManagementService>();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -136,7 +139,7 @@ app.UseCors("AllowAngularDev");
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
-    endpoints.MapHub<NotificationHub>("/notificationHub"); // Map the NotificationHub
+    endpoints.MapHub<NotificationHub>("/notificationHub").RequireCors("AllowAngularDev"); 
 });
 
 //app.UseMiddleware<LogMiddleware>();
@@ -148,13 +151,8 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = new PathString("/Resources")
 });
 
-app.UseCors("AllowAngularDev");
-
 app.UseHttpsRedirection();
 app.UseAuthorization();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
+
 
 app.Run();

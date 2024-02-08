@@ -1,6 +1,7 @@
 ﻿
 using FacilitEase.Data;
 using FacilitEase.Models.EntityModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace FacilitEase.Services
 {
@@ -8,13 +9,15 @@ namespace FacilitEase.Services
     {
         private readonly IServiceProvider _serviceProvider;
         private System.Threading.Timer _timer;
+        private readonly ITicketService _ticketService;
         public EscalationHostedService(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
+         
         }
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _timer = new System.Threading.Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
+            _timer = new System.Threading.Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMinutes(5000));
             return Task.CompletedTask;
         }
 
@@ -30,13 +33,13 @@ namespace FacilitEase.Services
                                         join controllerEmployee in dbContext.TBL_EMPLOYEE on tickets.ControllerId equals controllerEmployee.Id
                                         where sla.PriorityId == tickets.PriorityId
                                         where (tickets.StatusId == 1 || tickets.StatusId == 2 || tickets.StatusId == 6)
-                                        where DateTime.Now > tickets.CreatedDate.AddMinutes(sla.Time)
+                                        where DateTime.Now > tickets.CreatedDate.AddMinutes((double)sla.Time)
                                         select new
                                         {
                                             Ticket = tickets,
                                             ControllerManagerId = controllerEmployee.ManagerId,
                                         };
-
+              
 
                 foreach (var ticketInfo in ticketsToEscalate)
                 {
@@ -50,10 +53,20 @@ namespace FacilitEase.Services
                         ticketInfo.Ticket.ControllerId = ticketInfo.ControllerManagerId;
                         ticketInfo.Ticket.AssignedTo = ticketInfo.ControllerManagerId;
                     }
-                    
+                   /* _ticketService.UpdateTicketTracking( ticketInfo.Ticket.Id, 3,ticketInfo.Ticket.AssignedTo,ticketInfo.Ticket.ControllerId,ticketInfo.Ticket.SubmittedDate,ticketInfo.Ticket.CreatedBy);*/
+
+                    var ticketassign = (from ta in dbContext.TBL_TICKET_ASSIGNMENT
+                                    where ta.Id == ticketInfo.Ticket.Id
+                                    select ta).FirstOrDefault();
+                                if (ticketassign != null)
+                                {
+                                        ticketassign.EmployeeStatus = "escalated";
+                                }
+
                 }
 
                 dbContext.SaveChanges();
+      
             }
         }
 

@@ -123,11 +123,11 @@ namespace FacilitEase.Services
                           {
                               DailyTickets = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime),
                               DailyResolved = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime && ta.EmployeeStatus == "resolved"),
-                              DailyUnresolved = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime && ta.EmployeeStatus == "resolved"),
+                              DailyUnresolved = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime && ta.EmployeeStatus == "unresolved"),
                               DailyEscalated = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime && ta.EmployeeStatus == "escalated"),
                               WeeklyTickets = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek),
                               WeeklyResolved = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek && ta.EmployeeStatus == "resolved"),
-                              WeeklyUnresolved = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek && ta.EmployeeStatus == "Unresolved"),
+                              WeeklyUnresolved = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek && ta.EmployeeStatus == "unresolved"),
                               WeeklyEscalated = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek && ta.EmployeeStatus == "escalated")
                           }).FirstOrDefault();
             return weekReport;
