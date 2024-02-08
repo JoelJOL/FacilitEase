@@ -84,7 +84,6 @@ builder.Services.AddScoped<IL3AdminService, L3AdminService>();
 builder.Services.AddScoped<IPriorityService, PriorityService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-builder.Services.AddScoped<IL3AdminService, L3AdminService>();
 builder.Services.AddScoped<IRepository<TBL_TICKET>, Repository<TBL_TICKET>>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IPositionRepository, PositionRepository>();

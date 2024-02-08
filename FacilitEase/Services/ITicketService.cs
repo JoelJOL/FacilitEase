@@ -55,5 +55,6 @@ namespace FacilitEase.Services
         public void UpdateTicketTracking(int ticketId, int statusId, int? assignedTo, int? controllerId, DateTime? ticketRaisedTimestamp, int updatedBy);
 
         IEnumerable<DocumentDto> GetDocumentsByTicketId(int ticketId);
+        string GetTimeSinceLastUpdate(int ticketId);
     }
 }

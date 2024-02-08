@@ -15,6 +15,7 @@ namespace FacilitEase.Controllers
     public class L3AdminController : ControllerBase
     {
         private readonly IL3AdminService _adminService;
+        private readonly ITicketService _ticketService;
         private readonly ILogger<L3AdminController> _logger;
 
         public L3AdminController(IL3AdminService adminService, ILogger<L3AdminController> logger)
@@ -313,7 +314,7 @@ namespace FacilitEase.Controllers
         [HttpGet("TimeSinceLastUpdate/{ticketId}")]
         public IActionResult GetTimeSinceLastUpdate(int ticketId)
         {
-            string timeSinceLastUpdate = _adminService.GetTimeSinceLastUpdate(ticketId);
+            string timeSinceLastUpdate = _ticketService.GetTimeSinceLastUpdate(ticketId);
 
             if (timeSinceLastUpdate != null)
             {

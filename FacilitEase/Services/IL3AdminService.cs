@@ -17,7 +17,6 @@ namespace FacilitEase.Services
         public void AddComment(TBL_COMMENT comment);
         public Task<bool> DeleteCommentAsync(int ticketId);
 
-        public string GetTimeSinceLastUpdate(int ticketId);
         public Join GetTicketDetailByAgent(int desiredTicketId);
         public AgentTicketResponse<TicketJoin> GetTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
         public AgentTicketResponse<TicketResolveJoin> GetResolvedTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
