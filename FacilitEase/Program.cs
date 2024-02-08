@@ -34,7 +34,8 @@ builder.Services.AddCors(options =>
     {
         builder.WithOrigins("http://localhost:4200")
                .AllowAnyHeader()
-               .AllowAnyMethod();
+               .AllowAnyMethod()
+                 .AllowCredentials();
     });
 });
 string connectionString = Env.GetString("ConnectionStrings__DefaultConnection");
@@ -136,7 +137,7 @@ app.UseCors("AllowAngularDev");
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
-    endpoints.MapHub<NotificationHub>("/notificationHub"); // Map the NotificationHub
+    endpoints.MapHub<NotificationHub>("/notificationHub").RequireCors("AllowAngularDev"); 
 });
 
 app.UseMiddleware<LogMiddleware>();
