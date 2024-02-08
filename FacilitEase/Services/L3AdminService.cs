@@ -323,7 +323,7 @@ namespace FacilitEase.Services
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
-                  SubmittedDate = joined.Ticket.SubmittedDate,
+                  SubmittedDate = joined.Ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                   Priority = joined.Priority.PriorityName,
                   Status = joined.Status.StatusName,
               });
@@ -450,7 +450,7 @@ namespace FacilitEase.Services
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
-                  SubmittedDate = joined.Ticket.SubmittedDate,
+                  SubmittedDate = joined.Ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                   ResolvedDate = joined.Ticket.UpdatedDate,
                   Priority = joined.Priority.PriorityName,
 
@@ -521,7 +521,7 @@ namespace FacilitEase.Services
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
-                  SubmittedDate = joined.Ticket.SubmittedDate,
+                  SubmittedDate = joined.Ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                   ResolvedDate = joined.Ticket.UpdatedDate,
                   Priority = joined.Priority.PriorityName,
 
@@ -587,7 +587,7 @@ namespace FacilitEase.Services
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
-                  SubmittedDate = joined.Ticket.SubmittedDate,
+                  SubmittedDate = joined.Ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                   ResolvedDate = joined.Ticket.UpdatedDate,
                   Priority = joined.Priority.PriorityName,
 
@@ -685,7 +685,7 @@ namespace FacilitEase.Services
                 }
             }
 
-            return "No comment found for the specified ticket ID";
+            return " ";
         }
 
 
