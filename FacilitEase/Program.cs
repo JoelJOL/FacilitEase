@@ -1,7 +1,6 @@
 using FacilitEase.Data;
 using FacilitEase.Hubs;
 using FacilitEase.Models.EntityModels;
-using FacilitEase.NewFolder4;
 using FacilitEase.Repositories;
 using FacilitEase.Services;
 using FacilitEase.UnitOfWork;
@@ -140,7 +139,7 @@ app.UseEndpoints(endpoints =>
     endpoints.MapHub<NotificationHub>("/notificationHub"); // Map the NotificationHub
 });
 
-app.UseMiddleware<LogMiddleware>();
+//app.UseMiddleware<LogMiddleware>();
 
 app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
