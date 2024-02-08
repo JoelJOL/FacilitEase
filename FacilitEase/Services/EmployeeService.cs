@@ -148,8 +148,15 @@ namespace FacilitEase.Services
         /// </summary>
         /// <param name="managerId"></param>
         /// <returns></returns>
-        public List<ManagerSubordinateEmployee> GetSubordinates(int managerId)
+        public List<ManagerSubordinateEmployee> GetSubordinates(int userId)
         {
+            // Step 1: Retrieve managerId (employeeId) based on userId
+            var managerId = _context.TBL_USER
+                .Where(user => user.Id == userId)
+                .Select(user => user.EmployeeId)
+                .FirstOrDefault();
+
+            // Step 2: Get subordinates for the retrieved managerId
             var result = _context.TBL_EMPLOYEE
                 .Where(e => e.ManagerId == managerId)
                 .Join(
@@ -172,15 +179,26 @@ namespace FacilitEase.Services
             return result;
         }
 
+
         /// <summary>
         /// Retrieve agents based on the RoleId, UserId and DepartmentId
         /// </summary>
         /// <param name="departmentId"></param>
         /// <returns></returns>
-        public IEnumerable<AgentApiModel> GetAgents(int departmentId)
+        public IEnumerable<AgentApiModel> GetAgents(int userId)
         {
+            // Step 1: Retrieve DepartmentId based on UserId
+            var departmentId = _context.TBL_EMPLOYEE_DETAIL
+                .Where(employeeDetail => employeeDetail.EmployeeId == _context.TBL_USER
+                    .Where(user => user.Id == userId)
+                    .Select(user => user.EmployeeId)
+                    .FirstOrDefault())
+                .Select(employeeDetail => employeeDetail.DepartmentId)
+                .FirstOrDefault();
+
+            // Step 2: Get Agents for the retrieved DepartmentId
             var agentRoleId = _context.TBL_USER_ROLE
-                .Where(role => role.UserRoleName == "Agent")
+                .Where(role => role.UserRoleName == "L3Admin")
                 .Select(role => role.Id)
                 .FirstOrDefault();
 
@@ -210,15 +228,26 @@ namespace FacilitEase.Services
             return agents;
         }
 
+
         /// <summary>
         /// retrieve the detailed informations of the agents in a department
         /// </summary>
         /// <param name="departmentId"></param>
         /// <returns></returns>
-        public IEnumerable<AgentDetailsModel> GetAgentsByDepartment(int departmentId)
+        public IEnumerable<AgentDetailsModel> GetAgentsByDepartment(int userId)
         {
+            // Step 1: Retrieve DepartmentId based on UserId
+            var departmentId = _context.TBL_EMPLOYEE_DETAIL
+                .Where(employeeDetail => employeeDetail.EmployeeId == _context.TBL_USER
+                    .Where(user => user.Id == userId)
+                    .Select(user => user.EmployeeId)
+                    .FirstOrDefault())
+                .Select(employeeDetail => employeeDetail.DepartmentId)
+                .FirstOrDefault();
+
+            // Step 2: Get Agents for the retrieved DepartmentId
             var agentRoleId = _context.TBL_USER_ROLE
-                .Where(role => role.UserRoleName == "Agent")
+                .Where(role => role.UserRoleName == "L3Admin")
                 .Select(role => role.Id)
                 .FirstOrDefault();
 
@@ -244,6 +273,7 @@ namespace FacilitEase.Services
 
             return agentDetails;
         }
+
 
         public IEnumerable<EmployeeDetails> GetEmployeeDetails(int empId)
         {
