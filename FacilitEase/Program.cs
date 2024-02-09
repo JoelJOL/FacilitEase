@@ -46,10 +46,10 @@ var jwtAudience = Env.GetString("JWT__Audience");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddAuthorization(options =>
-{
-    // Add your authorization policies here
-});
+
+
+
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -132,8 +132,13 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseRouting();
+
+
 app.UseCors("AllowAngularDev");
+
+/*app.UseTokenValidationMiddleware("https://login.microsoftonline.com/5b751804-232f-410d-bb2f-714e3bb466eb/v2.0", "d7104f84-ab29-436f-8f06-82fcf8d81381");
+*/
+app.UseRouting();
 
 app.UseEndpoints(endpoints =>
 {
@@ -150,8 +155,10 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = new PathString("/Resources")
 });
 
-app.UseHttpsRedirection();
+
 app.UseAuthorization();
+app.UseHttpsRedirection();
+
 
 
 app.Run();

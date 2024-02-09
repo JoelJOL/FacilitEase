@@ -12,6 +12,7 @@ using System.Net.Mime;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using FacilitEase.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FacilitEase.Controllers
 {

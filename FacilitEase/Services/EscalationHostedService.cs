@@ -90,7 +90,7 @@ namespace FacilitEase.Services
                 try
                 {
 
-                    foreach (var ticketInfo in ticketsToEscalateList)
+                    foreach (var ticketInfo in ticketsToEscalate)
                     {
                         ticketInfo.Ticket.StatusId = 3;
                         if (ticketInfo.Ticket.ControllerId != ticketInfo.Ticket.AssignedTo)
