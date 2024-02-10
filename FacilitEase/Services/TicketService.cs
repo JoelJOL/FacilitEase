@@ -561,7 +561,33 @@ namespace FacilitEase.Services
          Status = _context.TBL_STATUS
              .Where(status => status.Id == ticket.StatusId)
              .Select(status => status.StatusName)
-             .FirstOrDefault()
+             .FirstOrDefault(),
+             Department = _context.TBL_USER
+     .Where(user => user.Id == ticket.UserId)
+     .Select(user => _context.TBL_EMPLOYEE
+         .Where(employee => employee.Id == user.EmployeeId)
+         .Select(employee => _context.TBL_EMPLOYEE_DETAIL
+             .Where(employeeDetail => employeeDetail.Id == employee.Id)
+             .Select(employeeDetail => _context.TBL_DEPARTMENT
+                 .Where(department => department.Id == employeeDetail.DepartmentId)
+                 .Select(department => department.DeptName)
+                 .FirstOrDefault())
+             .FirstOrDefault())
+         .FirstOrDefault())
+     .FirstOrDefault(),
+         Location = _context.TBL_USER
+     .Where(user => user.Id == ticket.UserId)
+     .Select(user => _context.TBL_EMPLOYEE
+         .Where(employee => employee.Id == user.EmployeeId)
+         .Select(employee => _context.TBL_EMPLOYEE_DETAIL
+             .Where(employeeDetail => employeeDetail.Id == employee.Id)
+             .Select(employeeDetail => _context.TBL_LOCATION
+                 .Where(location => location.Id == employeeDetail.LocationId)
+                 .Select(location => location.LocationName)
+                 .FirstOrDefault())
+             .FirstOrDefault())
+         .FirstOrDefault())
+     .FirstOrDefault(),
      });
 
             var queryList = unassignedTicketsQuery.ToList();
@@ -702,7 +728,33 @@ namespace FacilitEase.Services
                     Status = _context.TBL_STATUS
                         .Where(status => status.Id == ticket.StatusId)
                         .Select(status => status.StatusName)
-                        .FirstOrDefault()
+                        .FirstOrDefault(),
+                    Department = _context.TBL_USER
+     .Where(user => user.Id == ticket.UserId)
+     .Select(user => _context.TBL_EMPLOYEE
+         .Where(employee => employee.Id == user.EmployeeId)
+         .Select(employee => _context.TBL_EMPLOYEE_DETAIL
+             .Where(employeeDetail => employeeDetail.Id == employee.Id)
+             .Select(employeeDetail => _context.TBL_DEPARTMENT
+                 .Where(department => department.Id == employeeDetail.DepartmentId)
+                 .Select(department => department.DeptName)
+                 .FirstOrDefault())
+             .FirstOrDefault())
+         .FirstOrDefault())
+     .FirstOrDefault(),
+                    Location = _context.TBL_USER
+     .Where(user => user.Id == ticket.UserId)
+     .Select(user => _context.TBL_EMPLOYEE
+         .Where(employee => employee.Id == user.EmployeeId)
+         .Select(employee => _context.TBL_EMPLOYEE_DETAIL
+             .Where(employeeDetail => employeeDetail.Id == employee.Id)
+             .Select(employeeDetail => _context.TBL_LOCATION
+                 .Where(location => location.Id == employeeDetail.LocationId)
+                 .Select(location => location.LocationName)
+                 .FirstOrDefault())
+             .FirstOrDefault())
+         .FirstOrDefault())
+     .FirstOrDefault(),
                 });
 
             var queryList = assignedTicketsQuery.ToList();
@@ -787,7 +839,33 @@ namespace FacilitEase.Services
                     AssignedTo = _context.TBL_EMPLOYEE
                         .Where(employee => employee.Id == ticket.AssignedTo)
                         .Select(employee => $"{employee.FirstName} {employee.LastName}")
-                        .FirstOrDefault()
+                        .FirstOrDefault(),
+                    Department = _context.TBL_USER
+     .Where(user => user.Id == ticket.UserId)
+     .Select(user => _context.TBL_EMPLOYEE
+         .Where(employee => employee.Id == user.EmployeeId)
+         .Select(employee => _context.TBL_EMPLOYEE_DETAIL
+             .Where(employeeDetail => employeeDetail.Id == employee.Id)
+             .Select(employeeDetail => _context.TBL_DEPARTMENT
+                 .Where(department => department.Id == employeeDetail.DepartmentId)
+                 .Select(department => department.DeptName)
+                 .FirstOrDefault())
+             .FirstOrDefault())
+         .FirstOrDefault())
+     .FirstOrDefault(),
+                    Location = _context.TBL_USER
+     .Where(user => user.Id == ticket.UserId)
+     .Select(user => _context.TBL_EMPLOYEE
+         .Where(employee => employee.Id == user.EmployeeId)
+         .Select(employee => _context.TBL_EMPLOYEE_DETAIL
+             .Where(employeeDetail => employeeDetail.Id == employee.Id)
+             .Select(employeeDetail => _context.TBL_LOCATION
+                 .Where(location => location.Id == employeeDetail.LocationId)
+                 .Select(location => location.LocationName)
+                 .FirstOrDefault())
+             .FirstOrDefault())
+         .FirstOrDefault())
+     .FirstOrDefault(),
                 });
 
             var queryList = escalatedTicketsQuery.ToList();
