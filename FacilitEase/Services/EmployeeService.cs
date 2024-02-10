@@ -207,6 +207,7 @@ namespace FacilitEase.Services
                 return new List<AgentApiModel>();
             }
 
+            // Retrieve agents for the specified departmentId
             var agents = _context.TBL_USER_ROLE_MAPPING
                 .Where(mapping => mapping.UserRoleId == agentRoleId)
                 .Join(_context.TBL_USER, mapping => mapping.UserId, user => user.Id, (mapping, user) => new
@@ -224,6 +225,21 @@ namespace FacilitEase.Services
                     AgentName = $"{employee.FirstName} {employee.LastName}"
                 })
                 .ToList();
+
+            // Append the details of the user whose userId is passed as another agent
+            var currentUser = _context.TBL_EMPLOYEE
+                .Where(employee => employee.Id == userId)
+                .Select(employee => new AgentApiModel
+                {
+                    AgentId = employee.Id,
+                    AgentName = $"{employee.FirstName} {employee.LastName}"
+                })
+                .FirstOrDefault();
+
+            if (currentUser != null)
+            {
+                agents.Add(currentUser);
+            }
 
             return agents;
         }
