@@ -134,11 +134,12 @@ if (!app.Environment.IsDevelopment())
 
 
 
-app.UseCors("AllowAngularDev");
+
 
 /*app.UseTokenValidationMiddleware("https://login.microsoftonline.com/5b751804-232f-410d-bb2f-714e3bb466eb/v2.0", "d7104f84-ab29-436f-8f06-82fcf8d81381");
 */
 app.UseRouting();
+app.UseCors("AllowAngularDev");
 
 app.UseEndpoints(endpoints =>
 {
