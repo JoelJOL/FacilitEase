@@ -40,7 +40,7 @@ namespace FacilitEase.Controllers
         {
             try
             {
-                var tickets = _ticketService.GetTicketByManager(managerId, sortField, sortOrder, pageIndex, pageSize, searchQuery);
+                var tickets = _ticketService.GetLiveTicketByManager(managerId, sortField, sortOrder, pageIndex, pageSize, searchQuery);
                 return Ok(tickets);
             }
             catch (Exception ex)

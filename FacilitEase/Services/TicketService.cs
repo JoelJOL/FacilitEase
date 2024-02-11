@@ -80,6 +80,8 @@ namespace FacilitEase.Services
             var query = from ticket in _context.TBL_TICKET
                         join user in _context.TBL_USER on ticket.UserId equals user.Id
                         join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
+                        join employeedetail in _context.TBL_EMPLOYEE_DETAIL on employee.Id equals employeedetail.EmployeeId
+                        join location in _context.TBL_LOCATION on employeedetail.LocationId equals location.Id
                         join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
                         join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
                         where employee.ManagerId == managerId
@@ -89,8 +91,9 @@ namespace FacilitEase.Services
                             Id = ticket.Id,
                             TicketName = ticket.TicketName,
                             EmployeeName = $"{employee.FirstName} {employee.LastName}",
+                            Location = location.LocationName,
                             AssignedTo = $"{_context.TBL_EMPLOYEE.Where(emp => emp.Id == ticket.AssignedTo).Select(emp => $"{emp.FirstName} {emp.LastName}").FirstOrDefault()}",
-                            SubmittedDate = ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
+                            SubmittedDate = ticket.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
                             Priority = $"{priority.PriorityName}",
                             Status = $"{status.StatusName}",
                         };
@@ -133,18 +136,21 @@ namespace FacilitEase.Services
             var query = from ticket in _context.TBL_TICKET
                         join user in _context.TBL_USER on ticket.UserId equals user.Id
                         join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
+                        join employeedetail in _context.TBL_EMPLOYEE_DETAIL on employee.Id equals employeedetail.EmployeeId
+                        join location in _context.TBL_LOCATION on employeedetail.LocationId equals location.Id
                         join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
                         join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
                         where employee.ManagerId == managerId
-                        where ((ticket.Id != 4) || (ticket.Id != 5))
+                        where ((status.Id != 4) && (status.Id != 5))
                         where string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery)
                         select new ManagerEmployeeTickets
                         {
                             Id = ticket.Id,
                             TicketName = ticket.TicketName,
                             EmployeeName = $"{employee.FirstName} {employee.LastName}",
+                            Location = location.LocationName,
                             AssignedTo = $"{_context.TBL_EMPLOYEE.Where(emp => emp.Id == ticket.AssignedTo).Select(emp => $"{emp.FirstName} {emp.LastName}").FirstOrDefault()}",
-                            SubmittedDate = ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
+                            SubmittedDate = ticket.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
                             Priority = $"{priority.PriorityName}",
                             Status = $"{status.StatusName}",
                         };
@@ -225,6 +231,8 @@ namespace FacilitEase.Services
             var query = from ticket in _context.TBL_TICKET
                         join user in _context.TBL_USER on ticket.UserId equals user.Id
                         join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
+                        join employeedetail in _context.TBL_EMPLOYEE_DETAIL on employee.Id equals employeedetail.EmployeeId
+                        join location in _context.TBL_LOCATION on employeedetail.LocationId equals location.Id
                         join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
                         join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
                         where ticket.ControllerId == managerId
@@ -234,8 +242,9 @@ namespace FacilitEase.Services
                             Id = ticket.Id,
                             TicketName = ticket.TicketName,
                             EmployeeName = $"{employee.FirstName} {employee.LastName}",
+                            Location = location.LocationName,
                             AssignedTo = $"{_context.TBL_EMPLOYEE.Where(emp => emp.Id == ticket.AssignedTo).Select(emp => $"{emp.FirstName} {emp.LastName}").FirstOrDefault()}",
-                            SubmittedDate = ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
+                            SubmittedDate = ticket.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
                             Priority = $"{priority.PriorityName}",
                             Status = $"{status.StatusName}",
                         };
