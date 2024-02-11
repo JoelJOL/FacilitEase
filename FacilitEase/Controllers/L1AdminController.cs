@@ -140,6 +140,7 @@ namespace FacilitEase.Controllers
             return CreatedAtAction(nameof(GetDepartments), new { }, departmentDto);
         }
 
+        [HttpPatch("EditSLA")]
         public IActionResult EditSla([FromBody] EditSLA request)
         {
             try
