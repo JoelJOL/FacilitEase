@@ -1,3 +1,4 @@
+using DotNetEnv;
 using FacilitEase.Data;
 using FacilitEase.Hubs;
 using FacilitEase.Models.EntityModels;
@@ -10,9 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using DotNetEnv;
-using FacilitEase.Middleware;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +25,6 @@ builder.Services.AddControllers()
 builder.Services.AddSignalR();
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
-
 
 builder.Services.AddCors(options =>
 {
@@ -46,11 +43,6 @@ var jwtAudience = Env.GetString("JWT__Audience");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-
-
-
-
-
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -65,7 +57,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
     });
-
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
@@ -102,7 +93,7 @@ builder.Services.AddScoped<IAzureRoleManagementService, AzureRoleManagementServi
 builder.Services.AddScoped<ISLAService, SLAService>();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(); 
+builder.Services.AddSwaggerGen();
 builder.Services.AddHostedService<NotificationService>();
 builder.Services.Configure<FormOptions>(o =>
 {
@@ -145,7 +136,7 @@ app.UseCors("AllowAngularDev");
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
-    endpoints.MapHub<NotificationHub>("/notificationHub").RequireCors("AllowAngularDev"); 
+    endpoints.MapHub<NotificationHub>("/notificationHub").RequireCors("AllowAngularDev");
 });
 
 //app.UseMiddleware<LogMiddleware>();
@@ -157,10 +148,7 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = new PathString("/Resources")
 });
 
-
 app.UseAuthorization();
 app.UseHttpsRedirection();
-
-
 
 app.Run();

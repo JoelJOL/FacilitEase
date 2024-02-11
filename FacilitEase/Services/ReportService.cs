@@ -1,7 +1,6 @@
 ﻿using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
 using FacilitEase.UnitOfWork;
-using Microsoft.EntityFrameworkCore;
 
 namespace FacilitEase.Services
 {
@@ -20,13 +19,13 @@ namespace FacilitEase.Services
         {
             Report report = new Report();
             report.Resolved = (from ta in _context.TBL_TICKET_ASSIGNMENT
-                               join u in _context.TBL_USER on ta.EmployeeId equals u.EmployeeId 
+                               join u in _context.TBL_USER on ta.EmployeeId equals u.EmployeeId
                                where u.Id == id && ta.EmployeeStatus == "resolved"
                                select ta).Count();
             report.Escalated = (from ta in _context.TBL_TICKET_ASSIGNMENT
-                               join u in _context.TBL_USER on ta.EmployeeId equals u.EmployeeId
-                               where u.Id == id && ta.EmployeeStatus == "escalated"
-                               select ta).Count();
+                                join u in _context.TBL_USER on ta.EmployeeId equals u.EmployeeId
+                                where u.Id == id && ta.EmployeeStatus == "escalated"
+                                select ta).Count();
             report.Total = report.Resolved + report.Escalated;
 
             return report;
@@ -63,17 +62,17 @@ namespace FacilitEase.Services
             {
                 switch (entry.Month)
                 {
-                    case 1: chartData.January = new int[] { entry.ResolvedCount,  entry.EscalatedCount }; break;
-                    case 2: chartData.February = new int[] { entry.ResolvedCount,  entry.EscalatedCount }; break;
-                    case 3: chartData.March = new int[] { entry.ResolvedCount,  entry.EscalatedCount }; break;
-                    case 4: chartData.April = new int[] { entry.ResolvedCount,  entry.EscalatedCount }; break;
+                    case 1: chartData.January = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
+                    case 2: chartData.February = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
+                    case 3: chartData.March = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
+                    case 4: chartData.April = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
                     case 5: chartData.May = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
                     case 6: chartData.June = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 7: chartData.July = new int[] { entry.ResolvedCount,  entry.EscalatedCount }; break;
-                    case 8: chartData.August = new int[] { entry.ResolvedCount,  entry.EscalatedCount }; break;
-                    case 9: chartData.September = new int[] { entry.ResolvedCount,  entry.EscalatedCount }; break;
-                    case 10: chartData.October = new int[] { entry.ResolvedCount,  entry.EscalatedCount }; break;
-                    case 11: chartData.November = new int[] { entry.ResolvedCount,  entry.EscalatedCount }; break;
+                    case 7: chartData.July = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
+                    case 8: chartData.August = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
+                    case 9: chartData.September = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
+                    case 10: chartData.October = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
+                    case 11: chartData.November = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
                     case 12: chartData.December = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
                 }
             }
@@ -107,6 +106,7 @@ namespace FacilitEase.Services
                                     select p.PositionName).FirstOrDefault()?.ToString() ?? "";
             return profileData;
         }
+
         public WeekReport GetWeeklyData(int id)
         {
             WeekReport weekReport = new WeekReport();
@@ -131,7 +131,6 @@ namespace FacilitEase.Services
                               WeeklyEscalated = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek && ta.EmployeeStatus == "escalated")
                           }).FirstOrDefault();
             return weekReport;
-
         }
     }
 }

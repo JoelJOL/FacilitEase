@@ -1,11 +1,8 @@
-﻿using FacilitEase.Data;
-using FacilitEase.Hubs;
+﻿using FacilitEase.Hubs;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.UnitOfWork;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Hosting;
 using System.Diagnostics;
-
 
 namespace FacilitEase.Services
 {
@@ -19,18 +16,19 @@ namespace FacilitEase.Services
         {
             _hubContext = hubContext;
             _scopeFactory = scopeFactory;
-    }
+        }
 
-        public  Task StartAsync(CancellationToken cancellationToken)
+        public Task StartAsync(CancellationToken cancellationToken)
         {
-           return Task.Factory.StartNew(async () =>
-    {
-        using (var scope = _scopeFactory.CreateScope())
-        {
-            await MonitorTicketChanges(cancellationToken);
+            return Task.Factory.StartNew(async () =>
+     {
+         using (var scope = _scopeFactory.CreateScope())
+         {
+             await MonitorTicketChanges(cancellationToken);
+         }
+     }, TaskCreationOptions.LongRunning);
         }
-    }, TaskCreationOptions.LongRunning);
-        }
+
         public Task StopAsync(CancellationToken cancellationToken)
         {
             //  cleanup logic if needed
@@ -74,7 +72,7 @@ namespace FacilitEase.Services
                                 {
                                     Content = $"TicketId: {changedTicket.Key}, {message.Text}",
                                     TicketId = changedTicket.Key,
-                                
+
                                     Receiver = message.UserId,
                                     NotificationTimestamp = DateTime.Now
                                 };
@@ -85,7 +83,6 @@ namespace FacilitEase.Services
                         }
 
                         // Save the changes to the database
-                      
 
                         // Update the initial state to the current state
                         initialTickets = currentTickets;
@@ -97,9 +94,6 @@ namespace FacilitEase.Services
                 }
             }
         }
-
-
-
 
         private List<Message> GetMessagesForStatusAndController(int? statusId, int? controllerId, int ticketId)
         {
@@ -113,7 +107,7 @@ namespace FacilitEase.Services
                 {
                     users = unitOfWork.User.GetAll().ToList();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                 }
@@ -132,17 +126,21 @@ namespace FacilitEase.Services
                         case 1: // Open
                             messages.Add(new Message { UserId = controllerUserId.Value, Text = "New ticket is generated" });
                             break;
+
                         case 2: // In progress
                             messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket in progress" });
                             messages.Add(new Message { UserId = controllerUserId.Value, Text = "Ticket assigned" });
                             break;
+
                         case 3: // Escalated
                             messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket escalated" });
                             messages.Add(new Message { UserId = controllerUserId.Value, Text = "Ticket escalated" });
                             break;
+
                         case 4: // Resolved
                             messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket resolved" });
                             break;
+
                         case 5: // Cancelled
                             messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket cancelled" });
                             if (assignedToUserId.HasValue)
@@ -150,13 +148,16 @@ namespace FacilitEase.Services
                                 messages.Add(new Message { UserId = assignedToUserId.Value, Text = "Ticket cancelled" });
                             }
                             break;
+
                         case 6: // On hold
                             messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket sent for approval" });
                             messages.Add(new Message { UserId = controllerUserId.Value, Text = "New Ticket" });
                             break;
+
                         case 7: // Cancel requested
                             messages.Add(new Message { UserId = controllerUserId.Value, Text = "Cancel request received" });
                             break;
+
                         default:
                             messages.Add(new Message { UserId = controllerUserId.Value, Text = "Unknown status" });
                             break;
@@ -165,7 +166,6 @@ namespace FacilitEase.Services
                 return messages;
             }
         }
-
     }
 
     public class Message
@@ -173,6 +173,4 @@ namespace FacilitEase.Services
         public int UserId { get; set; }
         public string Text { get; set; }
     }
-
-
 }

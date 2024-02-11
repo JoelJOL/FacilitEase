@@ -1,16 +1,8 @@
-﻿using Mailjet.Client;
-using System.Net.Mail;
-using Mailjet.Client.Resources;
-using System;
-using System.Threading.Tasks;
-using Mailjet.Client.Resources;
-using Newtonsoft.Json.Linq;
-using System.Net;
-using Microsoft.EntityFrameworkCore;
-using FacilitEase.Data;
-using FacilitEase.Repositories;
-using FacilitEase.UnitOfWork;
+﻿using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
+using System.Net.Mail;
 
 namespace FacilitEase.Services
 {
@@ -19,7 +11,7 @@ namespace FacilitEase.Services
         private readonly string apiKey = DotNetEnv.Env.GetString("MailJetApiKey");
         private readonly string apiSecret = DotNetEnv.Env.GetString("MailApiSecretKey");
         private readonly AppDbContext _context;//Abhijith
-        
+
         public MailJetService(AppDbContext context)
         {
             _context = context;
@@ -61,7 +53,6 @@ namespace FacilitEase.Services
                 Console.WriteLine(apiKey);
                 Console.WriteLine(apiSecret);
                 client.Credentials = new NetworkCredential(apiKey, apiSecret);
-              
 
                 var mailMessage = new MailMessage
                 {
@@ -77,7 +68,6 @@ namespace FacilitEase.Services
                     await client.SendMailAsync(mailMessage);
                     Console.WriteLine("Email sent successfully!");
                     await SendAcknowledgementEmail(toEmail);
-
                 }
                 catch (Exception ex)
                 {
@@ -108,8 +98,6 @@ namespace FacilitEase.Services
                 {
                     await client.SendMailAsync(mailMessage);
                     Console.WriteLine("Acknowledgement Email sent successfully!");
-
-
                 }
                 catch (Exception ex)
                 {

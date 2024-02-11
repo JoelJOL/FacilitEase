@@ -3,12 +3,9 @@ using FacilitEase.Models.EntityModels;
 using FacilitEase.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace FacilitEase.Controllers
 {
-
     [EnableCors("AllowAngularDev")]
     [ApiController]
     [Route("api/[controller]")]
@@ -91,7 +88,6 @@ namespace FacilitEase.Controllers
             }
         }
 
-
         [HttpGet("forward-ticket/{ticketId}/{managerId}")]
         public IActionResult ForwardRaisedTicketStatus([FromRoute] int ticketId, [FromRoute] int managerId)
         {
@@ -123,7 +119,6 @@ namespace FacilitEase.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
-
 
         [HttpGet("GetRaisedTicketsByAgent/{agentId}")]
         public IActionResult GetTicketsByAgent(
@@ -169,8 +164,6 @@ namespace FacilitEase.Controllers
             }
         }
 
-
-
         [HttpGet("GetOnHoldTicketsByAgent/{agentId}")]
         public IActionResult GetOnHoldTicketsByAgent(
      int agentId,
@@ -214,7 +207,6 @@ namespace FacilitEase.Controllers
                 return BadRequest($"An error occurred: {ex.Message}");
             }
         }
-
 
         [HttpGet("ticketdetail-by-agent/{ticketId}")]
         public IActionResult GetTicketDetailByAgent([FromRoute] int ticketId)
@@ -269,8 +261,6 @@ namespace FacilitEase.Controllers
                 return StatusCode(500, new { Error = "Internal Server Error", Message = ex.Message });
             }
         }
-
-
 
         [HttpGet("ticket-commenttext/{ticketId}")]
         public ActionResult<string> GetCommentTextByTicketId(int ticketId)
@@ -346,8 +336,5 @@ namespace FacilitEase.Controllers
 
             return NotFound("None");
         }
-
-
-
     }
 }
