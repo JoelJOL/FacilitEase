@@ -14,7 +14,12 @@ namespace FacilitEase.Controllers
         {
             _l1adminService = l1adminService;
         }
-
+        /// <summary>
+        /// To display the suggestions with respect to the text searched in the searchbar. 
+        /// It retrieves the name position and username of employees that have matcheing names to the text.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         [HttpGet("{text}")]
         public ActionResult<IEnumerable<ProfileData>> GetSuggestions(string text)
         {
@@ -23,7 +28,7 @@ namespace FacilitEase.Controllers
         }
 
         /// <summary>
-        /// To display all the roles available for a user
+        /// To display all the roles available for a user This will only include the roles that are not 
         /// </summary>
         /// <returns></returns>
         [HttpGet("possibleroles/{id}")]

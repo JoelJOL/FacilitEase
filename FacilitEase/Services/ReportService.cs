@@ -14,7 +14,11 @@ namespace FacilitEase.Services
             _unitOfWork = unitOfWork;
             _context = context;
         }
-
+        /// <summary>
+        /// To get the number of resolved, escalated and total tickets of an admin for a year
+        /// </summary>
+        /// <param name="id">The user id of the user whose data is required</param>
+        /// <returns>An object of Report ApiModel</returns>
         public Report GetReportData(int id)
         {
             Report report = new Report();
@@ -30,9 +34,14 @@ namespace FacilitEase.Services
 
             return report;
         }
-
+        /// <summary>
+        /// To group the number of resolved and escalated tickets of an admin with respect to months of an year
+        /// </summary>
+        /// <param name="id">User id of the user whose</param>
+        /// <returns>Object of the ApiModel chardata that consists of ticket count of each status sorted by the month</returns>
         public ChartData GetChartData(int id)
         {
+            //ApiModel to store data
             var chartData = new ChartData
             {
                 January = new int[] { 0, 0, 0 },
@@ -48,6 +57,7 @@ namespace FacilitEase.Services
                 November = new int[] { 0, 0, 0 },
                 December = new int[] { 0, 0, 0 }
             };
+            //Get the resolved and unresolved number of tickets from TicketAssignment table and group them usign a key
             var ticketCountsByMonth = from ta in _context.TBL_TICKET_ASSIGNMENT
                                       join u in _context.TBL_USER on ta.EmployeeId equals u.EmployeeId
                                       where u.Id == id
@@ -58,6 +68,8 @@ namespace FacilitEase.Services
                                           ResolvedCount = groupResult.Count(ta => ta.EmployeeStatus == "resolved"),
                                           EscalatedCount = groupResult.Count(ta => ta.EmployeeStatus == "escalated")
                                       };
+            //Adding the data into the above api model with respect the months
+            //The arrayentered here consists of numbers which represets [number of resolved tickets, number of escalated tickets]
             foreach (var entry in ticketCountsByMonth)
             {
                 switch (entry.Month)
@@ -78,9 +90,14 @@ namespace FacilitEase.Services
             }
             return chartData;
         }
-
+        /// <summary>
+        /// To get the EmployeeId, FirstName, LastName, JobTitle and Username of an employee
+        /// </summary>
+        /// <param name="id">User id of the user whose data is required</param>
+        /// <returns>Object of ProfileData apiModel</returns>
         public ProfileData GetProfileData(int id)
         {
+            //ProfileData is an apiModel to get the data from database
             ProfileData profileData = new ProfileData();
             profileData.EmpId = (from u in _context.TBL_USER
                                  where u.Id == id
@@ -106,11 +123,17 @@ namespace FacilitEase.Services
                                     select p.PositionName).FirstOrDefault()?.ToString() ?? "";
             return profileData;
         }
-
+        /// <summary>
+        /// To get the number of resolved, unresolved and escalated tickets of an admin in a week
+        /// </summary>
+        /// <param name="id">Iser id of the user whose data is required</param>
+        /// <returns>Object of WeekReport ApiModel that consists of weekly ticket count of userunder each status</returns>
         public WeekReport GetWeeklyData(int id)
         {
+            //WeekReport is an ApiModel to store data from database
             WeekReport weekReport = new WeekReport();
 
+            //To get the todays date, start date of current week and ending date of the current week
             DateTime currentDateTime = DateTime.Now;
             DateTime startDateOfWeek = currentDateTime.AddDays(-(int)currentDateTime.DayOfWeek);
             DateTime endDateOfWeek = startDateOfWeek.AddDays(6);
@@ -125,10 +148,10 @@ namespace FacilitEase.Services
                               DailyResolved = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime && ta.EmployeeStatus == "resolved"),
                               DailyUnresolved = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime && ta.EmployeeStatus == "unresolved"),
                               DailyEscalated = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime && ta.EmployeeStatus == "escalated"),
-                              WeeklyTickets = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek),
-                              WeeklyResolved = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek && ta.EmployeeStatus == "resolved"),
-                              WeeklyUnresolved = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek && ta.EmployeeStatus == "unresolved"),
-                              WeeklyEscalated = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek && ta.EmployeeStatus == "escalated")
+                              WeeklyTickets = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek),//Total tickets that are between startdate and enddate of the current week
+                              WeeklyResolved = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek && ta.EmployeeStatus == "resolved"),//Resolved tickets that are between startdate and enddate of the current week
+                              WeeklyUnresolved = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek && ta.EmployeeStatus == "unresolved"),//Unresolved tickets that are between startdate and enddate of the current week
+                              WeeklyEscalated = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek && ta.EmployeeStatus == "escalated")//Escalated tickets that are between startdate and enddate of the current week
                           }).FirstOrDefault();
             return weekReport;
         }
