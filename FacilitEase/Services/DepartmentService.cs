@@ -24,9 +24,13 @@ namespace FacilitEase.Services
         /// <returns></returns>
         public IEnumerable<DepartmentDto> GetDepartments()
         {
-            var departments = _unitOfWork.Departments.GetAll();
+            var departments = _context.TBL_DEPARTMENT
+                .Where(d => d.Id == 1 || d.Id == 2)
+                .ToList();
+
             return MapToDepartmentDtoList(departments);
         }
+
 
         /// <summary>
         /// Mapping a collection of TBL_DEPARTMENT entities to a collection of DepartmentDto objects.

@@ -419,7 +419,7 @@ namespace FacilitEase.Services
                 .Where(d => d.TicketId == ticketId)
                 .Select(d => new DocumentDto
                 {
-                    documentLink = d.DocumentLink,
+                    documentLink = d.DocumentLink.Replace("\\", "/")
                 })
                 .ToList();
 
