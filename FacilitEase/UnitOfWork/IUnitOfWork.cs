@@ -1,3 +1,4 @@
+using FacilitEase.Models.EntityModels;
 using FacilitEase.Repositories;
 
 namespace FacilitEase.UnitOfWork
@@ -19,6 +20,8 @@ namespace FacilitEase.UnitOfWork
         INotificationRepository Notification { get; set; }
         ILocationRepository Location { get; }
         IPositionRepository Position { get; }
+
+       
 
         Task<int> CompleteAsync();
 

@@ -1,5 +1,6 @@
 ﻿using FacilitEase.Data;
 using FacilitEase.Models.EntityModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace FacilitEase.Repositories
 {
@@ -9,6 +10,12 @@ namespace FacilitEase.Repositories
         {
         }
 
-        // Implement any additional methods specific to TBL_NOTIFICATION here
+        public async Task<IEnumerable<TBL_NOTIFICATION>> GetNotificationsByUserIdAsync(int userId)
+        {
+            return await Context.Set<TBL_NOTIFICATION>()
+                .Where(n => n.Receiver == userId)
+                .OrderByDescending(n => n.NotificationTimestamp)
+                .ToListAsync();
+        }
     }
 }
