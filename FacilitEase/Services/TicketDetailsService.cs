@@ -24,45 +24,59 @@ namespace FacilitEase.Services
         /// <param name="pageSize"></param>
         /// <param name="searchQuery"></param>
         /// <returns></returns>
+
+
         public EmployeeTicketResponse<TicketDetailsDto> GetTicketDetailsByUserId(int userId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
-            var query = from t in _context.TBL_TICKET
-                        join ts in _context.TBL_STATUS on t.StatusId equals ts.Id
-                        join tp in _context.TBL_PRIORITY on t.PriorityId equals tp.Id
-                        join u in _context.TBL_USER on t.AssignedTo equals u.Id into userJoin
-                        from u in userJoin.DefaultIfEmpty()  // Left Join
-                        join e in _context.TBL_EMPLOYEE on u.Id equals e.Id into employeeJoin
-                        from e in employeeJoin.DefaultIfEmpty()  // Left Join
-                        where t.UserId == userId
-                        where string.IsNullOrEmpty(searchQuery) || t.TicketName.Contains(searchQuery)
-                        select new TicketDetailsDto
-                        {
-                            Id = t.Id,
-                            TicketName = t.TicketName,
-                            Status = ts.StatusName,
-                            AssignedTo = e != null ? e.FirstName : null,  // Check for null to handle left join
-                            Priority = tp.PriorityName,
-                            SubmittedDate = t.SubmittedDate.ToString("dd-MM-yy hh:mm:tt"),
-                        };
 
-            // Apply Sorting
-            if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
-            {
-                string orderByString = $"{sortField} {sortOrder}";
-                query = query.OrderBy(orderByString);
-            }
-            var queryList = query.ToList();
-            // Apply Pagination
-            var totalCount = queryList.Count();
-            var paginatedQuery = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+                var query = from t in _context.TBL_TICKET
+                            join ts in _context.TBL_STATUS on t.StatusId equals ts.Id
+                            join tp in _context.TBL_PRIORITY on t.PriorityId equals tp.Id
+                            join u in _context.TBL_USER on t.AssignedTo equals u.Id
+                            join e in _context.TBL_EMPLOYEE on u.Id equals e.Id
+                            where t.UserId == userId
+                            where string.IsNullOrEmpty(searchQuery) || t.TicketName.Contains(searchQuery)
+                            select new
+                            {
+                                Id = t.Id,
+                                TicketName = t.TicketName,
+                                SubmittedDate = t.SubmittedDate,
+                                AssignedTo = e.FirstName,
+                                Priority = tp.PriorityName,
+                                Status = ts.StatusName,
+                               
+                            };
 
-            // Return the results in a paginated response obgit barncject.
-            return new EmployeeTicketResponse<TicketDetailsDto>
-            {
-                Data = paginatedQuery,
-                TotalDataCount = totalCount
-            };
+                // Apply Sorting
+                if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
+                {
+                    string orderByString = $"{sortField} {sortOrder}";
+                    query = query.OrderBy(orderByString);
+                }
+
+                var queryList = query.AsEnumerable().Select(t => new TicketDetailsDto
+                {
+                    Id = t.Id,
+                    TicketName = t.TicketName,
+                    Status = t.Status,
+                    AssignedTo = t.AssignedTo,
+                    Priority = t.Priority,
+                    SubmittedDate = t.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                });
+
+                // Apply Pagination
+                var totalCount = queryList.Count();
+                var paginatedQuery = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+                // Return the results in a paginated response object.
+                return new EmployeeTicketResponse<TicketDetailsDto>
+                {
+                    Data = paginatedQuery,
+                    TotalDataCount = totalCount
+                };
         }
+
+
 
         public TicketDetailsDto GetTicketDetailsById(int ticketId)
         {
