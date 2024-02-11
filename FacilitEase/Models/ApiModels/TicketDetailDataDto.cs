@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a model for joining data related to a ticket in the API response.
     /// </summary>
-    public class Join
+    public class TicketDetailDataDto
     {
         public int Id { get; set; }
         public string TicketName { get; set; }
