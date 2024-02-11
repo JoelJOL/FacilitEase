@@ -43,7 +43,7 @@ namespace FacilitEase.Services
         );
                 //For Updating ticket tracking table
                 var ticketassign = (from ta in _context.TBL_TICKET_ASSIGNMENT
-                                    where ta.Id == ticketId
+                                    where ta.TicketId == ticketId
                                     select ta).FirstOrDefault();
                 if (ticketassign != null)
                 {
