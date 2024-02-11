@@ -2,9 +2,7 @@
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.UnitOfWork;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System.Linq.Dynamic.Core;
 
 namespace FacilitEase.Services
@@ -14,6 +12,7 @@ namespace FacilitEase.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppDbContext _context;
         private readonly ITicketService _ticketService;
+
         public L3AdminService(IUnitOfWork unitOfWork, AppDbContext context, ITicketService ticketService)
         {
             _unitOfWork = unitOfWork;
@@ -36,7 +35,7 @@ namespace FacilitEase.Services
                 ticketToClose.UpdatedDate = DateTime.Now;
                 _context.SaveChanges();
                 _ticketService.UpdateTicketTracking(
-                ticketToClose.Id,4,
+                ticketToClose.Id, 4,
                 ticketToClose.AssignedTo,
                 ticketToClose.ControllerId,
                 ticketToClose.SubmittedDate,
@@ -46,13 +45,12 @@ namespace FacilitEase.Services
                 var ticketassign = (from ta in _context.TBL_TICKET_ASSIGNMENT
                                     where ta.Id == ticketId
                                     select ta).FirstOrDefault();
-                if( ticketassign != null )
+                if (ticketassign != null)
                 {
                     ticketassign.EmployeeStatus = "resolved";
                     _context.SaveChanges();
                 }
             }
-            
         }
 
         public void AcceptTicketCancellation(int ticketId)
@@ -66,7 +64,7 @@ namespace FacilitEase.Services
                 ticketToClose.UpdatedDate = DateTime.Now;
                 _context.SaveChanges();
                 _ticketService.UpdateTicketTracking(
-            ticketToClose.Id,5,
+            ticketToClose.Id, 5,
             ticketToClose.AssignedTo,
             ticketToClose.ControllerId,
             ticketToClose.SubmittedDate,
@@ -82,7 +80,6 @@ namespace FacilitEase.Services
                     _context.SaveChanges();
                 }
             }
-
         }
 
         public void DenyTicketCancellation(int ticketId)
@@ -96,14 +93,13 @@ namespace FacilitEase.Services
                 ticketToClose.UpdatedDate = DateTime.Now;
                 _context.SaveChanges();
                 _ticketService.UpdateTicketTracking(
-            ticketToClose.Id,2,
+            ticketToClose.Id, 2,
             ticketToClose.AssignedTo,
             ticketToClose.ControllerId,
             ticketToClose.SubmittedDate,
             ticketToClose.CreatedBy
         );
             }
-
         }
 
         /// <summary>
@@ -137,7 +133,6 @@ namespace FacilitEase.Services
                    ticketToUpdate.CreatedBy
                     );
             }
-
         }
 
         /// <summary>
@@ -152,7 +147,6 @@ namespace FacilitEase.Services
 
             return adminRole?.Id ?? 0;
         }
-
 
         /// <summary>
         /// Method to forward ticket to the manager of the employee who raised the ticket
@@ -175,7 +169,7 @@ namespace FacilitEase.Services
                     ticketToForward.UpdatedDate = DateTime.Now;
                     _context.SaveChanges();
                     _ticketService.UpdateTicketTracking(
-                    ticketToForward.Id,6,
+                    ticketToForward.Id, 6,
                     ticketToForward.AssignedTo,
                     ticketToForward.ControllerId,
                     ticketToForward.SubmittedDate,
@@ -187,15 +181,11 @@ namespace FacilitEase.Services
                     throw new InvalidOperationException("ManagerId is null or invalid.");
                 }
                 _context.SaveChanges();
-
-
             }
-
         }
 
         public void AddTicket(TBL_TICKET ticket)
         {
-
             _unitOfWork.Ticket.Add(ticket);
             _unitOfWork.Complete();
         }
@@ -235,7 +225,6 @@ namespace FacilitEase.Services
                 _context.SaveChanges();
             }
         }
-
 
         /// <summary>
         /// This method adds the comment of a particular ticket
@@ -342,7 +331,6 @@ namespace FacilitEase.Services
             var totalCount = queryList.Count();
             queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
-
             // Return the paginated and sorted ticket data along with the total count.
             return new AgentTicketResponse<TicketJoin>
             {
@@ -394,13 +382,9 @@ namespace FacilitEase.Services
                     .FirstOrDefault();
 
                 result.LastUpdate = GetTimeSinceLastUpdate(desiredTicketId);
-
-                   
             }
             return result;
-
         }
-
 
         /// <summary>
         /// This method retrieves resolved tickets assigned to a specific agent with optional sorting and search functionality.
@@ -441,8 +425,7 @@ namespace FacilitEase.Services
                   (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Priority, Status = status }
               )
               // Filtering resolved tickets based on agentId and StatusId.
-              .Where(joined => joined.Ticket.AssignedTo == agentId && joined.Ticket.StatusId == 4)
-              // Filtering resolved tickets based on searchQuery (if provided).
+              .Where(joined => joined.Ticket.ControllerId == agentId && joined.Ticket.StatusId == 4)
               .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
               // Selecting the desired fields and creating a new TicketResolveJoin object.
               .Select(joined => new TicketResolveJoin
@@ -453,9 +436,7 @@ namespace FacilitEase.Services
                   SubmittedDate = joined.Ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                   ResolvedDate = joined.Ticket.UpdatedDate,
                   Priority = joined.Priority.PriorityName,
-
               });
-
 
             var materializedQuery = query.ToList();
 
@@ -524,9 +505,7 @@ namespace FacilitEase.Services
                   SubmittedDate = joined.Ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                   ResolvedDate = joined.Ticket.UpdatedDate,
                   Priority = joined.Priority.PriorityName,
-
               });
-
 
             var materializedQuery = query.ToList();
 
@@ -590,9 +569,7 @@ namespace FacilitEase.Services
                   SubmittedDate = joined.Ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                   ResolvedDate = joined.Ticket.UpdatedDate,
                   Priority = joined.Priority.PriorityName,
-
               });
-
 
             var materializedQuery = query.ToList();
 
@@ -649,6 +626,7 @@ namespace FacilitEase.Services
 
             return result;
         }
+
         /// <summary>
         /// Method to find last comments last updated
         /// </summary>
@@ -687,8 +665,5 @@ namespace FacilitEase.Services
 
             return " ";
         }
-
-
-
     }
 }

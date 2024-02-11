@@ -6,6 +6,7 @@ namespace FacilitEase.Models.EntityModels
     {
         [Key]
         public int Id { get; set; }
+
         public int BudgetCode { get; set; }
         public float BudgetAmount { get; set; }
         public int DepartmentId { get; set; }

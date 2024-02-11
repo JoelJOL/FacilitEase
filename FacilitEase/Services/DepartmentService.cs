@@ -2,7 +2,6 @@
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.UnitOfWork;
-using Microsoft.EntityFrameworkCore;
 
 namespace FacilitEase.Services
 {
@@ -12,6 +11,7 @@ namespace FacilitEase.Services
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppDbContext _context;
+
         public DepartmentService(IUnitOfWork unitOfWork, AppDbContext context)
         {
             _unitOfWork = unitOfWork;

@@ -1,11 +1,9 @@
-﻿using FacilitEase.Services;
+﻿using FacilitEase.Models.ApiModels;
+using FacilitEase.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using System;
-using FacilitEase.Models.ApiModels;
+
 namespace FacilitEase.Controllers
 {
-
     [Route("api/email")]
     [ApiController]
     public class EmailController : ControllerBase
@@ -36,6 +34,7 @@ namespace FacilitEase.Controllers
                  return StatusCode(500, $"Failed to send email. Error: {ex.Message}");
              }
          }*/
+
         [HttpPost("send")]
         public async Task<IActionResult> SendEmail([FromBody] EmailModel model)
         {

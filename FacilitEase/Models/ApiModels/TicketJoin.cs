@@ -12,7 +12,5 @@
         public string SubmittedDate { get; set; }
         public string Status { get; set; }
         public string Priority { get; set; }
-     
-    
     }
 }

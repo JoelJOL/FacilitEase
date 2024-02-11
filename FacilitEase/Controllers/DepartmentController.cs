@@ -16,7 +16,6 @@ namespace FacilitEase.Controllers
             _deptService = deptService;
         }
 
-
         [HttpGet]
         public IActionResult GetTickets()
         {
@@ -36,8 +35,5 @@ namespace FacilitEase.Controllers
 
             return Ok(categories);
         }
-
-
-
     }
 }

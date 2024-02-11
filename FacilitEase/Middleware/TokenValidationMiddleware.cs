@@ -1,15 +1,8 @@
-﻿using FacilitEase.Data;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Protocols;
+﻿using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 public class TokenValidationMiddleware
 {
@@ -63,9 +56,6 @@ public class TokenValidationMiddleware
 
             ClaimsPrincipal principal = handler.ValidateToken(token, parameters, out _);
             context.User = principal;
-
-
-
 
             await _next(context);
         }

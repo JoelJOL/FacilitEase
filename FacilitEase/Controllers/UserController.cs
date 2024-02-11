@@ -1,18 +1,11 @@
-﻿using FacilitEase.Data;
-using FacilitEase.Models.ApiModels;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.IdentityModel.Protocols;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Net.Mime;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using FacilitEase.Models.ApiModels;
 using FacilitEase.Services;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace FacilitEase.Controllers
 {
@@ -38,7 +31,7 @@ namespace FacilitEase.Controllers
             {
                 var accessToken = azureReturn.AccessToken;
                 var token = Request.Headers["Authorization"].ToString()?.Replace("Bearer ", "");
-                string username="";
+                string username = "";
 
                 if (string.IsNullOrEmpty(token))
                 {
@@ -74,7 +67,7 @@ namespace FacilitEase.Controllers
                 ClaimsPrincipal principal = handler.ValidateToken(token, parameters, out _);
                 HttpContext.User = principal;
 
-                var appToken=_loginService.CheckUser(username);
+                var appToken = _loginService.CheckUser(username);
                 var roless = _roleManagementService.GetAppRoles(accessToken);
 
                 // You can add your business logic here or return a specific ActionResult
