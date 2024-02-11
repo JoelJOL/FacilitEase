@@ -43,7 +43,7 @@ namespace FacilitEase.Services
         );
                 //For Updating ticket tracking table
                 var ticketassign = (from ta in _context.TBL_TICKET_ASSIGNMENT
-                                    where ta.Id == ticketId
+                                    where ta.TicketId == ticketId
                                     select ta).FirstOrDefault();
                 if (ticketassign != null)
                 {
@@ -326,12 +326,11 @@ namespace FacilitEase.Services
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
-                  SubmittedDate = joined.Ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
+                  SubmittedDate = joined.Ticket.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
                   Priority = joined.Priority.PriorityName,
                   Status = joined.Status.StatusName,
                   Department = joined.Department.DeptName,
-                  Location = joined.Location.LocationName
-
+                  Location = joined.Location.LocationName,
 
               });
 
@@ -474,11 +473,12 @@ namespace FacilitEase.Services
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
-                  SubmittedDate = joined.Ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
-                  ResolvedDate = joined.Ticket.UpdatedDate.ToString("dd-MM-yy hh:mm tt"),
+                  SubmittedDate = joined.Ticket.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                  ResolvedDate = joined.Ticket.UpdatedDate.ToString("yyyy-MM-dd hh:mm tt"),
                   Priority = joined.Priority.PriorityName,
+                  Status = joined.Status.StatusName,
                   Department = joined.Department.DeptName,
-                  Location = joined.Location.LocationName
+                  Location = joined.Location.LocationName,
 
 
               });
@@ -560,7 +560,7 @@ namespace FacilitEase.Services
                   (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Detail, joined.Department, joined.Location, joined.Priority, Status = status }
               )
               // Filtering resolved tickets based on agentId and StatusId.
-              .Where(joined => joined.Ticket.ControllerId == agentId && joined.Ticket.StatusId == 6)
+              .Where(joined => joined.Ticket.AssignedTo == agentId && joined.Ticket.StatusId == 6)
               // Filtering resolved tickets based on searchQuery (if provided).
               .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
               // Selecting the desired fields and creating a new TicketResolveJoin object.
@@ -569,11 +569,13 @@ namespace FacilitEase.Services
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
-                  SubmittedDate = joined.Ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
-                  ResolvedDate = joined.Ticket.UpdatedDate.ToString("dd-MM-yy hh:mm tt"),
+                  SubmittedDate = joined.Ticket.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                  ResolvedDate = joined.Ticket.UpdatedDate.ToString("yyyy-MM-dd hh:mm tt"),
                   Priority = joined.Priority.PriorityName,
+                  Status = joined.Status.StatusName,
                   Department = joined.Department.DeptName,
-                  Location = joined.Location.LocationName
+                  Location = joined.Location.LocationName,
+
               });
 
             var materializedQuery = query.ToList();
@@ -657,11 +659,12 @@ namespace FacilitEase.Services
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
-                  SubmittedDate = joined.Ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
-                  ResolvedDate = joined.Ticket.UpdatedDate.ToString("dd-MM-yy hh:mm tt"),
+                  SubmittedDate = joined.Ticket.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                  ResolvedDate = joined.Ticket.UpdatedDate.ToString("yyyy-MM-dd hh:mm tt"),
                   Priority = joined.Priority.PriorityName,
+                  Status = joined.Status.StatusName,
                   Department = joined.Department.DeptName,
-                  Location = joined.Location.LocationName
+                  Location = joined.Location.LocationName,
 
               });
 
