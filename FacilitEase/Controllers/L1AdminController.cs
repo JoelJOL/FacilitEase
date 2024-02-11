@@ -141,7 +141,7 @@ namespace FacilitEase.Controllers
         }
 
         [HttpPatch("EditSLA")]
-        public IActionResult EditSla([FromBody] EditSLA request)
+        public IActionResult EditSla([FromBody] SLAInfo request)
         {
             try
             {
@@ -152,6 +152,13 @@ namespace FacilitEase.Controllers
             {
                 return BadRequest($"An error occurred: {ex.Message}");
             }
+        }
+
+        [HttpGet("SLAInfo/{userId}")]
+        public ActionResult GetSlaInfo(int userId)
+        {
+            var slaInfo = _slaService.GetSLAInfo(userId);
+            return Ok(slaInfo);
         }
     }
 }

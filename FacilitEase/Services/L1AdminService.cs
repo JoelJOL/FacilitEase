@@ -12,10 +12,18 @@ namespace FacilitEase.Services
         {
             _context = context;
         }
-
+        /// <summary>
+        /// To get the suggestions of details of employees that are having similar names to the string contained in text
+        /// </summary>
+        /// <param name="text">Search parameter that is entered in the searchbar</param>
+        /// <returns>All the details of employees that are having similar names to string in text</returns>
         public IEnumerable<ProfileData> GetSuggestions(string text)
         {
+            //Converting text into lowercase to avoid case sensitivity while comparing data from databse and text
             text = text.ToLower();
+
+            //Select the employees that have similar names to the text
+            //Here ProfileData is an ApiModel to stroe the required data
             var suggestions = _context.TBL_EMPLOYEE
                     .Where(employee =>
                         employee.FirstName.ToLower().Contains(text) ||
@@ -42,24 +50,35 @@ namespace FacilitEase.Services
                     .ToList();
             return suggestions;
         }
-
+        /// <summary>
+        /// To get all the roles of an employee that are available to him
+        /// </summary>
+        /// <param name="id">User id of the user whose assignable roles must be fetched</param>
+        /// <returns>All assignable roles of a user</returns>
         public IEnumerable<string> GetRoles(int id)
         {
+            //Get the current roles that the employee roles
             var mappedRoles = from r in _context.TBL_USER_ROLE
                               join ur in _context.TBL_USER_ROLE_MAPPING on r.Id equals ur.UserRoleId
                               join u in _context.TBL_USER on ur.UserId equals u.Id
                               where u.Id == id
                               select r.UserRoleName;
 
+            //Get all the possible roles from database
             var allRoles = _context.TBL_USER_ROLE.Select(r => r.UserRoleName);
 
+            //Get the roles that can be assigned to the user
             var roles = allRoles.Except(mappedRoles);
 
             return roles;
         }
-
+        /// <summary>
+        /// Assigning a role to an employee
+        /// </summary>
+        /// <param name="assignRole">An apiModel that consists of the employeeId and the role name that must be assigned</param>
         public void AssignRole(AssignRole assignRole)
         {
+            //AssignRole is an ApiModel that has data - employeeid and rolename that must be assigned to the user
             int empId = assignRole.EmpId;
             string roleName = assignRole.RoleName;
             TBL_USER_ROLE_MAPPING roleMapping = new TBL_USER_ROLE_MAPPING();
@@ -75,6 +94,7 @@ namespace FacilitEase.Services
             roleMapping.CreatedBy = 1;
             roleMapping.UpdatedBy = 1;
 
+            //Adding a new row into the UserRoleMapping table with the empId and RoleId
             _context.TBL_USER_ROLE_MAPPING.Add(roleMapping);
             _context.SaveChanges();
         }

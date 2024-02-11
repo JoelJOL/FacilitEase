@@ -77,7 +77,7 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpPatch("ChangePriority")]
+        [HttpPost("ChangePriority")]
         public IActionResult ChangePriority([FromBody] ChangePriority request)
         {
             try
@@ -91,7 +91,7 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpPatch("SendForApproval")]
+        [HttpPost("SendForApproval")]
         public IActionResult SendForApproval([FromBody] ChangeController request)
         {
             try
@@ -105,7 +105,7 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpPatch("TicketDecision")]
+        [HttpPost("TicketDecision")]
         public IActionResult TicketDecision([FromBody] ChangeStatus request)
         {
             try
