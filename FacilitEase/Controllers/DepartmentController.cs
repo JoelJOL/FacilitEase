@@ -45,8 +45,5 @@ namespace FacilitEase.Controllers
 
             return Ok(categories);
         }
-
-
-
     }
 }

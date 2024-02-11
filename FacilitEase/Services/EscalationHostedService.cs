@@ -1,7 +1,4 @@
-﻿
-using FacilitEase.Data;
-using FacilitEase.Models.EntityModels;
-using Microsoft.EntityFrameworkCore;
+﻿using FacilitEase.Data;
 
 namespace FacilitEase.Services
 {
@@ -10,11 +7,12 @@ namespace FacilitEase.Services
         private readonly IServiceProvider _serviceProvider;
         private System.Threading.Timer _timer;
         private readonly ITicketService _ticketService;
+
         public EscalationHostedService(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-         
         }
+
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _timer = new System.Threading.Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMinutes(5000));
@@ -42,8 +40,6 @@ namespace FacilitEase.Services
                                             ControllerManagerId = controllerEmployee != null ? controllerEmployee.ManagerId : null
                                         };
 
-
-
                 foreach (var ticketInfo in ticketsToEscalate)
                 {
                     ticketInfo.Ticket.StatusId = 3;
@@ -53,17 +49,15 @@ namespace FacilitEase.Services
                     }
                     else
                     {
-                        ticketInfo.Ticket.ControllerId = ticketInfo.ControllerManagerId;
-                        ticketInfo.Ticket.AssignedTo = ticketInfo.ControllerManagerId;
+                        ticketInfo.Ticket.ControllerId = null;
                     }
-                   /* var ticketassign = (from ta in dbContext.TBL_TICKET_ASSIGNMENT
-                                        where ta.Id == ticketInfo.Ticket.Id
-                                        select ta).FirstOrDefault();
-                    if (ticketassign != null)
-                    {
-                        ticketassign.EmployeeStatus = "escalated";
-                    }*/
-
+                    /* var ticketassign = (from ta in dbContext.TBL_TICKET_ASSIGNMENT
+                                         where ta.Id == ticketInfo.Ticket.Id
+                                         select ta).FirstOrDefault();
+                     if (ticketassign != null)
+                     {
+                         ticketassign.EmployeeStatus = "escalated";
+                     }*/
                 }
 
                 dbContext.SaveChanges();
@@ -81,6 +75,4 @@ namespace FacilitEase.Services
             _timer?.Dispose();
         }
     }
-    
-
 }

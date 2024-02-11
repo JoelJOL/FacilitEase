@@ -2,7 +2,6 @@
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.UnitOfWork;
-using Microsoft.EntityFrameworkCore;
 
 namespace FacilitEase.Services
 {
@@ -12,6 +11,7 @@ namespace FacilitEase.Services
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppDbContext _context;
+
         public DepartmentService(IUnitOfWork unitOfWork, AppDbContext context)
         {
             _unitOfWork = unitOfWork;
@@ -24,9 +24,13 @@ namespace FacilitEase.Services
         /// <returns></returns>
         public IEnumerable<DepartmentDto> GetDepartments()
         {
-            var departments = _unitOfWork.Departments.GetAll();
+            var departments = _context.TBL_DEPARTMENT
+                .Where(d => d.Id == 1 || d.Id == 2)
+                .ToList();
+
             return MapToDepartmentDtoList(departments);
         }
+
 
         /// <summary>
         /// Mapping a collection of TBL_DEPARTMENT entities to a collection of DepartmentDto objects.

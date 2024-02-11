@@ -44,17 +44,20 @@ namespace FacilitEase.Services
 
         //Nathaniel
         void AssignTicketToAgent(int userId, int ticketId, int agentId);
-      
+
         //Nathaniel
         ManagerTicketResponse<TicketApiModel> GetEscalatedTickets(int userId, int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery);
+
         //Hema
         //void CreateTicketWithDocuments(TicketDto ticket);
         void CreateTicketWithDocuments([FromForm] TicketDto ticketDto, [FromForm] IFormFile file);
+
         //Hema
         //Julia
         public void UpdateTicketTracking(int ticketId, int statusId, int? assignedTo, int? controllerId, DateTime? ticketRaisedTimestamp, int updatedBy);
 
         IEnumerable<DocumentDto> GetDocumentsByTicketId(int ticketId);
+
         public string GetTimeSinceLastUpdate(int ticketId);
 
         bool RequestToCancelTicket(int ticketId);

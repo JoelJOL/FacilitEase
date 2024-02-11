@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FacilitEase.Models.ApiModels
+﻿namespace FacilitEase.Models.ApiModels
 {
     /// <summary>
     /// Api Model to specify the ticket details to be shown when a manager is viewing details of a single ticket

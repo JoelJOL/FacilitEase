@@ -11,5 +11,4 @@ namespace FacilitEase.Repositories
 
         // Implement any additional methods specific to TBL_NOTIFICATION here
     }
-
 }

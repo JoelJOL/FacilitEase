@@ -12,7 +12,6 @@ namespace FacilitEase.Services
         public TicketDetailsService(AppDbContext context)
         {
             _context = context;
-           
         }
 
         /// <summary>
@@ -57,7 +56,7 @@ namespace FacilitEase.Services
             var totalCount = query.Count();
             var paginatedQuery = query.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
-            // Return the results in a paginated response object.
+            // Return the results in a paginated response obgit barncject.
             return new EmployeeTicketResponse<TicketDetailsDto>
             {
                 Data = paginatedQuery,
@@ -92,7 +91,5 @@ namespace FacilitEase.Services
         /// </summary>
         /// <param name="ticketId"></param>
         /// <returns></returns>
-        
-
     }
 }

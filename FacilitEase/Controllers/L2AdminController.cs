@@ -1,11 +1,13 @@
 ﻿using FacilitEase.Models.ApiModels;
 using FacilitEase.Services;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FacilitEase.Controllers
 {
     [ApiController]
     [Route("api/l2")]
+    [EnableCors("AllowAngularDev")]
     public class L2AdminController : ControllerBase
     {
         private readonly IEmployeeService _employeeService;
