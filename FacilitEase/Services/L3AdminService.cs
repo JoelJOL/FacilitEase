@@ -328,6 +328,7 @@ namespace FacilitEase.Services
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
                   SubmittedDate = joined.Ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                   Priority = joined.Priority.PriorityName,
+                  Status = joined.Status.StatusName,
                   Department = joined.Department.DeptName,
                   Location = joined.Location.LocationName
 
