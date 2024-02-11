@@ -10,6 +10,8 @@
             public DateTime? LastMaintenanceDate { get; set; }
             public DateTime? NextMaintenanceDate { get; set; }
             public string AssetType { get; set; }
+
+            public DateTime PurchaseDate { get; set; }  
         
     }
 
