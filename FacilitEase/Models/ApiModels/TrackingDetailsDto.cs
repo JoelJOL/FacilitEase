@@ -4,6 +4,7 @@
     {
         public int TicketId { get; set; }
         public string StatusName { get; set; }
+        public string PriorityName { get; set; }
         public string SubmittedByEmployeeName { get; set; }
         public string AssignedToEmployeeName { get; set; }
         public string ApproverEmployeeName { get; set; }

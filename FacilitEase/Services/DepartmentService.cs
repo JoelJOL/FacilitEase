@@ -24,9 +24,13 @@ namespace FacilitEase.Services
         /// <returns></returns>
         public IEnumerable<DepartmentDto> GetDepartments()
         {
-            var departments = _unitOfWork.Departments.GetAll();
+            var departments = _context.TBL_DEPARTMENT
+                .Where(d => d.Id == 1 || d.Id == 2)
+                .ToList();
+
             return MapToDepartmentDtoList(departments);
         }
+
 
         /// <summary>
         /// Mapping a collection of TBL_DEPARTMENT entities to a collection of DepartmentDto objects.
@@ -89,11 +93,27 @@ namespace FacilitEase.Services
         /// To retrieve all departments from the database using the Unit of Work pattern and returns them as a collection of TBL_DEPARTMENT entities.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<TBL_DEPARTMENT> GetAllDepartments()
+        public IEnumerable<TBL_DEPARTMENT> GetAllDepartmentsExceptUserDepartment(int userId)
         {
-            var dept = _unitOfWork.Departments.GetAll();
-            return (dept);
+            // Get the department of the user
+            var userDepartmentId = _context.TBL_USER
+                .Where(user => user.Id == userId)
+                .Select(user => user.EmployeeId)
+                .Join(_context.TBL_EMPLOYEE_DETAIL,
+                    userEmpId => userEmpId,
+                    detail => detail.EmployeeId,
+                    (userEmpId, detail) => detail)
+                .Select(detail => detail.DepartmentId)
+                .FirstOrDefault();
+
+            // Get all departments except for the user's department
+            var departments = _context.TBL_DEPARTMENT
+                .Where(dept => dept.Id != userDepartmentId)
+                .ToList();
+
+            return departments;
         }
+
 
         public List<DeptCategoryDto> GetCategoriesByDepartmentId(int departmentId)
         {

@@ -16,11 +16,21 @@ namespace FacilitEase.Controllers
             _deptService = deptService;
         }
 
-        [HttpGet]
-        public IActionResult GetTickets()
+
+    
+        [HttpGet("getAllExceptUserDepartment/{userId}")]
+        public IActionResult GetAllDepartmentsExceptUserDepartment(int userId)
         {
-            var depts = _deptService.GetAllDepartments();
-            return Ok(depts);
+            try
+            {
+                var departments = _deptService.GetAllDepartmentsExceptUserDepartment(userId);
+                return Ok(departments);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it as needed
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpGet("categories-by-department/{departmentId}")]

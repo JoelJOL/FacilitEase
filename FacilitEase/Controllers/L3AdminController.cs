@@ -285,6 +285,29 @@ namespace FacilitEase.Controllers
             }
         }
 
+        [HttpDelete("delete-comment/{ticketId}")]
+        public async Task<IActionResult> DeleteComment(int ticketId)
+        {
+            try
+            {
+                var isDeleted = await _adminService.DeleteCommentAsync(ticketId);
+                if (isDeleted)
+                {
+                    return Ok("Comment deleted successfully"); // Return plain text
+                }
+                else
+                {
+                    return NotFound("Comment not found"); // Return plain text
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log or handle the exception as needed
+                Console.WriteLine($"Error deleting comment: {ex.Message}");
+                return StatusCode(500, "An error occurred while deleting the comment"); // Return plain text
+            }
+        }
+
         [HttpPatch("update-comment/{ticketId}")]
         public IActionResult UpdateComment([FromRoute] int ticketId, [FromBody] UpdateCommentDto model)
         {

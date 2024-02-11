@@ -28,15 +28,12 @@ namespace FacilitEase.Services
         public Task<bool> DeleteCommentAsync(int ticketId);
 
         string GetTimeSinceLastUpdate(int ticketId);
+        public TicketDetailDataDto GetTicketDetailByAgent(int desiredTicketId);
+        public AgentTicketResponse<RaisedTicketsDto> GetTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
+        public AgentTicketResponse<ResolvedTicketDto> GetResolvedTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
+        public AgentTicketResponse<ResolvedTicketDto> GetOnHoldTicketsByAgent(int userId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
+        public AgentTicketResponse<ResolvedTicketDto> GetCancelRequestTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
 
-        public Join GetTicketDetailByAgent(int desiredTicketId);
 
-        public AgentTicketResponse<TicketJoin> GetTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
-
-        public AgentTicketResponse<TicketResolveJoin> GetResolvedTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
-
-        public AgentTicketResponse<TicketResolveJoin> GetOnHoldTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
-
-        public AgentTicketResponse<TicketResolveJoin> GetCancelRequestTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
     }
 }

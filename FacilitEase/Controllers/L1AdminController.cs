@@ -105,16 +105,19 @@ namespace FacilitEase.Controllers
         private readonly ICategoryService _categoryService;
         private readonly IPriorityService _priorityService;
         private readonly ITicketService _ticketService;
+        private readonly ISLAService _slaService;
 
         public L1AdminController(IDepartmentService departmentService,
             ICategoryService categoryService,
             IPriorityService priorityService,
-            ITicketService ticketService)
+            ITicketService ticketService,
+            ISLAService sLAService)
         {
             _departmentService = departmentService;
             _categoryService = categoryService;
             _priorityService = priorityService;
             _ticketService = ticketService;
+            _slaService = sLAService;
         }
 
         [HttpGet("departments")]
@@ -135,6 +138,20 @@ namespace FacilitEase.Controllers
             _departmentService.CreateDepartment(departmentDto);
 
             return CreatedAtAction(nameof(GetDepartments), new { }, departmentDto);
+        }
+
+        [HttpPatch("EditSLA")]
+        public IActionResult EditSla([FromBody] EditSLA request)
+        {
+            try
+            {
+                _slaService.EditSLA(request.DepartmentId, request.PriorityId, request.Time);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"An error occurred: {ex.Message}");
+            }
         }
     }
 }

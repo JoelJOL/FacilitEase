@@ -135,18 +135,7 @@ namespace FacilitEase.Services
             }
         }
 
-        /// <summary>
-        /// Method to get the ID of the Admin Role
-        /// </summary>
-        /// <returns></returns>
-        public int GetAdminRoleId()
-        {
-            // Replace "Admin" with the actual role name for administrators
-            var adminRole = _context.TBL_USER_ROLE
-                .FirstOrDefault(role => role.UserRoleName == "Admin");
 
-            return adminRole?.Id ?? 0;
-        }
 
         /// <summary>
         /// Method to forward ticket to the manager of the employee who raised the ticket
@@ -277,9 +266,13 @@ namespace FacilitEase.Services
         /// <param name="pageSize"></param>
         /// <param name="searchQuery"></param>
         /// <returns></returns>
-        public AgentTicketResponse<TicketJoin> GetTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
+        public AgentTicketResponse<RaisedTicketsDto> GetTicketsByAgent(int userId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
-            // Joining multiple tables to fetch necessary information about the tickets.
+            int agentId = _context.TBL_USER
+           .Where(user => user.Id == userId)
+           .Select(user => user.EmployeeId)
+           .FirstOrDefault();
+            // Joining multiple tables to fetch necessary information about resolved tickets.
             var query = _context.TBL_TICKET
               .Join(
                   _context.TBL_USER,
@@ -293,48 +286,72 @@ namespace FacilitEase.Services
                   employee => employee.Id,
                   (joined, employee) => new { joined.Ticket, joined.User, Employee = employee }
               )
+               .Join(
+                  _context.TBL_EMPLOYEE_DETAIL,
+                  joined => joined.Employee.Id,
+                  detail => detail.Id,
+                  (joined, detail) => new { joined.Ticket, joined.User, joined.Employee, Detail = detail }
+              )
+              .Join(
+                  _context.TBL_DEPARTMENT,
+                  joined => joined.Detail.DepartmentId,
+                  department => department.Id,
+                  (joined, department) => new { joined.Ticket, joined.User, joined.Employee, joined.Detail, Department = department }
+              )
+              .Join(
+                  _context.TBL_LOCATION,
+                  joined => joined.Detail.LocationId,
+                  location => location.Id,
+                  (joined, location) => new { joined.Ticket, joined.User, joined.Employee, joined.Detail, joined.Department, Location = location }
+              )
               .Join(
                   _context.TBL_PRIORITY,
                   joined => joined.Ticket.PriorityId,
                   priority => priority.Id,
-                  (joined, priority) => new { joined.Ticket, joined.User, joined.Employee, Priority = priority }
+                  (joined, priority) => new { joined.Ticket, joined.User, joined.Employee, joined.Detail, joined.Department, joined.Location, Priority = priority }
               )
               .Join(
                   _context.TBL_STATUS,
                   joined => joined.Ticket.StatusId,
                   status => status.Id,
-                  (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Priority, Status = status }
+                  (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Detail, joined.Department, joined.Location, joined.Priority, Status = status }
               )
-              .Where(joined => joined.Ticket.AssignedTo == agentId && joined.Ticket.StatusId == 2)
+              // Filtering resolved tickets based on agentId and StatusId.
+              .Where(joined => joined.Ticket.ControllerId == agentId && joined.Ticket.StatusId == 2)
+              // Filtering resolved tickets based on searchQuery (if provided).
               .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
-              .Select(joined => new TicketJoin
+              // Selecting the desired fields and creating a new TicketResolveJoin object.
+              .Select(joined => new RaisedTicketsDto
               {
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
                   SubmittedDate = joined.Ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                   Priority = joined.Priority.PriorityName,
-                  Status = joined.Status.StatusName,
+                  Department = joined.Department.DeptName,
+                  Location = joined.Location.LocationName
+
+
               });
 
-            //Return the query data to a list.
-            var queryList = query.ToList();
+
+            var materializedQuery = query.ToList();
 
             // Apply Sorting
             if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
             {
                 string orderByString = $"{sortField} {sortOrder}";
-                queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
+                materializedQuery = materializedQuery.AsQueryable().OrderBy(orderByString).ToList();
             }
 
             // Apply Pagination
-            var totalCount = queryList.Count();
-            queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            var totalCount = materializedQuery.Count();
+            materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
-            // Return the paginated and sorted ticket data along with the total count.
-            return new AgentTicketResponse<TicketJoin>
+            // Return the paginated and sorted resolved ticket data along with the total count
+            return new AgentTicketResponse<RaisedTicketsDto>
             {
-                Data = queryList,
+                Data = materializedQuery,
                 TotalDataCount = totalCount
             };
         }
@@ -345,7 +362,7 @@ namespace FacilitEase.Services
         /// <param name="desiredTicketId"></param>
         /// <returns></returns>
 
-        public Join GetTicketDetailByAgent(int desiredTicketId)
+        public TicketDetailDataDto GetTicketDetailByAgent(int desiredTicketId)
         {
             var result = (from ticket in _context.TBL_TICKET
                           join user in _context.TBL_USER on ticket.UserId equals user.Id
@@ -358,7 +375,7 @@ namespace FacilitEase.Services
                           join manager in _context.TBL_EMPLOYEE on employee.ManagerId equals manager.Id into managerJoin
                           from manager in managerJoin.DefaultIfEmpty()
                           where ticket.Id == desiredTicketId
-                          select new Join
+                          select new TicketDetailDataDto
                           {
                               Id = ticket.Id,
                               TicketName = ticket.TicketName,
@@ -396,8 +413,12 @@ namespace FacilitEase.Services
         /// <param name="pageSize"></param>
         /// <param name="searchQuery"></param>
         /// <returns></returns>
-        public AgentTicketResponse<TicketResolveJoin> GetResolvedTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
+        public AgentTicketResponse<ResolvedTicketDto> GetResolvedTicketsByAgent(int userId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
+            int agentId = _context.TBL_USER
+            .Where(user => user.Id == userId)
+            .Select(user => user.EmployeeId)
+            .FirstOrDefault();
             // Joining multiple tables to fetch necessary information about resolved tickets.
             var query = _context.TBL_TICKET
               .Join(
@@ -412,30 +433,53 @@ namespace FacilitEase.Services
                   employee => employee.Id,
                   (joined, employee) => new { joined.Ticket, joined.User, Employee = employee }
               )
+               .Join(
+                  _context.TBL_EMPLOYEE_DETAIL,
+                  joined => joined.Employee.Id,
+                  detail => detail.Id,
+                  (joined, detail) => new { joined.Ticket, joined.User, joined.Employee, Detail = detail }
+              )
+              .Join(
+                  _context.TBL_DEPARTMENT,
+                  joined => joined.Detail.DepartmentId,
+                  department => department.Id,
+                  (joined, department) => new { joined.Ticket, joined.User, joined.Employee, joined.Detail, Department = department }
+              )
+              .Join(
+                  _context.TBL_LOCATION,
+                  joined => joined.Detail.LocationId,
+                  location => location.Id,
+                  (joined, location) => new { joined.Ticket, joined.User, joined.Employee, joined.Detail, joined.Department, Location = location }
+              )
               .Join(
                   _context.TBL_PRIORITY,
                   joined => joined.Ticket.PriorityId,
                   priority => priority.Id,
-                  (joined, priority) => new { joined.Ticket, joined.User, joined.Employee, Priority = priority }
+                  (joined, priority) => new { joined.Ticket, joined.User, joined.Employee, joined.Detail, joined.Department, joined.Location, Priority = priority }
               )
               .Join(
                   _context.TBL_STATUS,
                   joined => joined.Ticket.StatusId,
                   status => status.Id,
-                  (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Priority, Status = status }
+                  (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Detail, joined.Department, joined.Location, joined.Priority, Status = status }
               )
               // Filtering resolved tickets based on agentId and StatusId.
               .Where(joined => joined.Ticket.ControllerId == agentId && joined.Ticket.StatusId == 4)
+              // Filtering resolved tickets based on searchQuery (if provided).
               .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
               // Selecting the desired fields and creating a new TicketResolveJoin object.
-              .Select(joined => new TicketResolveJoin
+              .Select(joined => new ResolvedTicketDto
               {
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
                   SubmittedDate = joined.Ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
-                  ResolvedDate = joined.Ticket.UpdatedDate,
+                  ResolvedDate = joined.Ticket.UpdatedDate.ToString("dd-MM-yy hh:mm tt"),
                   Priority = joined.Priority.PriorityName,
+                  Department = joined.Department.DeptName,
+                  Location = joined.Location.LocationName
+
+
               });
 
             var materializedQuery = query.ToList();
@@ -452,7 +496,7 @@ namespace FacilitEase.Services
             materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
             // Return the paginated and sorted resolved ticket data along with the total count
-            return new AgentTicketResponse<TicketResolveJoin>
+            return new AgentTicketResponse<ResolvedTicketDto>
             {
                 Data = materializedQuery,
                 TotalDataCount = totalCount
@@ -464,8 +508,12 @@ namespace FacilitEase.Services
         /// </summary>
         /// <param name="agentId"></param>
         /// <returns></returns>
-        public AgentTicketResponse<TicketResolveJoin> GetOnHoldTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
+        public AgentTicketResponse<ResolvedTicketDto> GetOnHoldTicketsByAgent(int userId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
+            int agentId = _context.TBL_USER
+            .Where(user => user.Id == userId)
+            .Select(user => user.EmployeeId)
+            .FirstOrDefault();
             // Joining multiple tables to fetch necessary information about resolved tickets.
             var query = _context.TBL_TICKET
               .Join(
@@ -480,31 +528,51 @@ namespace FacilitEase.Services
                   employee => employee.Id,
                   (joined, employee) => new { joined.Ticket, joined.User, Employee = employee }
               )
+               .Join(
+                  _context.TBL_EMPLOYEE_DETAIL,
+                  joined => joined.Employee.Id,
+                  detail => detail.Id,
+                  (joined, detail) => new { joined.Ticket, joined.User, joined.Employee, Detail = detail }
+              )
+              .Join(
+                  _context.TBL_DEPARTMENT,
+                  joined => joined.Detail.DepartmentId,
+                  department => department.Id,
+                  (joined, department) => new { joined.Ticket, joined.User, joined.Employee, joined.Detail, Department = department }
+              )
+              .Join(
+                  _context.TBL_LOCATION,
+                  joined => joined.Detail.LocationId,
+                  location => location.Id,
+                  (joined, location) => new { joined.Ticket, joined.User, joined.Employee, joined.Detail, joined.Department, Location = location }
+              )
               .Join(
                   _context.TBL_PRIORITY,
                   joined => joined.Ticket.PriorityId,
                   priority => priority.Id,
-                  (joined, priority) => new { joined.Ticket, joined.User, joined.Employee, Priority = priority }
+                  (joined, priority) => new { joined.Ticket, joined.User, joined.Employee, joined.Detail, joined.Department, joined.Location, Priority = priority }
               )
               .Join(
                   _context.TBL_STATUS,
                   joined => joined.Ticket.StatusId,
                   status => status.Id,
-                  (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Priority, Status = status }
+                  (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Detail, joined.Department, joined.Location, joined.Priority, Status = status }
               )
               // Filtering resolved tickets based on agentId and StatusId.
-              .Where(joined => joined.Ticket.AssignedTo == agentId && joined.Ticket.StatusId == 6)
+              .Where(joined => joined.Ticket.ControllerId == agentId && joined.Ticket.StatusId == 6)
               // Filtering resolved tickets based on searchQuery (if provided).
               .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
               // Selecting the desired fields and creating a new TicketResolveJoin object.
-              .Select(joined => new TicketResolveJoin
+              .Select(joined => new ResolvedTicketDto
               {
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
                   SubmittedDate = joined.Ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
-                  ResolvedDate = joined.Ticket.UpdatedDate,
+                  ResolvedDate = joined.Ticket.UpdatedDate.ToString("dd-MM-yy hh:mm tt"),
                   Priority = joined.Priority.PriorityName,
+                  Department = joined.Department.DeptName,
+                  Location = joined.Location.LocationName
               });
 
             var materializedQuery = query.ToList();
@@ -521,16 +589,20 @@ namespace FacilitEase.Services
             materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
             // Return the paginated and sorted resolved ticket data along with the total count
-            return new AgentTicketResponse<TicketResolveJoin>
+            return new AgentTicketResponse<ResolvedTicketDto>
             {
                 Data = materializedQuery,
                 TotalDataCount = totalCount
             };
         }
 
-        public AgentTicketResponse<TicketResolveJoin> GetCancelRequestTicketsByAgent(int agentId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
+        public AgentTicketResponse<ResolvedTicketDto> GetCancelRequestTicketsByAgent(int userId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
-            // Joining multiple tables to fetch necessary information about resolved tickets.
+                int agentId = _context.TBL_USER
+            .Where(user => user.Id == userId)
+            .Select(user => user.EmployeeId)
+            .FirstOrDefault();
+            // Joining multiple tables to fetch necessary information about cancellation request tickets.
             var query = _context.TBL_TICKET
               .Join(
                   _context.TBL_USER,
@@ -544,31 +616,52 @@ namespace FacilitEase.Services
                   employee => employee.Id,
                   (joined, employee) => new { joined.Ticket, joined.User, Employee = employee }
               )
+               .Join(
+                  _context.TBL_EMPLOYEE_DETAIL,
+                  joined => joined.Employee.Id,
+                  detail => detail.Id,
+                  (joined, detail) => new { joined.Ticket, joined.User, joined.Employee, Detail = detail }
+              )
+              .Join(
+                  _context.TBL_DEPARTMENT,
+                  joined => joined.Detail.DepartmentId,
+                  department => department.Id,
+                  (joined, department) => new { joined.Ticket, joined.User, joined.Employee, joined.Detail, Department = department }
+              )
+              .Join(
+                  _context.TBL_LOCATION,
+                  joined => joined.Detail.LocationId,
+                  location => location.Id,
+                  (joined, location) => new { joined.Ticket, joined.User, joined.Employee, joined.Detail, joined.Department, Location = location }
+              )
               .Join(
                   _context.TBL_PRIORITY,
                   joined => joined.Ticket.PriorityId,
                   priority => priority.Id,
-                  (joined, priority) => new { joined.Ticket, joined.User, joined.Employee, Priority = priority }
+                  (joined, priority) => new { joined.Ticket, joined.User, joined.Employee, joined.Detail, joined.Department, joined.Location, Priority = priority }
               )
               .Join(
                   _context.TBL_STATUS,
                   joined => joined.Ticket.StatusId,
                   status => status.Id,
-                  (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Priority, Status = status }
+                  (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Detail, joined.Department, joined.Location, joined.Priority, Status = status }
               )
               // Filtering resolved tickets based on agentId and StatusId.
-              .Where(joined => joined.Ticket.AssignedTo == agentId && joined.Ticket.StatusId == 7)
+              .Where(joined => joined.Ticket.ControllerId == agentId && joined.Ticket.StatusId == 7)
               // Filtering resolved tickets based on searchQuery (if provided).
               .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
               // Selecting the desired fields and creating a new TicketResolveJoin object.
-              .Select(joined => new TicketResolveJoin
+              .Select(joined => new ResolvedTicketDto
               {
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
                   SubmittedDate = joined.Ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
-                  ResolvedDate = joined.Ticket.UpdatedDate,
+                  ResolvedDate = joined.Ticket.UpdatedDate.ToString("dd-MM-yy hh:mm tt"),
                   Priority = joined.Priority.PriorityName,
+                  Department = joined.Department.DeptName,
+                  Location = joined.Location.LocationName
+
               });
 
             var materializedQuery = query.ToList();
@@ -585,7 +678,7 @@ namespace FacilitEase.Services
             materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
             // Return the paginated and sorted resolved ticket data along with the total count
-            return new AgentTicketResponse<TicketResolveJoin>
+            return new AgentTicketResponse<ResolvedTicketDto>
             {
                 Data = materializedQuery,
                 TotalDataCount = totalCount
@@ -607,6 +700,13 @@ namespace FacilitEase.Services
                     StatusName = _context.TBL_STATUS
                                     .Where(status => status.Id == tracking.TicketStatusId)
                                     .Select(status => status.StatusName)
+                                    .FirstOrDefault(),
+                    PriorityName = _context.TBL_PRIORITY
+                                    .Where(priority => priority.Id == _context.TBL_TICKET
+                                        .Where(ticket => ticket.Id == tracking.TicketId)
+                                        .Select(ticket => ticket.PriorityId)
+                                        .FirstOrDefault())
+                                    .Select(priority => priority.PriorityName)
                                     .FirstOrDefault(),
                     SubmittedByEmployeeName = _context.TBL_EMPLOYEE
                         .Where(employee => employee.Id == tracking.CreatedBy)

@@ -49,8 +49,7 @@ namespace FacilitEase.Services
                     }
                     else
                     {
-                        ticketInfo.Ticket.ControllerId = ticketInfo.ControllerManagerId;
-                        ticketInfo.Ticket.AssignedTo = ticketInfo.ControllerManagerId;
+                        ticketInfo.Ticket.ControllerId = null;
                     }
                     /* var ticketassign = (from ta in dbContext.TBL_TICKET_ASSIGNMENT
                                          where ta.Id == ticketInfo.Ticket.Id

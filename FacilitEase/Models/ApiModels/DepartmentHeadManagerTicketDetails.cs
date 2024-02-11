@@ -9,6 +9,8 @@
         public string SubmittedDate { get; set; }
         public string priorityName { get; set; }
         public string statusName { get; set; }
+        
+        public string ForwardedBy { get; set; }
 
         public string Notes { get; set; }
         public string LastUpdate { get; set; }

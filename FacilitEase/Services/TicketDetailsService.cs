@@ -56,7 +56,7 @@ namespace FacilitEase.Services
             var totalCount = query.Count();
             var paginatedQuery = query.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
-            // Return the results in a paginated response object.
+            // Return the results in a paginated response obgit barncject.
             return new EmployeeTicketResponse<TicketDetailsDto>
             {
                 Data = paginatedQuery,
