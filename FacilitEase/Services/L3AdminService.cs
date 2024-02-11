@@ -559,7 +559,7 @@ namespace FacilitEase.Services
                   (joined, status) => new { joined.Ticket, joined.User, joined.Employee, joined.Detail, joined.Department, joined.Location, joined.Priority, Status = status }
               )
               // Filtering resolved tickets based on agentId and StatusId.
-              .Where(joined => joined.Ticket.ControllerId == agentId && joined.Ticket.StatusId == 6)
+              .Where(joined => joined.Ticket.AssignedTo == agentId && joined.Ticket.StatusId == 6)
               // Filtering resolved tickets based on searchQuery (if provided).
               .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
               // Selecting the desired fields and creating a new TicketResolveJoin object.
