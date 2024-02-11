@@ -764,7 +764,7 @@ namespace FacilitEase.Services
                 .Where(ticket => ticket.StatusId == escalatedStatusId)
                 .Where(ticket => categoriesForDepartment.Contains(ticket.CategoryId))
                 .Where(ticket => string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery))
-                .Select(ticket => new TicketApiModel
+                .Select(ticket => new FacilitEase.Models.ApiModels.TicketApiModel
                 {
                     Id = ticket.Id,
                     TicketName = ticket.TicketName,
@@ -794,7 +794,7 @@ namespace FacilitEase.Services
 
             // Apply Sorting
             if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
-            {
+            {   
                 string orderByString = $"{sortField} {sortOrder}";
                 queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
             }
