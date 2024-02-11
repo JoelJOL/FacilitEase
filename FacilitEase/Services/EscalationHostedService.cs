@@ -51,13 +51,16 @@ namespace FacilitEase.Services
                     {
                         ticketInfo.Ticket.ControllerId = null;
                     }
-                    /* var ticketassign = (from ta in dbContext.TBL_TICKET_ASSIGNMENT
-                                         where ta.Id == ticketInfo.Ticket.Id
-                                         select ta).FirstOrDefault();
-                     if (ticketassign != null)
-                     {
-                         ticketassign.EmployeeStatus = "escalated";
-                     }*/
+                }
+                foreach (var ticket in ticketsToEscalate)
+                {
+                    var ticketassign = (from ta in dbContext.TBL_TICKET_ASSIGNMENT
+                                        where ta.TicketId == ticket.Ticket.Id
+                                        select ta).FirstOrDefault();
+                    if (ticketassign != null)
+                    {
+                        ticketassign.EmployeeStatus = "escalated";
+                    }
                 }
 
                 dbContext.SaveChanges();
