@@ -13,6 +13,9 @@ namespace FacilitEase.Models.ApiModels
         public string TicketName { get; set; }
 
         public string EmployeeName { get; set; }
+
+        public string Department {  get; set; }
+        public string Location { get; set; }
         public string AssignedTo { get; set; }
 
         public string SubmittedDate { get; set; }
