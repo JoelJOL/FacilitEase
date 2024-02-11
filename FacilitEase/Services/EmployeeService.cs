@@ -179,7 +179,6 @@ namespace FacilitEase.Services
             return result;
         }
 
-
         /// <summary>
         /// Retrieve agents based on the RoleId, UserId and DepartmentId
         /// </summary>
@@ -244,7 +243,6 @@ namespace FacilitEase.Services
             return agents;
         }
 
-
         /// <summary>
         /// retrieve the detailed informations of the agents in a department
         /// </summary>
@@ -290,7 +288,6 @@ namespace FacilitEase.Services
             return agentDetails;
         }
 
-
         public IEnumerable<EmployeeDetails> GetEmployeeDetails(int empId)
         {
             var employeeDetails = from employee in _context.TBL_EMPLOYEE
@@ -311,6 +308,7 @@ namespace FacilitEase.Services
 
             return employeeDetails;
         }
+
         public List<ProjectEmployeeDetails> GetEmployeesByProject(int userId)
         {
             // Step 1: Get EmployeeId from TBL_USER

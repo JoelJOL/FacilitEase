@@ -1,4 +1,4 @@
-﻿    namespace FacilitEase.Models.EntityModels
+﻿namespace FacilitEase.Models.EntityModels
 {
     public class TBL_COMMENT
     {

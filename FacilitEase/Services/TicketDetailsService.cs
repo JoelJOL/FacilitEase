@@ -12,7 +12,6 @@ namespace FacilitEase.Services
         public TicketDetailsService(AppDbContext context)
         {
             _context = context;
-           
         }
 
         /// <summary>
@@ -92,7 +91,5 @@ namespace FacilitEase.Services
         /// </summary>
         /// <param name="ticketId"></param>
         /// <returns></returns>
-        
-
     }
 }
