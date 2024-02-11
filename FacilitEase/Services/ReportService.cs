@@ -144,14 +144,14 @@ namespace FacilitEase.Services
                           group ta by 1 into g
                           select new WeekReport
                           {
-                              DailyTickets = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime),
-                              DailyResolved = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime && ta.EmployeeStatus == "resolved"),
-                              DailyUnresolved = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime && ta.EmployeeStatus == "unresolved"),
-                              DailyEscalated = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime && ta.EmployeeStatus == "escalated"),
-                              WeeklyTickets = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek),//Total tickets that are between startdate and enddate of the current week
-                              WeeklyResolved = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek && ta.EmployeeStatus == "resolved"),//Resolved tickets that are between startdate and enddate of the current week
-                              WeeklyUnresolved = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek && ta.EmployeeStatus == "unresolved"),//Unresolved tickets that are between startdate and enddate of the current week
-                              WeeklyEscalated = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek && ta.TicketAssignedTimestamp.Date <= endDateOfWeek && ta.EmployeeStatus == "escalated")//Escalated tickets that are between startdate and enddate of the current week
+                              DailyTickets = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime.Date),
+                              DailyResolved = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime.Date && ta.EmployeeStatus == "resolved"),
+                              DailyUnresolved = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime.Date && ta.EmployeeStatus == "unresolved"),
+                              DailyEscalated = g.Count(ta => ta.TicketAssignedTimestamp.Date == currentDateTime.Date && ta.EmployeeStatus == "escalated"),
+                              WeeklyTickets = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek.Date && ta.TicketAssignedTimestamp.Date <= endDateOfWeek.Date),//Total tickets that are between startdate and enddate of the current week
+                              WeeklyResolved = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek.Date && ta.TicketAssignedTimestamp.Date <= endDateOfWeek.Date && ta.EmployeeStatus == "resolved"),//Resolved tickets that are between startdate and enddate of the current week
+                              WeeklyUnresolved = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek.Date && ta.TicketAssignedTimestamp.Date <= endDateOfWeek.Date && ta.EmployeeStatus == "unresolved"),//Unresolved tickets that are between startdate and enddate of the current week
+                              WeeklyEscalated = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek.Date && ta.TicketAssignedTimestamp.Date <= endDateOfWeek.Date && ta.EmployeeStatus == "escalated")//Escalated tickets that are between startdate and enddate of the current week
                           }).FirstOrDefault();
             return weekReport;
         }
