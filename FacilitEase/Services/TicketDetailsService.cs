@@ -42,7 +42,7 @@ namespace FacilitEase.Services
                             Status = ts.StatusName,
                             AssignedTo = e != null ? e.FirstName : null,  // Check for null to handle left join
                             Priority = tp.PriorityName,
-                            SubmittedDate = t.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
+                            SubmittedDate = t.SubmittedDate.ToString("dd-MM-yy hh:mm:tt"),
                         };
 
             // Apply Sorting
@@ -51,10 +51,10 @@ namespace FacilitEase.Services
                 string orderByString = $"{sortField} {sortOrder}";
                 query = query.OrderBy(orderByString);
             }
-
+            var queryList = query.ToList();
             // Apply Pagination
-            var totalCount = query.Count();
-            var paginatedQuery = query.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            var totalCount = queryList.Count();
+            var paginatedQuery = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
             // Return the results in a paginated response obgit barncject.
             return new EmployeeTicketResponse<TicketDetailsDto>
