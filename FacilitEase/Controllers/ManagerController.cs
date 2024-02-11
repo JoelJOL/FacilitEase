@@ -40,7 +40,7 @@ namespace FacilitEase.Controllers
         {
             try
             {
-                var tickets = _ticketService.GetTicketByManager(managerId, sortField, sortOrder, pageIndex, pageSize, searchQuery);
+                var tickets = _ticketService.GetLiveTicketByManager(managerId, sortField, sortOrder, pageIndex, pageSize, searchQuery);
                 return Ok(tickets);
             }
             catch (Exception ex)
@@ -77,7 +77,7 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpPost("ChangePriority")]
+        [HttpPatch("ChangePriority")]
         public IActionResult ChangePriority([FromBody] ChangePriority request)
         {
             try
@@ -91,7 +91,7 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpPost("SendForApproval")]
+        [HttpPatch("SendForApproval")]
         public IActionResult SendForApproval([FromBody] ChangeController request)
         {
             try
@@ -105,7 +105,7 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpPost("TicketDecision")]
+        [HttpPatch("TicketDecision")]
         public IActionResult TicketDecision([FromBody] ChangeStatus request)
         {
             try
