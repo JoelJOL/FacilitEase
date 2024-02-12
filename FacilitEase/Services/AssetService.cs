@@ -1,4 +1,4 @@
-﻿using FacilitEase.Data;
+using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
 using System.Linq.Dynamic.Core;
 
