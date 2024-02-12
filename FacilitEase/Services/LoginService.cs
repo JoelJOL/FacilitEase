@@ -2,6 +2,7 @@
 using FacilitEase.Models.EntityModels;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Resources;
 using System.Security.Claims;
 using System.Text;
 
@@ -11,6 +12,7 @@ namespace FacilitEase.Services
     {
         private readonly AppDbContext _context;
         private readonly IConfiguration _config;
+        ResourceManager resourceManager = new ResourceManager("FacilitEase.Resource", typeof(Program).Assembly);
 
         public LoginService(AppDbContext context, IConfiguration config)
         {
@@ -45,7 +47,7 @@ namespace FacilitEase.Services
                                       where e.Email == username
                                       select e.Id).FirstOrDefault();
                     roleMap.UserRoleId = (from r in _context.TBL_USER_ROLE
-                                          where r.UserRoleName == "Employeee"
+                                          where r.UserRoleName == resourceManager.GetString("Employee")
                                           select r.Id).FirstOrDefault();
                     _context.TBL_USER_ROLE_MAPPING.Add(roleMap);
                     _context.SaveChanges();

@@ -9,6 +9,7 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http.HttpResults;
 using System.Net.Sockets;
+using Microsoft.Graph.Models;
 
 namespace FacilitEase.Services
 {
@@ -513,11 +514,14 @@ namespace FacilitEase.Services
                                          SubmittedDate = ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                                          EmployeeName = $"{employee.FirstName} {employee.LastName}",
                                          ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : null,
+                                         AssignedTo = _context.TBL_EMPLOYEE
+                        .Where(employee => employee.Id == ticket.AssignedTo)
+                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                        .FirstOrDefault(),
                                          ManagerId = employee.ManagerId,
                                          LocationName = location.LocationName,
                                          DeptName = department.DeptName,
                                          DocumentLink = "new",
-                                         ProjectCode = 111,
                                      })
         .ToList();  // Materialize the main query first
             Console.WriteLine(ticketDetailsList);
@@ -569,7 +573,7 @@ namespace FacilitEase.Services
      .Where(ticket => (ticket.AssignedTo == null || ticket.AssignedTo == 0) &&
                       categoriesForDepartment.Contains(ticket.CategoryId))
      .Where(ticket => string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery))
-     .Select(ticket => new UnassignedTicketModel
+     .Select(ticket => new
      {
          Id = ticket.Id,
          TicketName = ticket.TicketName,
@@ -580,7 +584,7 @@ namespace FacilitEase.Services
                  .FirstOrDefault())
              .Select(employee => $"{employee.FirstName} {employee.LastName}")
              .FirstOrDefault(),
-         SubmittedDate = ticket.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
+         SubmittedDate = ticket.SubmittedDate,
          Priority = _context.TBL_PRIORITY
              .Where(priority => priority.Id == ticket.PriorityId)
              .Select(priority => priority.PriorityName)
@@ -625,15 +629,26 @@ namespace FacilitEase.Services
                 string orderByString = $"{sortField} {sortOrder}";
                 queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
             }
+            var finalQueryList = queryList.Select(q => new UnassignedTicketModel
+            {
+                Id = q.Id,
+                TicketName = q.TicketName,
+                RaisedBy = q.RaisedBy,
+                SubmittedDate = q.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                Priority = q.Priority,
+                Status = q.Status,
+                Department = q.Department,
+                Location = q.Location
 
+            }).ToList();
             // Apply Pagination
-            var totalCount = queryList.Count();
-            queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            var totalCount = unassignedTicketsQuery.Count();
+            finalQueryList = finalQueryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
             // Return the result in the ManagerTicketResponse format
             return new ManagerTicketResponse<UnassignedTicketModel>
             {
-                Data = queryList,
+                Data = finalQueryList,
                 TotalDataCount = totalCount
             };
         }
@@ -730,7 +745,7 @@ namespace FacilitEase.Services
                 .Where(ticket => ticket.AssignedTo != null &&
                                  categoriesForDepartment.Contains(ticket.CategoryId))
                 .Where(ticket => string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery))
-                .Select(ticket => new TicketApiModel
+                .Select(ticket => new 
                 {
                     Id = ticket.Id,
                     TicketName = ticket.TicketName,
@@ -745,7 +760,7 @@ namespace FacilitEase.Services
                             .FirstOrDefault())
                         .Select(employee => $"{employee.FirstName} {employee.LastName}")
                         .FirstOrDefault(),
-                    SubmittedDate = ticket.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                    SubmittedDate = ticket.SubmittedDate,
                     Priority = _context.TBL_PRIORITY
                         .Where(priority => priority.Id == ticket.PriorityId)
                         .Select(priority => priority.PriorityName)
@@ -790,15 +805,27 @@ namespace FacilitEase.Services
                 string orderByString = $"{sortField} {sortOrder}";
                 queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
             }
+            var finalQueryList = queryList.Select(q => new TicketApiModel
+            {
+                Id = q.Id,
+                TicketName = q.TicketName,
+                AssignedTo = q.AssignedTo,
+                RaisedBy = q.RaisedBy,
+                SubmittedDate = q.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                Priority = q.Priority,
+                Status = q.Status,
+                Department = q.Department,
+                Location = q.Location
 
+            }).ToList();
             // Apply Pagination
-            var totalCount = queryList.Count();
-            queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            var totalCount = assignedTicketsQuery.Count();
+            finalQueryList = finalQueryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
             // Return the result in the ManagerTicketResponse format
             return new ManagerTicketResponse<TicketApiModel>
             {
-                Data = queryList,
+                Data = finalQueryList,
                 TotalDataCount = totalCount
             };
         }
@@ -856,7 +883,7 @@ namespace FacilitEase.Services
                 .Where(ticket => categoriesForDepartment.Contains(ticket.CategoryId))
                 .Where(ticket => l3AdminEmployeeIds.Contains(ticket.AssignedTo.Value))
                 .Where(ticket => string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery))
-                .Select(ticket => new FacilitEase.Models.ApiModels.TicketApiModel
+                .Select(ticket => new 
                 {
                     Id = ticket.Id,
                     TicketName = ticket.TicketName,
@@ -867,7 +894,7 @@ namespace FacilitEase.Services
                             .FirstOrDefault())
                         .Select(employee => $"{employee.FirstName} {employee.LastName}")
                         .FirstOrDefault(),
-                    SubmittedDate = ticket.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                    SubmittedDate = ticket.SubmittedDate,
                     Priority = _context.TBL_PRIORITY
                         .Where(priority => priority.Id == ticket.PriorityId)
                         .Select(priority => priority.PriorityName)
@@ -916,15 +943,27 @@ namespace FacilitEase.Services
                 string orderByString = $"{sortField} {sortOrder}";
                 queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
             }
+            var finalQueryList = queryList.Select(q => new TicketApiModel
+            {
+                Id = q.Id,
+                TicketName = q.TicketName,
+                RaisedBy = q.RaisedBy,
+                AssignedTo = q.AssignedTo,
+                SubmittedDate = q.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                Priority = q.Priority,
+                Status = q.Status,
+                Department = q.Department,
+                Location = q.Location
 
+            }).ToList();
             // Apply Pagination
-            var totalCount = queryList.Count();
-            queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            var totalCount = escalatedTicketsQuery.Count();
+            finalQueryList = finalQueryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
             // Return the result in the ManagerTicketResponse format
             return new ManagerTicketResponse<TicketApiModel>
             {
-                Data = queryList,
+                Data = finalQueryList,
                 TotalDataCount = totalCount
             };
         }
