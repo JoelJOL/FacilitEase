@@ -141,7 +141,7 @@ namespace FacilitEase.Controllers
         }
 
         [HttpPatch("EditSLA")]
-        public IActionResult EditSla([FromBody] SLAInfo request)
+        public IActionResult EditSla([FromBody] EditSLAInfo request)
         {
             try
             {
