@@ -29,18 +29,19 @@ namespace FacilitEase.Services
 
         }
 
-        public List<SLAInfo> GetSLAInfo(int userid)
+        public List<ShowSLAInfo> GetSLAInfo(int userid)
         {
             var slaInfo = from user in _context.TBL_USER
                            join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
                            join employeedetail in _context.TBL_EMPLOYEE_DETAIL on employee.Id equals employeedetail.EmployeeId
                            join department in _context.TBL_DEPARTMENT on employeedetail.DepartmentId equals department.Id
                            join sla in _context.TBL_SLA on department.Id equals sla.DepartmentId
-                            where user.Id == userid
-                           select new SLAInfo
+                           join priority in _context.TBL_PRIORITY on sla.PriorityId equals priority.Id
+                           where user.Id == userid
+                           select new ShowSLAInfo
                             {
                                 DepartmentId = sla.DepartmentId,
-                                PriorityId = sla.PriorityId,
+                                PriorityName = priority.PriorityName,
                                 Time = sla.Time
 
                             };
