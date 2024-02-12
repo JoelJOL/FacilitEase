@@ -1,5 +1,6 @@
 ﻿using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
+using System.Linq;
 using System.Linq.Dynamic.Core;
 
 namespace FacilitEase.Services
@@ -46,15 +47,15 @@ namespace FacilitEase.Services
                                 Status = ts.StatusName,
                                
                             };
-
+            var queryTicketList = query.ToList(); 
                 // Apply Sorting
                 if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
                 {
                     string orderByString = $"{sortField} {sortOrder}";
-                    query = query.OrderBy(orderByString);
+                queryTicketList = queryTicketList.AsQueryable().OrderBy(orderByString).ToList();
                 }
 
-                var queryList = query.AsEnumerable().Select(t => new TicketDetailsDto
+                var queryList = queryTicketList.AsEnumerable().Select(t => new TicketDetailsDto
                 {
                     Id = t.Id,
                     TicketName = t.TicketName,

@@ -1,4 +1,5 @@
-﻿using FacilitEase.Services;
+﻿using FacilitEase.Models.ApiModels;
+using FacilitEase.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FacilitEase.Controllers
