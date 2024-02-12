@@ -16,15 +16,15 @@ namespace FacilitEase.Services
     {
         private readonly ITicketRepository _ticketRepository;
         private readonly IDocumentRepository _documentRepository;
-        private readonly IUnitOfWork _unitOfWork;//Avinash Abhijith
-        private readonly AppDbContext _context;//Abhijith
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly AppDbContext _context;
 
         public TicketService(AppDbContext context, ITicketRepository ticketRepository, IDocumentRepository documentRepository, IUnitOfWork unitOfWork)
         {
             _context = context;
             _ticketRepository = ticketRepository;
             _documentRepository = documentRepository;
-            _unitOfWork = unitOfWork;//Avinash
+            _unitOfWork = unitOfWork;
         }
 
         //Avinash
