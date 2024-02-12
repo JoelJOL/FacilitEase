@@ -25,8 +25,8 @@ namespace FacilitEase.Services
                                      Id = asset.Id,
                                      AssetName = asset.AssetName,
                                      WarrantyInfo = asset.WarrantyInfo,
-                                     LastMaintenanceDate = asset.LastMaintenanceDate,
-                                     NextMaintenanceDate = asset.NextMaintenanceDate,
+                                     LastMaintenanceDate = asset.LastMaintenanceDate.Value.ToString("yyyy-MM-dd hh:mm tt"),
+                                     NextMaintenanceDate = asset.NextMaintenanceDate.Value.ToString("yyyy-MM-dd hh:mm tt"),
                                      AssetType = assetType.Type
                                  };
 
@@ -61,8 +61,8 @@ namespace FacilitEase.Services
                                             Id = asset.Id,
                                             AssetName = asset.AssetName,
                                             WarrantyInfo = asset.WarrantyInfo,
-                                            LastMaintenanceDate = asset.LastMaintenanceDate,
-                                            NextMaintenanceDate = asset.NextMaintenanceDate,
+                                            LastMaintenanceDate = asset.LastMaintenanceDate.Value.ToString("yyyy-MM-dd hh:mm tt"),
+                                            NextMaintenanceDate = asset.NextMaintenanceDate.Value.ToString("yyyy-MM-dd hh:mm tt"),
                                             AssetType = assetType.Type
                                         };
 
@@ -90,16 +90,16 @@ namespace FacilitEase.Services
             var query = from asset in _context.TBL_ASSET
                         join status in _context.TBL_ASSET_STATUS on asset.StatusId equals status.Id
                         join assetType in _context.TBL_ASSET_TYPE on asset.TypeId equals assetType.Id
-                        where status.Id == 2 && asset.Id == unassignedAssetId
+                        where asset.Id == unassignedAssetId
                         select new Asset
                         {
                             Id = asset.Id,
                             AssetName = asset.AssetName,
                             WarrantyInfo = asset.WarrantyInfo,
-                            LastMaintenanceDate = asset.LastMaintenanceDate,
-                            NextMaintenanceDate = asset.NextMaintenanceDate,
+                            LastMaintenanceDate = asset.LastMaintenanceDate.Value.ToString("yyyy-MM-dd hh:mm tt"),
+                            NextMaintenanceDate = asset.NextMaintenanceDate.Value.ToString("yyyy-MM-dd hh:mm tt"),
                             AssetType = assetType.Type,
-                            PurchaseDate = asset.PurchaseDate,
+                            PurchaseDate = asset.PurchaseDate.Value.ToString("yyyy-MM-dd hh:mm tt"),
                         };
 
             return query.SingleOrDefault();
