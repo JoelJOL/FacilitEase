@@ -39,5 +39,30 @@ namespace FacilitEase.Controllers
             var unassignedAssets = _assetService.GetUnassignedAssets(sortField, sortOrder, pageIndex, pageSize, searchQuery);
             return Ok(unassignedAssets);
         }
+        [HttpGet("assets/unassigned-asset-details{unassignedAssetId}")]
+        public ActionResult<Asset> GetUnassignedAssetDetails(int unassignedAssetId)
+        {
+            var assetDetails = _assetService.GetUnassignedAssetDetails(unassignedAssetId);
+
+            if (assetDetails == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(assetDetails);
+        }
+
+        [HttpGet("assets/asset-history{unassignedAssetId}")]
+        public ActionResult<AssetHistory> GetDetailsForUnassignedAsset(int unassignedAssetId)
+        {
+            var assetHistory = _assetService.GetDetailsForUnassignedAsset(unassignedAssetId);
+
+            if (assetHistory == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(assetHistory);
+        }
     }
 }
