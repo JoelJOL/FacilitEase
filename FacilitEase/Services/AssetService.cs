@@ -104,12 +104,12 @@ namespace FacilitEase.Services
 
             return query.SingleOrDefault();
         }
-        public AssetHistory GetDetailsForUnassignedAsset(int unassignedAssetId)
+        public List<AssetHistory> GetDetailsForUnassignedAsset(int unassignedAssetId)
         {
             var query = from mapping in _context.TBL_ASSET_EMPLOYEE_MAPPING
                         join user in _context.TBL_USER on mapping.AssignedTo equals user.Id
                         join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
-                        where mapping.Id == unassignedAssetId && mapping.Status == "Unassigned"
+                        where mapping.AssetId == unassignedAssetId && mapping.Status == "Unassigned"
                         select new AssetHistory
                         {
                             Id = mapping.AssetId,
@@ -118,9 +118,10 @@ namespace FacilitEase.Services
                             ToDate = mapping.ToDate
                         };
 
-            return query.SingleOrDefault();
+            return query.ToList();
         }
 
+
     }
-\}
+}
 
