@@ -8,6 +8,6 @@ namespace FacilitEase.Services
 
         UnassignedAssetResponse<Asset> GetUnassignedAssets(string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
         Asset GetUnassignedAssetDetails(int unassignedAssetId);
-        AssetHistory GetDetailsForUnassignedAsset(int unassignedAssetId);
+        List<AssetHistory> GetDetailsForUnassignedAsset(int unassignedAssetId);
     }
 }
