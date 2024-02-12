@@ -3,18 +3,16 @@ using FacilitEase.Models.EntityModels;
 using FacilitEase.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace FacilitEase.Controllers
 {
-
     [EnableCors("AllowAngularDev")]
     [ApiController]
     [Route("api/[controller]")]
     public class L3AdminController : ControllerBase
     {
         private readonly IL3AdminService _adminService;
+        private readonly ITicketService _ticketService;
         private readonly ILogger<L3AdminController> _logger;
 
         public L3AdminController(IL3AdminService adminService, ILogger<L3AdminController> logger)
@@ -90,7 +88,6 @@ namespace FacilitEase.Controllers
             }
         }
 
-
         [HttpGet("forward-ticket/{ticketId}/{managerId}")]
         public IActionResult ForwardRaisedTicketStatus([FromRoute] int ticketId, [FromRoute] int managerId)
         {
@@ -122,7 +119,6 @@ namespace FacilitEase.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
-
 
         [HttpGet("GetRaisedTicketsByAgent/{agentId}")]
         public IActionResult GetTicketsByAgent(
@@ -168,8 +164,6 @@ namespace FacilitEase.Controllers
             }
         }
 
-
-
         [HttpGet("GetOnHoldTicketsByAgent/{agentId}")]
         public IActionResult GetOnHoldTicketsByAgent(
      int agentId,
@@ -213,7 +207,6 @@ namespace FacilitEase.Controllers
                 return BadRequest($"An error occurred: {ex.Message}");
             }
         }
-
 
         [HttpGet("ticketdetail-by-agent/{ticketId}")]
         public IActionResult GetTicketDetailByAgent([FromRoute] int ticketId)
@@ -269,8 +262,6 @@ namespace FacilitEase.Controllers
             }
         }
 
-
-
         [HttpGet("ticket-commenttext/{ticketId}")]
         public ActionResult<string> GetCommentTextByTicketId(int ticketId)
         {
@@ -294,6 +285,29 @@ namespace FacilitEase.Controllers
             }
         }
 
+        [HttpDelete("delete-comment/{ticketId}")]
+        public async Task<IActionResult> DeleteComment(int ticketId)
+        {
+            try
+            {
+                var isDeleted = await _adminService.DeleteCommentAsync(ticketId);
+                if (isDeleted)
+                {
+                    return Ok("Comment deleted successfully"); // Return plain text
+                }
+                else
+                {
+                    return NotFound("Comment not found"); // Return plain text
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log or handle the exception as needed
+                Console.WriteLine($"Error deleting comment: {ex.Message}");
+                return StatusCode(500, "An error occurred while deleting the comment"); // Return plain text
+            }
+        }
+
         [HttpPatch("update-comment/{ticketId}")]
         public IActionResult UpdateComment([FromRoute] int ticketId, [FromBody] UpdateCommentDto model)
         {
@@ -310,7 +324,17 @@ namespace FacilitEase.Controllers
             }
         }
 
+        [HttpGet("TimeSinceLastUpdate/{ticketId}")]
+        public IActionResult GetTimeSinceLastUpdate(int ticketId)
+        {
+            string timeSinceLastUpdate = _adminService.GetTimeSinceLastUpdate(ticketId);
 
+            if (timeSinceLastUpdate != null)
+            {
+                return Ok(timeSinceLastUpdate);
+            }
 
+            return NotFound("None");
+        }
     }
 }

@@ -1,59 +1,22 @@
-﻿using Mailjet.Client;
-using System.Net.Mail;
-using Mailjet.Client.Resources;
-using System;
-using System.Threading.Tasks;
-using Mailjet.Client.Resources;
-using Newtonsoft.Json.Linq;
-using System.Net;
-using Microsoft.EntityFrameworkCore;
-using FacilitEase.Data;
-using FacilitEase.Repositories;
-using FacilitEase.UnitOfWork;
+﻿using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
+using System.Net.Mail;
 
 namespace FacilitEase.Services
 {
     public class MailJetService
     {
         private readonly string apiKey = DotNetEnv.Env.GetString("MailJetApiKey");
-        private readonly string apiSecret = DotNetEnv.Env.GetString("MailJetSecretKey");
+        private readonly string apiSecret = DotNetEnv.Env.GetString("MailApiSecretKey");
         private readonly AppDbContext _context;//Abhijith
-        
+
         public MailJetService(AppDbContext context)
         {
             _context = context;
         }
 
-
-        /* public async Task SendEmailAsync(string toEmail, string subject, string body)
-         {
-             using (var client = new SmtpClient("in-v3.mailjet.com"))
-             {
-                 client.UseDefaultCredentials = false;
-                 client.Credentials = new NetworkCredential(apiKey, apiSecret);
-
-                 var mailMessage = new MailMessage
-                 {
-                     From = new MailAddress("nathanielyeldo22@gmail.com", "Nathaniel Yeldo"),
-                     Subject = subject,
-                     Body = body,
-                 };
-
-                 mailMessage.To.Add(new MailAddress(toEmail));
-
-                 try
-                 {
-                     await client.SendMailAsync(mailMessage);
-                     Console.WriteLine(mailMessage);
-                     Console.WriteLine("Email sent successfully!");
-                 }
-                 catch (Exception ex)
-                 {
-                     Console.WriteLine($"Failed to send email: {ex.Message}");
-                 }
-             }
-         }*/
         public async Task<UserEmail> GetUserEmailByIdAsync(int userId)
         {
             Console.WriteLine(apiKey);
@@ -87,6 +50,8 @@ namespace FacilitEase.Services
             using (var client = new SmtpClient("in-v3.mailjet.com"))
             {
                 client.UseDefaultCredentials = false;
+                Console.WriteLine(apiKey);
+                Console.WriteLine(apiSecret);
                 client.Credentials = new NetworkCredential(apiKey, apiSecret);
 
                 var mailMessage = new MailMessage
@@ -103,7 +68,6 @@ namespace FacilitEase.Services
                     await client.SendMailAsync(mailMessage);
                     Console.WriteLine("Email sent successfully!");
                     await SendAcknowledgementEmail(toEmail);
-
                 }
                 catch (Exception ex)
                 {
@@ -134,54 +98,12 @@ namespace FacilitEase.Services
                 {
                     await client.SendMailAsync(mailMessage);
                     Console.WriteLine("Acknowledgement Email sent successfully!");
-
-
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Failed to send email: {ex.Message}");
                 }
             }
-            /*private string GetUserEmailAddress()
-            {
-                // Replace this with your actual logic to get the user's email from another API
-                // For demonstration purposes, returning a dummy email address
-                return "user@example.com";
-            }
-
-            public async Task SendEmailAsync(string body)
-            {
-                try
-                {
-                    // Get user's email address from another API
-                    string toEmail = GetUserEmailAddress();
-
-                    // Hardcoded subject
-                    string subject = "Query For Support";
-
-                    using (var client = new SmtpClient("in-v3.mailjet.com"))
-                    {
-                        client.UseDefaultCredentials = false;
-                        client.Credentials = new NetworkCredential(apiKey, apiSecret);
-
-                        var mailMessage = new MailMessage
-                        {
-                            From = new MailAddress("nathanielyeldo22@gmail.com", "Nathaniel Yeldo"),
-                            Subject = subject,
-                            Body = body,
-                        };
-
-                        mailMessage.To.Add(new MailAddress(toEmail));
-
-                        await client.SendMailAsync(mailMessage);
-                        Console.WriteLine("Email sent successfully!");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Failed to send email: {ex.Message}");
-                }
-            }*/
         }
     }
 }

@@ -2,8 +2,6 @@ using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Net.Http.Headers;
 
 namespace FacilitEase.Controllers
 {
@@ -35,7 +33,6 @@ namespace FacilitEase.Controllers
             _employeeService = employeeService;
             _ticketDetailsService = ticketDetailsService;
             _commentService = commentService;
-            
         }
 
         [HttpGet("departments")]
@@ -44,6 +41,7 @@ namespace FacilitEase.Controllers
             var departments = _departmentService.GetDepartments();
             return Ok(departments);
         }
+
         [HttpGet("positions")]
         public ActionResult<IEnumerable<TBL_POSITION>> GetPositions()
         {
@@ -82,13 +80,11 @@ namespace FacilitEase.Controllers
             }
             catch (Exception ex)
             {
-                
                 return BadRequest(new { Message = $"Error creating ticket: {ex.Message}" });
             }
         }
-       
 
-    [HttpPost("AddEmployees")]
+        [HttpPost("AddEmployees")]
         public IActionResult AddEmployees([FromBody] IEnumerable<EmployeeInputModel> employeeInputs)
         {
             if (employeeInputs == null || !employeeInputs.Any())
@@ -124,7 +120,7 @@ namespace FacilitEase.Controllers
         [HttpPatch("cancel-request/{ticketId}")]
         public IActionResult RequestToCancelTicket(int ticketId)
         {
-            bool success = _ticketDetailsService.RequestToCancelTicket(ticketId);
+            bool success = _ticketService.RequestToCancelTicket(ticketId);
 
             if (success)
             {
@@ -135,6 +131,7 @@ namespace FacilitEase.Controllers
                 return NotFound(new { Message = "Ticket not found or cancellation request failed." });
             }
         }
+
         [HttpGet("tickets/{userId}")]
         public IActionResult GetTicketDetailsByUserId(int userId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
@@ -147,7 +144,6 @@ namespace FacilitEase.Controllers
 
             return Ok(ticketDetails);
         }
-
 
         [HttpGet("ticket/{ticketId}")]
         public IActionResult GetTicketDetailsById(int ticketId)
@@ -215,7 +211,26 @@ namespace FacilitEase.Controllers
         {
             return Ok(_employeeService.GetEmployeeDetails(id));
         }
-        
+
+        [HttpGet("employeesByProject/{userId}")]
+        public ActionResult<IEnumerable<ProjectEmployeeDetails>> GetEmployeesByProject(int userId)
+        {
+            try
+            {
+                var employeesByProject = _employeeService.GetEmployeesByProject(userId);
+
+                if (employeesByProject.Count == 0)
+                {
+                    return NotFound("No employees found for the specified user and project.");
+                }
+
+                return Ok(employeesByProject);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it appropriately
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
     }
-    
 }

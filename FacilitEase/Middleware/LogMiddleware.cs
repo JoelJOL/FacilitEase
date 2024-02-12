@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging; // Add this for ILogger
-using System.Threading.Tasks;
-
-namespace FacilitEase.Middleware
+﻿namespace FacilitEase.Middleware
 {
     public class LogMiddleware
     {

@@ -8,6 +8,5 @@ namespace FacilitEase.Models.ApiModels
     {
         public bool IsApproved { get; set; }
         public int? ControllerId { get; set; }
-
     }
 }

@@ -4,5 +4,4 @@
     {
         Task MonitorTicketChanges(CancellationToken cancellationToken);
     }
-
 }

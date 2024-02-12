@@ -1,11 +1,7 @@
 ﻿using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
-using FacilitEase.Models.EntityModels;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Dynamic.Core;
+
 namespace FacilitEase.Services
 {
     public class AssetService : IAssetService
@@ -52,8 +48,6 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
-
-
 
         public UnassignedAssetResponse<Asset> GetUnassignedAssets(string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
@@ -128,6 +122,5 @@ namespace FacilitEase.Services
         }
 
     }
-}
-
+\}
 

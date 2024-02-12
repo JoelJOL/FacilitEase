@@ -2,8 +2,6 @@
 {
     public class Asset
     {
-
-
             public int Id { get; set; }
             public string AssetName { get; set; }
             public string? WarrantyInfo { get; set; }
@@ -12,8 +10,6 @@
             public string AssetType { get; set; }
 
             public DateTime PurchaseDate { get; set; }  
-        
+
     }
-
 }
-

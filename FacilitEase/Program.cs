@@ -1,3 +1,4 @@
+using DotNetEnv;
 using FacilitEase.Data;
 using FacilitEase.Hubs;
 using FacilitEase.Models.EntityModels;
@@ -10,8 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using DotNetEnv;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,14 +26,14 @@ builder.Services.AddSignalR();
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
 
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularDev", builder =>
     {
         builder.WithOrigins("http://localhost:4200")
                .AllowAnyHeader()
-               .AllowAnyMethod();
+               .AllowAnyMethod()
+                 .AllowCredentials();
     });
 });
 string connectionString = Env.GetString("ConnectionStrings__DefaultConnection");
@@ -43,11 +42,6 @@ var jwtIssuer = Env.GetString("JWT__Issuer");
 var jwtAudience = Env.GetString("JWT__Audience");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
-
-builder.Services.AddAuthorization(options =>
-{
-    // Add your authorization policies here
-});
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -63,7 +57,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
     });
-
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
@@ -82,7 +75,6 @@ builder.Services.AddScoped<IL3AdminService, L3AdminService>();
 builder.Services.AddScoped<IPriorityService, PriorityService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-builder.Services.AddScoped<IL3AdminService, L3AdminService>();
 builder.Services.AddScoped<IRepository<TBL_TICKET>, Repository<TBL_TICKET>>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IPositionRepository, PositionRepository>();
@@ -96,10 +88,12 @@ builder.Services.AddScoped<IManagerService, ManagerService>();
 builder.Services.AddScoped<IL1AdminService, L1AdminService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IAssetService, AssetService>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IAzureRoleManagementService, AzureRoleManagementService>();
+builder.Services.AddScoped<ISLAService, SLAService>();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(); 
+builder.Services.AddSwaggerGen();
 builder.Services.AddHostedService<NotificationService>();
 builder.Services.Configure<FormOptions>(o =>
 {
@@ -130,13 +124,19 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
+
+
+
+/*app.UseTokenValidationMiddleware("https://login.microsoftonline.com/5b751804-232f-410d-bb2f-714e3bb466eb/v2.0", "d7104f84-ab29-436f-8f06-82fcf8d81381");
+*/
 app.UseRouting();
 app.UseCors("AllowAngularDev");
 
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
-    endpoints.MapHub<NotificationHub>("/notificationHub"); // Map the NotificationHub
+    endpoints.MapHub<NotificationHub>("/notificationHub").RequireCors("AllowAngularDev");
 });
 
 //app.UseMiddleware<LogMiddleware>();
@@ -148,13 +148,7 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = new PathString("/Resources")
 });
 
-app.UseCors("AllowAngularDev");
-
-app.UseHttpsRedirection();
 app.UseAuthorization();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
+app.UseHttpsRedirection();
 
 app.Run();

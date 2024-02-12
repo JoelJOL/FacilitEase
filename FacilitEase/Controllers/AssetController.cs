@@ -1,5 +1,4 @@
-﻿using FacilitEase.Models.ApiModels;
-using FacilitEase.Services;
+﻿using FacilitEase.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FacilitEase.Controllers
@@ -7,6 +6,7 @@ namespace FacilitEase.Controllers
     public class AssetController : ControllerBase
     {
         private readonly IAssetService _assetService;
+
         public AssetController(IAssetService assetService)
         {
             _assetService = assetService;
@@ -18,6 +18,7 @@ namespace FacilitEase.Controllers
             var assets = _assetService.GetAssetsByEmployeeId(employeeId, sortField, sortOrder, pageIndex, pageSize, searchQuery);
             return Ok(assets);
         }
+
         /*[HttpPost("assign-unassigned-assets/{employeeId}")]
         public IActionResult AssignUnassignedAssets(int employeeId)
         {
@@ -33,8 +34,7 @@ namespace FacilitEase.Controllers
         }*/
 
         [HttpGet("assets/unassigned-assets")]
-
-        public IActionResult GetUnassignedAssets(string sortField, string sortOrder, int pageIndex , int pageSize, string searchQuery)
+        public IActionResult GetUnassignedAssets(string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             var unassignedAssets = _assetService.GetUnassignedAssets(sortField, sortOrder, pageIndex, pageSize, searchQuery);
             return Ok(unassignedAssets);
@@ -64,6 +64,5 @@ namespace FacilitEase.Controllers
 
             return Ok(assetHistory);
         }
-
     }
 }

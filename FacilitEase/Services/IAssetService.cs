@@ -5,10 +5,9 @@ namespace FacilitEase.Services
     public interface IAssetService
     {
         EmployeeAssetsResponse<Asset> GetAssetsByEmployeeId(int employeeId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
+
         UnassignedAssetResponse<Asset> GetUnassignedAssets(string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
-  
         Asset GetUnassignedAssetDetails(int unassignedAssetId);
         AssetHistory GetDetailsForUnassignedAsset(int unassignedAssetId);
     }
-
 }
