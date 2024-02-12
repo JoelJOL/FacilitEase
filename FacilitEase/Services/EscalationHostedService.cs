@@ -52,7 +52,7 @@ namespace FacilitEase.Services
                         ticketInfo.Ticket.ControllerId = null;
                     }
                 }
-                foreach (var ticket in ticketsToEscalate)
+                /*foreach (var ticket in ticketsToEscalate)
                 {
                     var ticketassign = (from ta in dbContext.TBL_TICKET_ASSIGNMENT
                                         where ta.TicketId == ticket.Ticket.Id
@@ -61,7 +61,7 @@ namespace FacilitEase.Services
                     {
                         ticketassign.EmployeeStatus = "escalated";
                     }
-                }
+                }*/
 
                 dbContext.SaveChanges();
             }
