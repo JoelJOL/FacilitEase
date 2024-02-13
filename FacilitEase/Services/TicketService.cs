@@ -96,7 +96,12 @@ namespace FacilitEase.Services
                             TicketName = ticket.TicketName,
                             EmployeeName = $"{employee.FirstName} {employee.LastName}",
                             Location = location.LocationName,
-                            AssignedTo = $"{_context.TBL_EMPLOYEE.Where(emp => emp.Id == ticket.AssignedTo).Select(emp => $"{emp.FirstName} {emp.LastName}").FirstOrDefault()}",
+                            AssignedTo = ticket.AssignedTo != null
+    ? _context.TBL_EMPLOYEE
+        .Where(emp => emp.Id == ticket.AssignedTo)
+        .Select(emp => $"{emp.FirstName} {emp.LastName}")
+        .FirstOrDefault()
+    : "-------",
                             SubmittedDate = ticket.SubmittedDate,
                             Priority = $"{priority.PriorityName}",
                             Status = $"{status.StatusName}",
@@ -162,7 +167,12 @@ namespace FacilitEase.Services
                             TicketName = ticket.TicketName,
                             EmployeeName = $"{employee.FirstName} {employee.LastName}",
                             Location = location.LocationName,
-                            AssignedTo = $"{_context.TBL_EMPLOYEE.Where(emp => emp.Id == ticket.AssignedTo).Select(emp => $"{emp.FirstName} {emp.LastName}").FirstOrDefault()}",
+                            AssignedTo = ticket.AssignedTo != null
+    ? _context.TBL_EMPLOYEE
+        .Where(emp => emp.Id == ticket.AssignedTo)
+        .Select(emp => $"{emp.FirstName} {emp.LastName}")
+        .FirstOrDefault()
+    : "-------",
                             SubmittedDate = ticket.SubmittedDate,
                             Priority = $"{priority.PriorityName}",
                             Status = $"{status.StatusName}",
@@ -267,7 +277,12 @@ namespace FacilitEase.Services
                             TicketName = ticket.TicketName,
                             EmployeeName = $"{employee.FirstName} {employee.LastName}",
                             Location = location.LocationName,
-                            AssignedTo = $"{_context.TBL_EMPLOYEE.Where(emp => emp.Id == ticket.AssignedTo).Select(emp => $"{emp.FirstName} {emp.LastName}").FirstOrDefault()}",
+                            AssignedTo = ticket.AssignedTo != null
+    ? _context.TBL_EMPLOYEE
+        .Where(emp => emp.Id == ticket.AssignedTo)
+        .Select(emp => $"{emp.FirstName} {emp.LastName}")
+        .FirstOrDefault()
+    : "-------",
                             SubmittedDate = ticket.SubmittedDate,
                             Priority = $"{priority.PriorityName}",
                             Status = $"{status.StatusName}",
