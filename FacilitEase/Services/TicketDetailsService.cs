@@ -2,6 +2,7 @@ using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Net.Sockets;
 
 namespace FacilitEase.Services
 {
@@ -36,7 +37,8 @@ namespace FacilitEase.Services
                         from e in userJoin.DefaultIfEmpty() // Use left join to include null values in AssignedTo
                         join emp in _context.TBL_EMPLOYEE on e.EmployeeId equals emp.Id into empJoin
                         from employee in empJoin.DefaultIfEmpty() // Use left join to include null values in TBL_EMPLOYEE
-                        where t.UserId == userId
+            where t.UserId == userId
+                        where string.IsNullOrEmpty(searchQuery) || t.TicketName.Contains(searchQuery)
                         select new
                         {
                             Id = t.Id,
@@ -89,6 +91,7 @@ namespace FacilitEase.Services
                         join e in _context.TBL_EMPLOYEE on u.Id equals e.Id into employeeJoin
                         from e in employeeJoin.DefaultIfEmpty()
                         where t.Id == ticketId
+
                         select new TicketDetailsDto
                         {
                             Id = t.Id,

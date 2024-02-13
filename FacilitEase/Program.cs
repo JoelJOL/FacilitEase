@@ -91,7 +91,7 @@ builder.Services.AddScoped<IAssetService, AssetService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IAzureRoleManagementService, AzureRoleManagementService>();
 builder.Services.AddScoped<ISLAService, SLAService>();
-
+builder.Services.AddScoped<IL1AdminService, L1AdminService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHostedService<NotificationService>();
