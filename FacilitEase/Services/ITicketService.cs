@@ -44,5 +44,7 @@ namespace FacilitEase.Services
         public string GetTimeSinceLastUpdate(int ticketId);
 
         bool RequestToCancelTicket(int ticketId);
+
+        
     }
 }
