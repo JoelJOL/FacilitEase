@@ -321,12 +321,12 @@ namespace FacilitEase.Services
               // Filtering resolved tickets based on searchQuery (if provided).
               .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
               // Selecting the desired fields and creating a new TicketResolveJoin object.
-              .Select(joined => new RaisedTicketsDto
+              .Select(joined => new 
               {
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
-                  SubmittedDate = joined.Ticket.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                  SubmittedDate = joined.Ticket.SubmittedDate,
                   Priority = joined.Priority.PriorityName,
                   Status = joined.Status.StatusName,
                   Department = joined.Department.DeptName,
@@ -335,23 +335,36 @@ namespace FacilitEase.Services
               });
 
 
-            var materializedQuery = query.ToList();
+            var queryList = query.ToList();
 
             // Apply Sorting
             if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
             {
                 string orderByString = $"{sortField} {sortOrder}";
-                materializedQuery = materializedQuery.AsQueryable().OrderBy(orderByString).ToList();
+                queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
             }
 
+            // Convert dates to string after sorting
+            var finalQueryList = queryList.Select(q => new RaisedTicketsDto
+            {
+                Id = q.Id,
+                TicketName = q.TicketName,
+                EmployeeName = q.EmployeeName,
+                Location = q.Location,
+                Department = q.Department,
+                SubmittedDate = q.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                Priority = q.Priority,
+                Status = q.Status,
+            }).ToList();
+
             // Apply Pagination
-            var totalCount = materializedQuery.Count();
-            materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            var totalCount = finalQueryList.Count();
+            finalQueryList = finalQueryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
             // Return the paginated and sorted resolved ticket data along with the total count
             return new AgentTicketResponse<RaisedTicketsDto>
             {
-                Data = materializedQuery,
+                Data = finalQueryList,
                 TotalDataCount = totalCount
             };
         }
@@ -388,8 +401,6 @@ namespace FacilitEase.Services
                               ManagerId = employee.ManagerId,
                               LocationName = location.LocationName,
                               DeptName = department.DeptName,
-                              DocumentLink = "kk",
-                              ProjectCode = 7
                           }).FirstOrDefault();
             if (result != null)
             {
@@ -397,6 +408,10 @@ namespace FacilitEase.Services
                     .Where(comment => comment.TicketId == desiredTicketId && comment.Category == "Note")
                     .Select(comment => comment.Text)
                     .FirstOrDefault();
+                if (string.IsNullOrEmpty(result.Notes))
+                {
+                    result.Notes = "No notes provided";
+                }
 
                 result.LastUpdate = GetTimeSinceLastUpdate(desiredTicketId);
             }
@@ -468,13 +483,13 @@ namespace FacilitEase.Services
               // Filtering resolved tickets based on searchQuery (if provided).
               .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
               // Selecting the desired fields and creating a new TicketResolveJoin object.
-              .Select(joined => new ResolvedTicketDto
+              .Select(joined => new 
               {
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
-                  SubmittedDate = joined.Ticket.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
-                  ResolvedDate = joined.Ticket.UpdatedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                  SubmittedDate = joined.Ticket.SubmittedDate,
+                  ResolvedDate = joined.Ticket.UpdatedDate,
                   Priority = joined.Priority.PriorityName,
                   Status = joined.Status.StatusName,
                   Department = joined.Department.DeptName,
@@ -483,23 +498,37 @@ namespace FacilitEase.Services
 
               });
 
-            var materializedQuery = query.ToList();
+            var queryList = query.ToList();
 
             // Apply Sorting
             if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
             {
                 string orderByString = $"{sortField} {sortOrder}";
-                materializedQuery = materializedQuery.AsQueryable().OrderBy(orderByString).ToList();
+                queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
             }
 
+            // Convert dates to string after sorting
+            var finalQueryList = queryList.Select(q => new ResolvedTicketDto
+            {
+                Id = q.Id,
+                TicketName = q.TicketName,
+                EmployeeName = q.EmployeeName,
+                Location = q.Location,
+                Department = q.Department,
+                SubmittedDate = q.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                ResolvedDate = q.ResolvedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                Priority = q.Priority,
+                Status = q.Status,
+            }).ToList();
+
             // Apply Pagination
-            var totalCount = materializedQuery.Count();
-            materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            var totalCount = finalQueryList.Count();
+            finalQueryList = finalQueryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
             // Return the paginated and sorted resolved ticket data along with the total count
             return new AgentTicketResponse<ResolvedTicketDto>
             {
-                Data = materializedQuery,
+                Data = finalQueryList,
                 TotalDataCount = totalCount
             };
         }
@@ -564,13 +593,13 @@ namespace FacilitEase.Services
               // Filtering resolved tickets based on searchQuery (if provided).
               .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
               // Selecting the desired fields and creating a new TicketResolveJoin object.
-              .Select(joined => new ResolvedTicketDto
+              .Select(joined => new 
               {
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
-                  SubmittedDate = joined.Ticket.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
-                  ResolvedDate = joined.Ticket.UpdatedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                  SubmittedDate = joined.Ticket.SubmittedDate,
+                  ResolvedDate = joined.Ticket.UpdatedDate,
                   Priority = joined.Priority.PriorityName,
                   Status = joined.Status.StatusName,
                   Department = joined.Department.DeptName,
@@ -578,23 +607,37 @@ namespace FacilitEase.Services
 
               });
 
-            var materializedQuery = query.ToList();
+            var queryList = query.ToList();
 
             // Apply Sorting
             if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
             {
                 string orderByString = $"{sortField} {sortOrder}";
-                materializedQuery = materializedQuery.AsQueryable().OrderBy(orderByString).ToList();
+                queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
             }
 
+            // Convert dates to string after sorting
+            var finalQueryList = queryList.Select(q => new ResolvedTicketDto
+            {
+                Id = q.Id,
+                TicketName = q.TicketName,
+                EmployeeName = q.EmployeeName,
+                Location = q.Location,
+                Department = q.Department,
+                SubmittedDate = q.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                ResolvedDate = q.ResolvedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                Priority = q.Priority,
+                Status = q.Status,
+            }).ToList();
+
             // Apply Pagination
-            var totalCount = materializedQuery.Count();
-            materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            var totalCount = finalQueryList.Count();
+            finalQueryList = finalQueryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
             // Return the paginated and sorted resolved ticket data along with the total count
             return new AgentTicketResponse<ResolvedTicketDto>
             {
-                Data = materializedQuery,
+                Data = finalQueryList,
                 TotalDataCount = totalCount
             };
         }
@@ -654,13 +697,13 @@ namespace FacilitEase.Services
               // Filtering resolved tickets based on searchQuery (if provided).
               .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
               // Selecting the desired fields and creating a new TicketResolveJoin object.
-              .Select(joined => new ResolvedTicketDto
+              .Select(joined => new 
               {
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
                   EmployeeName = $"{joined.Employee.FirstName} {joined.Employee.LastName}",
-                  SubmittedDate = joined.Ticket.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
-                  ResolvedDate = joined.Ticket.UpdatedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                  SubmittedDate = joined.Ticket.SubmittedDate,
+                  ResolvedDate = joined.Ticket.UpdatedDate,
                   Priority = joined.Priority.PriorityName,
                   Status = joined.Status.StatusName,
                   Department = joined.Department.DeptName,
@@ -668,23 +711,37 @@ namespace FacilitEase.Services
 
               });
 
-            var materializedQuery = query.ToList();
+            var queryList = query.ToList();
 
             // Apply Sorting
             if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
             {
                 string orderByString = $"{sortField} {sortOrder}";
-                materializedQuery = materializedQuery.AsQueryable().OrderBy(orderByString).ToList();
+                queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
             }
 
+            // Convert dates to string after sorting
+            var finalQueryList = queryList.Select(q => new ResolvedTicketDto
+            {
+                Id = q.Id,
+                TicketName = q.TicketName,
+                EmployeeName = q.EmployeeName,
+                Location = q.Location,
+                Department = q.Department,
+                SubmittedDate = q.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                ResolvedDate = q.ResolvedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                Priority = q.Priority,
+                Status = q.Status,
+            }).ToList();
+
             // Apply Pagination
-            var totalCount = materializedQuery.Count();
-            materializedQuery = materializedQuery.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            var totalCount = finalQueryList.Count();
+            finalQueryList = finalQueryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
             // Return the paginated and sorted resolved ticket data along with the total count
             return new AgentTicketResponse<ResolvedTicketDto>
             {
-                Data = materializedQuery,
+                Data = finalQueryList,
                 TotalDataCount = totalCount
             };
         }
