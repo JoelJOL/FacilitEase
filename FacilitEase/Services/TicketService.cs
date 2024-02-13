@@ -77,6 +77,10 @@ namespace FacilitEase.Services
         /// <returns>A response of paginated list of tickets of employees associated with a specific manager and the total tickets count</returns>
         public ManagerTicketResponse<ManagerEmployeeTickets> GetTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
+            var managerEmployeeId = _context.TBL_USER.Where(u => u.Id == managerId)
+                                            .Select(u => u.EmployeeId)
+                                            .FirstOrDefault(); 
+
             var query = from ticket in _context.TBL_TICKET
                         join user in _context.TBL_USER on ticket.UserId equals user.Id
                         join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
@@ -84,7 +88,7 @@ namespace FacilitEase.Services
                         join location in _context.TBL_LOCATION on employeedetail.LocationId equals location.Id
                         join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
                         join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
-                        where employee.ManagerId == managerId
+                        where employee.ManagerId == managerEmployeeId
                         where string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery)
                         select new
                         {
@@ -139,6 +143,9 @@ namespace FacilitEase.Services
         /// <returns>A response of paginated list of tickets of employees associated with a specific manager and the total tickets count</returns>
         public ManagerTicketResponse<ManagerEmployeeTickets> GetLiveTicketByManager(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
+            var managerEmployeeId = _context.TBL_USER.Where(u => u.Id == managerId)
+                                            .Select(u => u.EmployeeId)
+                                            .FirstOrDefault();
             var query = from ticket in _context.TBL_TICKET
                         join user in _context.TBL_USER on ticket.UserId equals user.Id
                         join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
@@ -146,7 +153,7 @@ namespace FacilitEase.Services
                         join location in _context.TBL_LOCATION on employeedetail.LocationId equals location.Id
                         join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
                         join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
-                        where employee.ManagerId == managerId
+                        where employee.ManagerId == managerEmployeeId
                         where ((status.Id != 4) && (status.Id != 5))
                         where string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery)
                         select new
@@ -242,6 +249,9 @@ namespace FacilitEase.Services
         /// <returns></returns>
         public ManagerTicketResponse<ManagerEmployeeTickets> GetApprovalTicket(int managerId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
+            var managerEmployeeId = _context.TBL_USER.Where(u => u.Id == managerId)
+                                            .Select(u => u.EmployeeId)
+                                            .FirstOrDefault();
             var query = from ticket in _context.TBL_TICKET
                         join user in _context.TBL_USER on ticket.UserId equals user.Id
                         join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
@@ -249,7 +259,7 @@ namespace FacilitEase.Services
                         join location in _context.TBL_LOCATION on employeedetail.LocationId equals location.Id
                         join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
                         join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
-                        where ticket.ControllerId == managerId
+                        where ticket.ControllerId == managerEmployeeId
                         where string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery)
                         select new 
                         {
