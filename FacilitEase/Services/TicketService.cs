@@ -385,11 +385,19 @@ namespace FacilitEase.Services
         /// To create a new ticket along with associated documents in the database.
         /// </summary>
         /// <param name="ticketDto"></param>
+        /// 
+        public string GetCategoryNameById(int categoryId)
+        {
+            var category = _context.TBL_CATEGORY.FirstOrDefault(c => c.Id == categoryId);
+            return category?.CategoryName;
+        }
         public void CreateTicketWithDocuments(TicketDto ticketDto, IFormFile file)
         {
+            var categoryName = GetCategoryNameById(ticketDto.CategoryId);
             var ticketEntity = new TBL_TICKET
             {
-                TicketName = ticketDto.TicketName,
+
+                TicketName = categoryName,
                 TicketDescription = ticketDto.TicketDescription,
                 PriorityId = ticketDto.PriorityId,
                 CategoryId = ticketDto.CategoryId,
@@ -1126,14 +1134,14 @@ namespace FacilitEase.Services
             };
         }
 
+    
 
-
-        /// <summary>
-        /// Method to find last comments last updated
-        /// </summary>
-        /// <param name="ticketId"></param>
-        /// <returns></returns>
-        public string GetTimeSinceLastUpdate(int ticketId)
+    /// <summary>
+    /// Method to find last comments last updated
+    /// </summary>
+    /// <param name="ticketId"></param>
+    /// <returns></returns>
+    public string GetTimeSinceLastUpdate(int ticketId)
         {
             // Retrieving the comment related to the specified ticket ID.
             var comment = _context.TBL_COMMENT

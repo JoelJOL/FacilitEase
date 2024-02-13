@@ -1,4 +1,4 @@
-﻿using FacilitEase.Data;
+using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -42,7 +42,7 @@ namespace FacilitEase.Services
                             Id = t.Id,
                             TicketName = t.TicketName,
                             SubmittedDate = t.SubmittedDate,
-                            AssignedTo = employee != null ? $"{employee.FirstName} {employee.LastName}" : "--------", 
+                            AssignedTo = employee != null ? $"{employee.FirstName} {employee.LastName}" : "--------",
                             Priority = tp.PriorityName,
                             Status = ts.StatusName,
                         };
@@ -77,6 +77,7 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
+        
 
         public TicketDetailsDto GetTicketDetailsById(int ticketId)
         {
