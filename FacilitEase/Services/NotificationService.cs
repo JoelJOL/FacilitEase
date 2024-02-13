@@ -79,7 +79,7 @@ namespace FacilitEase.Services
                                 // Send a notification to the user and controller
                                 foreach (var message in messages)
                                 {
-                                    await _hubContext.Clients.User(message.UserId.ToString()).SendAsync("ReceiveNotification", message.Text);
+                                    await _hubContext.Clients.All.SendAsync("ReceiveNotification", message.Text);
 
                                     // Create a new notification in the database
                                     var notification = new TBL_NOTIFICATION
@@ -132,10 +132,6 @@ namespace FacilitEase.Services
 
                 // Get the userId for the controllerId and AssignedTo
                 var controllerUserId = users.FirstOrDefault(u => u.EmployeeId == controllerId)?.Id;
-                var controllerUserName = (from e in employees
-                                          join u in users on e.Id equals u.EmployeeId
-                                          where u.EmployeeId == controllerUserId
-                                          select e.FirstName + " " + e.LastName).FirstOrDefault();
                 var assignedToUserId = users.FirstOrDefault(u => u.EmployeeId == ticket.AssignedTo)?.Id;
 
                 if (statusId == 1)
@@ -153,12 +149,12 @@ namespace FacilitEase.Services
                     switch (statusId)
                     {
                         case 2: // In progress
-                            messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket in progress" });
+                            messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket assigned "});
                             messages.Add(new Message { UserId = controllerUserId.Value, Text = "Ticket assigned" });
                             break;
 
                         case 3: // Escalated
-                            messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket escalated" });
+                            messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket escalated " });
                             messages.Add(new Message { UserId = controllerUserId.Value, Text = "Ticket escalated" });
                             break;
 
