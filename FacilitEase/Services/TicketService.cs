@@ -1027,7 +1027,7 @@ namespace FacilitEase.Services
             var tickets = _context.TBL_TICKET
                 .Where(ticket => ticket.ControllerId == departmentHeadId)
                 .Where(ticket => string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery))
-                .Select(ticket => new DepartmentHeadManagerTickets
+                .Select(ticket => new
                 {
                     Id = ticket.Id,
                     TicketName = ticket.TicketName,
@@ -1042,7 +1042,7 @@ namespace FacilitEase.Services
                         .Where(employee => employee.Id == ticket.AssignedTo)
                         .Select(employee => $"{employee.FirstName} {employee.LastName}")
                         .FirstOrDefault(),
-                    SubmittedDate = ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
+                    SubmittedDate = ticket.SubmittedDate,
                     Priority = _context.TBL_PRIORITY
                         .Where(priority => priority.Id == ticket.PriorityId)
                         .Select(priority => $"{priority.PriorityName}")
@@ -1088,16 +1088,31 @@ namespace FacilitEase.Services
                 queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
             }
 
+            // Convert dates to string after sorting
+            var finalQueryList = queryList.Select(q => new DepartmentHeadManagerTickets
+            {
+                Id = q.Id,
+                TicketName = q.TicketName,
+                EmployeeName = q.EmployeeName,
+                AssignedTo = q.AssignedTo,
+                SubmittedDate = q.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
+                Priority = q.Priority,
+                Status = q.Status,
+                Department = q.Department,
+                Location = q.Location,
+            }).ToList();
+
             // Apply Pagination
             var totalCount = queryList.Count();
-            queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            finalQueryList = finalQueryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
             return new DepartmentHeadTicketResponse<DepartmentHeadManagerTickets>
             {
-                Data = queryList,
+                Data = finalQueryList,
                 TotalDataCount = totalCount
             };
         }
+
 
 
         /// <summary>

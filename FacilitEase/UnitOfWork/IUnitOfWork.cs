@@ -21,7 +21,9 @@ namespace FacilitEase.UnitOfWork
         ILocationRepository Location { get; }
         IPositionRepository Position { get; }
 
-       
+        public IUserRoleMappingRepository UserRoleMapping { get; set; }
+
+
 
         Task<int> CompleteAsync();
 
