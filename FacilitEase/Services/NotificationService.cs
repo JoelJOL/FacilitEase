@@ -54,35 +54,48 @@ namespace FacilitEase.Services
                         // Get the current state of the tickets
                         var currentTickets = innerUnitOfWork.Ticket.GetAll().ToDictionary(t => t.Id, t => new { t.StatusId, t.ControllerId });
 
-                        // Find the tickets that have changed
-                        var changedTickets = currentTickets.Where(ct => !Equals(ct.Value, initialTickets[ct.Key])).ToList();
-
-                        foreach (var changedTicket in changedTickets)
+                        try
                         {
-                            // Determine the messages to send based on the new status and controller
-                            var messages = GetMessagesForStatusAndController(changedTicket.Value.StatusId, changedTicket.Value.ControllerId, changedTicket.Key);
-
-                            // Send a notification to the user and controller
-                            foreach (var message in messages)
+                            // Find the tickets that have changed
+                            var changedTickets = currentTickets.Where(ct =>
                             {
-                                await _hubContext.Clients.User(message.UserId.ToString()).SendAsync("ReceiveNotification", message.Text);
-
-                                // Create a new notification in the database
-                                var notification = new TBL_NOTIFICATION
+                                if (!initialTickets.ContainsKey(ct.Key))
                                 {
-                                    Content = $"TicketId: {changedTicket.Key}, {message.Text}",
-                                    TicketId = changedTicket.Key,
+                                    // This is a new ticket, handle it separately
+                                    // For example, send a notification or add it to a separate list
+                                    return true;
+                                }
+                                var initialValue = initialTickets[ct.Key];
+                                return ct.Value.StatusId != initialValue.StatusId ||
+                                       (ct.Value.ControllerId == null && initialValue.ControllerId != null) ||
+                                       (ct.Value.ControllerId != null && !ct.Value.ControllerId.Equals(initialValue.ControllerId));
+                            }).ToList();
 
-                                    Receiver = message.UserId,
-                                    NotificationTimestamp = DateTime.Now
-                                };
-                                unitOfWork.Notification.Add(notification);
-                                // Save the changes to the database
-                                await unitOfWork.CompleteAsync();
+                            foreach (var changedTicket in changedTickets)
+                            {
+                                // Determine the messages to send based on the new status and controller
+                                var messages = GetMessagesForStatusAndController(changedTicket.Value.StatusId, changedTicket.Value.ControllerId, changedTicket.Key);
+
+                                // Send a notification to the user and controller
+                                foreach (var message in messages)
+                                {
+                                    await _hubContext.Clients.All.SendAsync("ReceiveNotification", message.Text);
+
+                                    // Create a new notification in the database
+                                    var notification = new TBL_NOTIFICATION
+                                    {
+                                        Content = $"TicketId: {changedTicket.Key}, {message.Text}",
+                                        TicketId = changedTicket.Key,
+                                        Receiver = message.UserId,
+                                        NotificationTimestamp = DateTime.Now
+                                    };
+                                    unitOfWork.Notification.Add(notification);
+                                    // Save the changes to the database
+                                    await unitOfWork.CompleteAsync();
+                                }
                             }
                         }
-
-                        // Save the changes to the database
+                        catch (Exception ex) { Debug.WriteLine(ex); }
 
                         // Update the initial state to the current state
                         initialTickets = currentTickets;
@@ -95,10 +108,12 @@ namespace FacilitEase.Services
             }
         }
 
+
         private List<Message> GetMessagesForStatusAndController(int? statusId, int? controllerId, int ticketId)
         {
             IUnitOfWork unitOfWork;
             List<TBL_USER> users = null;
+            List<TBL_EMPLOYEE> employees = null;
 
             using (var scope = _scopeFactory.CreateScope())
             {
@@ -119,21 +134,27 @@ namespace FacilitEase.Services
                 var controllerUserId = users.FirstOrDefault(u => u.EmployeeId == controllerId)?.Id;
                 var assignedToUserId = users.FirstOrDefault(u => u.EmployeeId == ticket.AssignedTo)?.Id;
 
-                if (statusId.HasValue && (controllerUserId.HasValue || statusId == 5))
+                if (statusId == 1)
                 {
+                    // Handle the case for a new ticket here
+                    var l2AdminUserIds = unitOfWork.UserRoleMapping.GetUserIdsByRoleId(4);
+                    foreach (var l2AdminUserId in l2AdminUserIds)
+                    {
+                        messages.Add(new Message { UserId = l2AdminUserId, Text = "New ticket is generated" });
+                    }
+                }
+                else if (statusId.HasValue && (controllerUserId.HasValue || statusId == 5))
+                {
+                    // Handle other cases here
                     switch (statusId)
                     {
-                        case 1: // Open
-                            messages.Add(new Message { UserId = controllerUserId.Value, Text = "New ticket is generated" });
-                            break;
-
                         case 2: // In progress
-                            messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket in progress" });
+                            messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket assigned "});
                             messages.Add(new Message { UserId = controllerUserId.Value, Text = "Ticket assigned" });
                             break;
 
                         case 3: // Escalated
-                            messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket escalated" });
+                            messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket escalated " });
                             messages.Add(new Message { UserId = controllerUserId.Value, Text = "Ticket escalated" });
                             break;
 
@@ -150,7 +171,7 @@ namespace FacilitEase.Services
                             break;
 
                         case 6: // On hold
-                            messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket sent for approval" });
+                            messages.Add(new Message { UserId = (int)ticket.UserId, Text = "Ticket sent for approval to " });
                             messages.Add(new Message { UserId = controllerUserId.Value, Text = "New Ticket" });
                             break;
 
@@ -168,7 +189,7 @@ namespace FacilitEase.Services
         }
     }
 
-    public class Message
+        public class Message
     {
         public int UserId { get; set; }
         public string Text { get; set; }

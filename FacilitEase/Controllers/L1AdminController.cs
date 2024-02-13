@@ -1,5 +1,3 @@
-﻿
-
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Services;
 using Microsoft.AspNetCore.Cors;
