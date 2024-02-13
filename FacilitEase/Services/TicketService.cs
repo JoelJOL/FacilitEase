@@ -1107,13 +1107,14 @@ namespace FacilitEase.Services
             };
         }
 
+    
 
-        /// <summary>
-        /// Method to find last comments last updated
-        /// </summary>
-        /// <param name="ticketId"></param>
-        /// <returns></returns>
-        public string GetTimeSinceLastUpdate(int ticketId)
+    /// <summary>
+    /// Method to find last comments last updated
+    /// </summary>
+    /// <param name="ticketId"></param>
+    /// <returns></returns>
+    public string GetTimeSinceLastUpdate(int ticketId)
         {
             // Retrieving the comment related to the specified ticket ID.
             var comment = _context.TBL_COMMENT

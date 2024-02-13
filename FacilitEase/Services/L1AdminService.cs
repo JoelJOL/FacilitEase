@@ -1,7 +1,7 @@
 ﻿using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
-
+using System.Linq.Dynamic.Core;
 namespace FacilitEase.Services
 {
     public class L1AdminService : IL1AdminService
@@ -98,5 +98,186 @@ namespace FacilitEase.Services
             _context.TBL_USER_ROLE_MAPPING.Add(roleMapping);
             _context.SaveChanges();
         }
+
+        /*   public EmployeeTicketResponse<L1AdminTicketView> GetAllTickets(string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
+           {
+               var query = from t in _context.TBL_TICKET
+                           join ts in _context.TBL_STATUS on t.StatusId equals ts.Id
+                           join tp in _context.TBL_PRIORITY on t.PriorityId equals tp.Id
+                           join u in _context.TBL_USER on t.AssignedTo equals u.Id into userJoin
+                           from e in userJoin.DefaultIfEmpty()
+                           join emp in _context.TBL_EMPLOYEE on e.EmployeeId equals emp.Id into empJoin
+                           from employee in empJoin.DefaultIfEmpty()
+                           join c in _context.TBL_CATEGORY on t.CategoryId equals c.Id into categoryJoin
+                           from category in categoryJoin.DefaultIfEmpty()
+                           join d in _context.TBL_DEPARTMENT on category.DepartmentId equals d.Id into departmentJoin
+                           from department in departmentJoin.DefaultIfEmpty()
+                           join ed in _context.TBL_EMPLOYEE_DETAIL on e.Id equals ed.Id into employeeDetailsJoin
+                           from employeeDetails in employeeDetailsJoin.DefaultIfEmpty()
+                           join raisedByUser in _context.TBL_USER on t.UserId equals raisedByUser.Id into raisedByUserJoin
+                           from raisedBy in raisedByUserJoin.DefaultIfEmpty()
+                           select new L1AdminTicketView
+                           {
+                               TicketId = t.Id, // Assuming TicketId is the property in L1AdminTicketView corresponding to t.Id
+                               TicketName = t.TicketName,
+                               SubmittedDate = t.SubmittedDate,
+                               AssignedTo = employee != null ? $"{employee.FirstName} {employee.LastName}" : "--------",
+                               Priority = tp.PriorityName,
+                               Status = ts.StatusName,
+                               Location = employeeDetails.LocationId,
+                               Department = department ,
+                               RaisedBy = raisedBy != null ? raisedBy.UserName : "Unknown User",
+                           };
+
+               // Apply Sorting
+               if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
+               {
+                   string orderByString = $"{sortField} {sortOrder}";
+                   query = query.OrderByDynamic(orderByString); // Assuming you have a method to handle dynamic sorting
+               }
+
+               var totalCount = query.Count();
+
+               // Apply Pagination
+               var paginatedQuery = query.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+               // Return the results in a paginated response object.
+               return new EmployeeTicketResponse<L1AdminTicketView>
+               {
+                   Data = paginatedQuery,
+                   TotalDataCount = totalCount
+               };
+           }*/
+
+        public ManagerTicketResponse<TicketApiModel> GetEscalatedTickets(int userId, int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery)
+        {
+            // Step 1: Retrieve DepartmentId based on UserId
+            var departmentId = _context.TBL_EMPLOYEE_DETAIL
+                .Where(employeeDetail => employeeDetail.EmployeeId == _context.TBL_USER
+                    .Where(user => user.Id == userId)
+                    .Select(user => user.EmployeeId)
+                    .FirstOrDefault())
+                .Select(employeeDetail => employeeDetail.DepartmentId)
+                .FirstOrDefault();
+
+            // Step 2: Get Categories corresponding to DepartmentId
+            var categoriesForDepartment = _context.TBL_CATEGORY
+                .Where(category => category.DepartmentId == departmentId)
+                .Select(category => category.Id)
+                .ToList();
+
+            // Step 3: Get the StatusId for "Escalated" from TBL_STATUS
+            var escalatedStatusId = _context.TBL_STATUS
+                .Where(status => status.StatusName == "Escalated")
+                .Select(status => status.Id)
+                .FirstOrDefault();
+
+            // Step 4: Get the UserId of L3Admin role
+            var l3AdminRoleId = _context.TBL_USER_ROLE
+     .Where(role => role.UserRoleName == "L2Admin")
+     .Select(role => role.Id)
+     .FirstOrDefault();
+
+            var l3AdminEmployeeIds = _context.TBL_USER_ROLE_MAPPING
+                .Where(mapping => mapping.UserRoleId == l3AdminRoleId)
+                .Join(_context.TBL_USER,
+                    mapping => mapping.UserId,
+                    user => user.Id,
+                    (mapping, user) => user.EmployeeId)
+                .ToList();
+
+            // Step 5: Filter escalated tickets for L3Admin assignedTo
+            var escalatedTicketsQuery = _context.TBL_TICKET
+                .Where(ticket => ticket.AssignedTo != null)
+                .Where(ticket => ticket.StatusId == escalatedStatusId)
+                .Where(ticket => categoriesForDepartment.Contains(ticket.CategoryId))
+                .Where(ticket => l3AdminEmployeeIds.Contains(ticket.AssignedTo.Value))
+                .Where(ticket => string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery))
+                .Select(ticket => new
+                {
+                    Id = ticket.Id,
+                    TicketName = ticket.TicketName,
+                    RaisedBy = _context.TBL_EMPLOYEE
+                        .Where(employee => employee.Id == _context.TBL_USER
+                            .Where(user => user.Id == ticket.UserId)
+                            .Select(user => user.EmployeeId)
+                            .FirstOrDefault())
+                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                        .FirstOrDefault(),
+                    SubmittedDate = ticket.SubmittedDate,
+                    Priority = _context.TBL_PRIORITY
+                        .Where(priority => priority.Id == ticket.PriorityId)
+                        .Select(priority => priority.PriorityName)
+                        .FirstOrDefault(),
+                    Status = _context.TBL_STATUS
+                        .Where(status => status.Id == ticket.StatusId)
+                        .Select(status => status.StatusName)
+                        .FirstOrDefault(),
+                    AssignedTo = _context.TBL_EMPLOYEE
+                        .Where(employee => employee.Id == ticket.AssignedTo)
+                        .Select(employee => $"{employee.FirstName} {employee.LastName}")
+                        .FirstOrDefault(),
+                    Department = _context.TBL_USER
+                        .Where(user => user.Id == ticket.UserId)
+                        .Select(user => _context.TBL_EMPLOYEE
+                            .Where(employee => employee.Id == user.EmployeeId)
+                            .Select(employee => _context.TBL_EMPLOYEE_DETAIL
+                                .Where(employeeDetail => employeeDetail.Id == employee.Id)
+                                .Select(employeeDetail => _context.TBL_DEPARTMENT
+                                    .Where(department => department.Id == employeeDetail.DepartmentId)
+                                    .Select(department => department.DeptName)
+                                    .FirstOrDefault())
+                                .FirstOrDefault())
+                            .FirstOrDefault())
+                        .FirstOrDefault(),
+                    Location = _context.TBL_USER
+                        .Where(user => user.Id == ticket.UserId)
+                        .Select(user => _context.TBL_EMPLOYEE
+                            .Where(employee => employee.Id == user.EmployeeId)
+                            .Select(employee => _context.TBL_EMPLOYEE_DETAIL
+                                .Where(employeeDetail => employeeDetail.Id == employee.Id)
+                                .Select(employeeDetail => _context.TBL_LOCATION
+                                    .Where(location => location.Id == employeeDetail.LocationId)
+                                    .Select(location => location.LocationName)
+                                    .FirstOrDefault())
+                                .FirstOrDefault())
+                            .FirstOrDefault())
+                        .FirstOrDefault(),
+                });
+
+            var queryList = escalatedTicketsQuery.ToList();
+
+            // Apply Sorting
+            if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
+            {
+                string orderByString = $"{sortField} {sortOrder}";
+                queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
+            }
+            var finalQueryList = queryList.Select(q => new TicketApiModel
+            {
+                Id = q.Id,
+                TicketName = q.TicketName,
+                RaisedBy = q.RaisedBy,
+                AssignedTo = q.AssignedTo,
+                SubmittedDate = q.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                Priority = q.Priority,
+                Status = q.Status,
+                Department = q.Department,
+                Location = q.Location
+
+            }).ToList();
+            // Apply Pagination
+            var totalCount = escalatedTicketsQuery.Count();
+            finalQueryList = finalQueryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+            // Return the result in the ManagerTicketResponse format
+            return new ManagerTicketResponse<TicketApiModel>
+            {
+                Data = finalQueryList,
+                TotalDataCount = totalCount
+            };
+        }
+
+
     }
 }
