@@ -68,7 +68,7 @@ namespace FacilitEase.Controllers
                 HttpContext.User = principal;
 
                 var appToken = _loginService.CheckUser(username);
-                var roless = _roleManagementService.GetAppRoles(accessToken);
+          /*      var roless = _roleManagementService.GetAppRoles(accessToken);*/
 
                 // You can add your business logic here or return a specific ActionResult
                 return Ok(appToken);
