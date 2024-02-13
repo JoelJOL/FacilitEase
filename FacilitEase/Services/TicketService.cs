@@ -578,10 +578,13 @@ namespace FacilitEase.Services
                 .Select(category => category.Id)
                 .ToList();
 
-            // Step 3: Filter unassigned tickets based on selected categories
             var unassignedTicketsQuery = _context.TBL_TICKET
      .Where(ticket => (ticket.AssignedTo == null || ticket.AssignedTo == 0) &&
-                      categoriesForDepartment.Contains(ticket.CategoryId))
+                      categoriesForDepartment.Contains(ticket.CategoryId) &&
+                      ticket.StatusId == _context.TBL_STATUS
+                          .Where(status => status.StatusName == "Open")
+                          .Select(status => status.Id)
+                          .FirstOrDefault())
      .Where(ticket => string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery))
      .Select(ticket => new
      {
