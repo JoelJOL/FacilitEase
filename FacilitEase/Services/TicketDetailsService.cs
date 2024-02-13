@@ -1,4 +1,4 @@
-﻿using FacilitEase.Data;
+using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -79,8 +79,6 @@ namespace FacilitEase.Services
         }
         
 
-
-
         public TicketDetailsDto GetTicketDetailsById(int ticketId)
         {
             var query = from t in _context.TBL_TICKET
@@ -96,7 +94,7 @@ namespace FacilitEase.Services
                             Id = t.Id,
                             TicketName = t.TicketName,
                             Status = ts.StatusName,
-                            AssignedTo = e != null ? e.FirstName : null,
+                            AssignedTo = e != null ? $"{e.FirstName} {e.LastName}" : "----",
                             Priority = tp.PriorityName,
                         };
 
