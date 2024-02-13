@@ -1,4 +1,5 @@
-﻿using FacilitEase.Models.ApiModels;
+﻿using DotNetEnv;
+using FacilitEase.Models.ApiModels;
 using FacilitEase.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Protocols;
@@ -13,8 +14,8 @@ namespace FacilitEase.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly string _authority = "https://login.microsoftonline.com/5b751804-232f-410d-bb2f-714e3bb466eb/v2.0";
-        private readonly string _audience = "d7104f84-ab29-436f-8f06-82fcf8d81381";
+        private readonly string _authority = Env.GetString("Application_Authority");
+        private readonly string _audience = Env.GetString("Application_Audience");
         private readonly ILoginService _loginService;
         private readonly IAzureRoleManagementService _roleManagementService;
 
@@ -46,7 +47,6 @@ namespace FacilitEase.Controllers
                 if (usernameClaim != null)
                 {
                     username = usernameClaim.Value.ToString();
-                    // Do something with the username
                 }
 
                 Console.WriteLine($"Issuer from Token: {jsonToken.Issuer}");

@@ -1,4 +1,3 @@
-﻿
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Services;
 using Microsoft.AspNetCore.Cors;
@@ -51,7 +50,7 @@ namespace FacilitEase.Controllers
         }
 
         [HttpPatch("EditSLA")]
-        public IActionResult EditSla([FromBody] SLAInfo request)
+        public IActionResult EditSla([FromBody] EditSLAInfo request)
         {
             try
             {
@@ -61,6 +60,20 @@ namespace FacilitEase.Controllers
             catch (Exception ex)
             {
                 return BadRequest($"An error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpGet("assigned-tickets/{userId}")]
+        public ActionResult<ManagerTicketResponse<TicketApiModel>> GetAssignedTickets(int userId, int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery)
+        {
+            try
+            {
+                var assignedTickets = _ticketService.GetAssignedTickets(userId, pageIndex, pageSize, sortField, sortOrder, searchQuery);
+                return Ok(assignedTickets);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
         }
 

@@ -80,5 +80,20 @@ namespace FacilitEase.Services
                 UpdatedDate = categoryDto.UpdatedDate,
             };
         }
+
+        public List<CategoryDto> GetCategoriesForFacilitiease()
+        {
+            var categories = (from category in _context.TBL_CATEGORY
+                              join department in _context.TBL_DEPARTMENT on category.DepartmentId equals department.Id
+                              where department.Id == 1
+                              select new CategoryDto
+                              {
+                                  Id = category.Id,
+                                  CategoryName = category.CategoryName,
+                              }).ToList();
+
+            return categories;
+        }
+
     }
 }
