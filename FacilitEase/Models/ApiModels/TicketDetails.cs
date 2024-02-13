@@ -8,7 +8,7 @@
         public string TicketDescription { get; set; }
         public string StatusName { get; set; }
         public string PriorityName { get; set; }
-        public string SubmittedDate { get; set; }
+        public DateTime SubmittedDate { get; set; }
         public string EmployeeName { get; set; }
         public string AssignedTo { get; set; }
         public string ManagerName { get; set; }

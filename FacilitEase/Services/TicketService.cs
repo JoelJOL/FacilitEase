@@ -511,7 +511,7 @@ namespace FacilitEase.Services
                                          TicketDescription = ticket.TicketDescription,
                                          StatusName = status.StatusName,
                                          PriorityName = priority.PriorityName,
-                                         SubmittedDate = ticket.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
+                                         SubmittedDate = ticket.SubmittedDate,
                                          EmployeeName = $"{employee.FirstName} {employee.LastName}",
                                          ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : null,
                                          AssignedTo = _context.TBL_EMPLOYEE
