@@ -29,55 +29,54 @@ namespace FacilitEase.Services
 
         public EmployeeTicketResponse<TicketDetailsDto> GetTicketDetailsByUserId(int userId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
+            var query = from t in _context.TBL_TICKET
+                        join ts in _context.TBL_STATUS on t.StatusId equals ts.Id
+                        join tp in _context.TBL_PRIORITY on t.PriorityId equals tp.Id
+                        join u in _context.TBL_USER on t.AssignedTo equals u.Id into userJoin
+                        from e in userJoin.DefaultIfEmpty() // Use left join to include null values in AssignedTo
+                        join emp in _context.TBL_EMPLOYEE on e.EmployeeId equals emp.Id into empJoin
+                        from employee in empJoin.DefaultIfEmpty() // Use left join to include null values in TBL_EMPLOYEE
+                        where t.UserId == userId
+                        select new
+                        {
+                            Id = t.Id,
+                            TicketName = t.TicketName,
+                            SubmittedDate = t.SubmittedDate,
+                            AssignedTo = employee != null ? $"{employee.FirstName} {employee.LastName}" : "--------", 
+                            Priority = tp.PriorityName,
+                            Status = ts.StatusName,
+                        };
 
-                var query = from t in _context.TBL_TICKET
-                            join ts in _context.TBL_STATUS on t.StatusId equals ts.Id
-                            join tp in _context.TBL_PRIORITY on t.PriorityId equals tp.Id
-                            join u in _context.TBL_USER on t.AssignedTo equals u.Id
-                            join e in _context.TBL_EMPLOYEE on u.Id equals e.Id
-                            where t.UserId == userId
-                            where string.IsNullOrEmpty(searchQuery) || t.TicketName.Contains(searchQuery)
-                            select new
-                            {
-                                Id = t.Id,
-                                TicketName = t.TicketName,
-                                SubmittedDate = t.SubmittedDate,
-                                AssignedTo = e.FirstName,
-                                Priority = tp.PriorityName,
-                                Status = ts.StatusName,
-                               
-                            };
-            var queryTicketList = query.ToList(); 
-                // Apply Sorting
-                if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
-                {
-                    string orderByString = $"{sortField} {sortOrder}";
+            var queryTicketList = query.ToList();
+
+            // Apply Sorting
+            if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
+            {
+                string orderByString = $"{sortField} {sortOrder}";
                 queryTicketList = queryTicketList.AsQueryable().OrderBy(orderByString).ToList();
-                }
+            }
 
-                var queryList = queryTicketList.AsEnumerable().Select(t => new TicketDetailsDto
-                {
-                    Id = t.Id,
-                    TicketName = t.TicketName,
-                    Status = t.Status,
-                    AssignedTo = t.AssignedTo,
-                    Priority = t.Priority,
-                    SubmittedDate = t.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
-                });
+            var queryList = queryTicketList.AsEnumerable().Select(t => new TicketDetailsDto
+            {
+                Id = t.Id,
+                TicketName = t.TicketName,
+                Status = t.Status,
+                AssignedTo = t.AssignedTo,
+                Priority = t.Priority,
+                SubmittedDate = t.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
+            });
 
-                // Apply Pagination
-                var totalCount = queryList.Count();
-                var paginatedQuery = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            // Apply Pagination
+            var totalCount = query.Count();
+            queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
 
-                // Return the results in a paginated response object.
-                return new EmployeeTicketResponse<TicketDetailsDto>
-                {
-                    Data = paginatedQuery,
-                    TotalDataCount = totalCount
-                };
+            // Return the results in a paginated response object.
+            return new EmployeeTicketResponse<TicketDetailsDto>
+            {
+                Data = queryList,
+                TotalDataCount = totalCount
+            };
         }
-
-
 
         public TicketDetailsDto GetTicketDetailsById(int ticketId)
         {
@@ -94,7 +93,7 @@ namespace FacilitEase.Services
                             Id = t.Id,
                             TicketName = t.TicketName,
                             Status = ts.StatusName,
-                            AssignedTo = e != null ? e.FirstName : null,
+                            AssignedTo = e != null ? $"{e.FirstName} {e.LastName}" : "----",
                             Priority = tp.PriorityName,
                         };
 
