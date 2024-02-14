@@ -1157,7 +1157,7 @@ namespace FacilitEase.Services
     
 
     /// <summary>
-    /// Method to find last comments last updated
+    /// This method gets the time since the comment of the ticket has been last updated.
     /// </summary>
     /// <param name="ticketId"></param>
     /// <returns></returns>
