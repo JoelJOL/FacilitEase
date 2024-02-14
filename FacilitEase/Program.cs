@@ -37,9 +37,9 @@ builder.Services.AddCors(options =>
     });
 });
 string connectionString = Env.GetString("ConnectionStrings__DefaultConnection");
-var jwtKey = Env.GetString("JWT__Key");
-var jwtIssuer = Env.GetString("JWT__Issuer");
-var jwtAudience = Env.GetString("JWT__Audience");
+var jwtKey = Env.GetString("JWT_Key");
+var jwtIssuer = Env.GetString("JWT_Issuer");
+var jwtAudience = Env.GetString("JWT_Audience");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
@@ -91,7 +91,7 @@ builder.Services.AddScoped<IAssetService, AssetService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IAzureRoleManagementService, AzureRoleManagementService>();
 builder.Services.AddScoped<ISLAService, SLAService>();
-
+builder.Services.AddScoped<IL1AdminService, L1AdminService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHostedService<NotificationService>();

@@ -117,16 +117,22 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ConnectionStrings.DefaultConnection" xml:space="preserve">
-    <value>Data Source=NATHANIELYELDO\\SQLEXPRESS;Initial Catalog=AzureFacilitEase;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False</value>
+  <data name="DepartmentHead" xml:space="preserve">
+    <value>DepartmentHead</value>
   </data>
-  <data name="JWT.Audience" xml:space="preserve">
-    <value>experion</value>
+  <data name="Employee" xml:space="preserve">
+    <value>Employee</value>
   </data>
-  <data name="JWT.Issuer" xml:space="preserve">
-    <value>facilitease</value>
+  <data name="EmployeeManager" xml:space="preserve">
+    <value>EmployeeManager</value>
   </data>
-  <data name="JWT.Key" xml:space="preserve">
-    <value>askdASOFINEINFAAFSDNNNNNAOIFDANIIsidfsjdasdf</value>
+  <data name="Executive" xml:space="preserve">
+    <value>Executive</value>
+  </data>
+  <data name="Lead" xml:space="preserve">
+    <value>Lead</value>
+  </data>
+  <data name="Manager" xml:space="preserve">
+    <value>Manager</value>
   </data>
 </root>

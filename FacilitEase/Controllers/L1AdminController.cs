@@ -1,4 +1,3 @@
-﻿
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Services;
 using Microsoft.AspNetCore.Cors;
@@ -16,18 +15,21 @@ namespace FacilitEase.Controllers
         private readonly IPriorityService _priorityService;
         private readonly ITicketService _ticketService;
         private readonly ISLAService _slaService;
+        private readonly IL1AdminService _l1AdminService;
 
         public L1AdminController(IDepartmentService departmentService,
             ICategoryService categoryService,
             IPriorityService priorityService,
             ITicketService ticketService,
-            ISLAService sLAService)
+            ISLAService sLAService,
+            IL1AdminService l1AdminService)
         {
             _departmentService = departmentService;
             _categoryService = categoryService;
             _priorityService = priorityService;
             _ticketService = ticketService;
             _slaService = sLAService;
+            _l1AdminService = l1AdminService;
         }
 
         [HttpGet("departments")]
@@ -51,7 +53,7 @@ namespace FacilitEase.Controllers
         }
 
         [HttpPatch("EditSLA")]
-        public IActionResult EditSla([FromBody] SLAInfo request)
+        public IActionResult EditSla([FromBody] EditSLAInfo request)
         {
             try
             {
@@ -61,6 +63,34 @@ namespace FacilitEase.Controllers
             catch (Exception ex)
             {
                 return BadRequest($"An error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpGet("escalated-tickets/{userId}")]
+        public ActionResult<ManagerTicketResponse<TicketApiModel>> GetEscalatedTickets(int userId, int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery)
+        {
+            try
+            {
+                var assignedTickets = _ticketService.GetEscalatedTickets(userId, pageIndex, pageSize, sortField, sortOrder, searchQuery);
+                return Ok(assignedTickets);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("all-tickets")]
+        public ActionResult<EmployeeTicketResponse<L1AdminTicketView>> GetAllTickets(string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
+        {
+            try
+            {
+                var tickets = _l1AdminService.GetAllTickets(sortField, sortOrder, pageIndex, pageSize, searchQuery);
+                return Ok(tickets);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
         }
 

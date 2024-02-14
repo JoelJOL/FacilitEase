@@ -2,6 +2,7 @@
 using FacilitEase.Models.EntityModels;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Resources;
 using System.Security.Claims;
 using System.Text;
 
@@ -11,6 +12,7 @@ namespace FacilitEase.Services
     {
         private readonly AppDbContext _context;
         private readonly IConfiguration _config;
+        ResourceManager resourceManager = new ResourceManager("FacilitEase.Resource", typeof(Program).Assembly);
 
         public LoginService(AppDbContext context, IConfiguration config)
         {
@@ -45,7 +47,7 @@ namespace FacilitEase.Services
                                       where e.Email == username
                                       select e.Id).FirstOrDefault();
                     roleMap.UserRoleId = (from r in _context.TBL_USER_ROLE
-                                          where r.UserRoleName == "Employeee"
+                                          where r.UserRoleName == resourceManager.GetString("Employee")
                                           select r.Id).FirstOrDefault();
                     _context.TBL_USER_ROLE_MAPPING.Add(roleMap);
                     _context.SaveChanges();
@@ -64,21 +66,23 @@ namespace FacilitEase.Services
             }
         }
 
-        public string GenerateJwtToken(TBL_USER newUser, IConfiguration _config)
+        public string GenerateJwtToken(TBL_USER User, IConfiguration _config)
         {
-            var authClaims = new List<Claim>
-            {
-               new Claim(ClaimTypes.Name, newUser.Email),
-               new Claim(ClaimTypes.NameIdentifier, newUser.EmployeeId.ToString()),
-    /*           new Claim(ClaimTypes.Role,"L1Admin"),
-               new Claim(ClaimTypes.Role,"L2Admin"),
-               new Claim(ClaimTypes.Role,"L3Admin")*/
-            };
+            var EmployeeName=(from e in _context.TBL_EMPLOYEE
+                             join u in _context.TBL_USER on e.Id equals u.EmployeeId
+                             where u.Id==User.EmployeeId
+                             select (e.FirstName+" "+e.LastName).ToString()).FirstOrDefault();
             var roles = from m in _context.TBL_USER_ROLE_MAPPING
                         join e in _context.TBL_USER on m.UserId equals e.Id
                         join u in _context.TBL_USER_ROLE on m.UserRoleId equals u.Id
-                        where e.Email == newUser.Email
+                        where e.Email == User.Email
                         select u.UserRoleName;
+            var authClaims = new List<Claim>
+            {
+               new Claim(ClaimTypes.Name, User.Email),
+               new Claim(ClaimTypes.NameIdentifier, User.EmployeeId.ToString()),
+               new Claim("EmployeeName", EmployeeName),
+            };
             if (roles != null)
             {
                 foreach (var userRole in roles)

@@ -21,5 +21,9 @@ namespace FacilitEase.Services
         /// </summary>
         /// <param name="assignRole">An apiModel that consists of the employeeId and the role name that must be assigned</param>
         void AssignRole(AssignRole assignrole);
+
+        // public EmployeeTicketResponse<L1AdminTicketView> GetAllTickets(string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
+        EmployeeTicketResponse<L1AdminTicketView> GetAllTickets( string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
+        ManagerTicketResponse<TicketApiModel> GetEscalatedTickets(int userId, int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery);
     }
 }

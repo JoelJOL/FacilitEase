@@ -1,4 +1,4 @@
-﻿using FacilitEase.Data;
+using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
 using System.Linq.Dynamic.Core;
 
@@ -25,8 +25,8 @@ namespace FacilitEase.Services
                                      Id = asset.Id,
                                      AssetName = asset.AssetName,
                                      WarrantyInfo = asset.WarrantyInfo,
-                                     LastMaintenanceDate = asset.LastMaintenanceDate,
-                                     NextMaintenanceDate = asset.NextMaintenanceDate,
+                                     LastMaintenanceDate = asset.LastMaintenanceDate.Value.ToString("yyyy-MM-dd hh:mm tt"),
+                                     NextMaintenanceDate = asset.NextMaintenanceDate.Value.ToString("yyyy-MM-dd hh:mm tt"),
                                      AssetType = assetType.Type
                                  };
 
@@ -61,8 +61,8 @@ namespace FacilitEase.Services
                                             Id = asset.Id,
                                             AssetName = asset.AssetName,
                                             WarrantyInfo = asset.WarrantyInfo,
-                                            LastMaintenanceDate = asset.LastMaintenanceDate,
-                                            NextMaintenanceDate = asset.NextMaintenanceDate,
+                                            LastMaintenanceDate = asset.LastMaintenanceDate.Value.ToString("yyyy-MM-dd hh:mm tt"),
+                                            NextMaintenanceDate = asset.NextMaintenanceDate.Value.ToString("yyyy-MM-dd hh:mm tt"),
                                             AssetType = assetType.Type
                                         };
 
@@ -84,5 +84,44 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
+
+        public Asset GetUnassignedAssetDetails(int unassignedAssetId)
+        {
+            var query = from asset in _context.TBL_ASSET
+                        join status in _context.TBL_ASSET_STATUS on asset.StatusId equals status.Id
+                        join assetType in _context.TBL_ASSET_TYPE on asset.TypeId equals assetType.Id
+                        where asset.Id == unassignedAssetId
+                        select new Asset
+                        {
+                            Id = asset.Id,
+                            AssetName = asset.AssetName,
+                            WarrantyInfo = asset.WarrantyInfo,
+                            LastMaintenanceDate = asset.LastMaintenanceDate.Value.ToString("yyyy-MM-dd hh:mm tt"),
+                            NextMaintenanceDate = asset.NextMaintenanceDate.Value.ToString("yyyy-MM-dd hh:mm tt"),
+                            AssetType = assetType.Type,
+                            PurchaseDate = asset.PurchaseDate.Value.ToString("yyyy-MM-dd hh:mm tt"),
+                        };
+
+            return query.SingleOrDefault();
+        }
+        public List<AssetHistory> GetDetailsForUnassignedAsset(int unassignedAssetId)
+        {
+            var query = from mapping in _context.TBL_ASSET_EMPLOYEE_MAPPING
+                        join user in _context.TBL_USER on mapping.AssignedTo equals user.Id
+                        join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
+                        where mapping.AssetId == unassignedAssetId && mapping.Status == "Unassigned"
+                        select new AssetHistory
+                        {
+                            Id = mapping.AssetId,
+                            AssignedToEmployeeName = employee.FirstName,
+                            FromDate = mapping.FromDate,
+                            ToDate = mapping.ToDate
+                        };
+
+            return query.ToList();
+        }
+
+
     }
 }
+
