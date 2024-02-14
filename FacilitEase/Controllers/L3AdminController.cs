@@ -104,30 +104,33 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpGet("forward-ticket-to-department/{ticketId}/{deptId}")]
-        public IActionResult ForwardRaisedTicketDepartment([FromRoute] int ticketId, [FromRoute] int deptId)
+        [HttpPatch("forward-ticket-deptHead/{ticketId}/{employeeId}")]
+        public IActionResult ForwardRaisedTicketToDept([FromRoute] int ticketId, [FromRoute] int employeeId)
         {
             try
             {
-                _adminService.ForwardTicketToDept(ticketId, deptId);
-                _logger.LogInformation($"Ticket {ticketId} status updated successfully. Forwarded to Department ID: {deptId}");
+                _adminService.ForwardTicketDeptHead(ticketId,employeeId);
+                _logger.LogInformation($"Ticket {ticketId} status updated successfully. Forwarded to DU Head ID: {employeeId}");
                 return Ok(new ApiResponse { Message = $"Ticket {ticketId} status updated successfully." });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error forwarding ticket {ticketId} to Department ID: {deptId}");
+                _logger.LogError(ex, $"Error forwarding ticket {ticketId} to DU Head ID: {employeeId}");
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
 
+
+        
+
         [HttpGet("GetRaisedTicketsByAgent/{agentId}")]
         public IActionResult GetTicketsByAgent(
-    int agentId,
-    string sortField = null,
-    string sortOrder = null,
-    int pageIndex = 0,
-    int pageSize = 10,
-    string searchQuery = null)
+        int agentId,
+        string sortField = null,
+        string sortOrder = null,
+        int pageIndex = 0,
+        int pageSize = 10,
+        string searchQuery = null)
         {
             try
             {
@@ -166,12 +169,12 @@ namespace FacilitEase.Controllers
 
         [HttpGet("GetOnHoldTicketsByAgent/{agentId}")]
         public IActionResult GetOnHoldTicketsByAgent(
-     int agentId,
-     string sortField = null,
-     string sortOrder = null,
-     int pageIndex = 0,
-     int pageSize = 10,
-     string searchQuery = null)
+         int agentId,
+         string sortField = null,
+         string sortOrder = null,
+         int pageIndex = 0,
+         int pageSize = 10,
+         string searchQuery = null)
         {
             try
             {

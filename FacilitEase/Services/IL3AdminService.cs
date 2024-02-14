@@ -17,7 +17,7 @@ namespace FacilitEase.Services
 
         void ForwardTicket(int ticketId, int managerId);
 
-        void ForwardTicketToDept(int ticketId, int deptId);
+        public void ForwardTicketDeptHead(int ticketId, int employeeId);
 
         public string GetCommentTextByTicketId(int ticketId);
 
