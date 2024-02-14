@@ -83,7 +83,7 @@ namespace FacilitEase.Controllers
             try
             {
                 _ticketService.ChangePriority(request.TicketId, request.NewPriorityId);
-                return Ok();
+                return Ok(new { Message = "Ticket priority changed successfully" }); ;
             }
             catch (Exception ex)
             {
@@ -97,7 +97,7 @@ namespace FacilitEase.Controllers
             try
             {
                 _ticketService.SendForApproval(request.TicketId, request.CurrentControllerId);
-                return Ok("Successfully send for approval to Dept Head");
+                 return Ok(new { Message = "Ticket assigned successfully" }); 
             }
             catch (Exception ex)
             {
@@ -111,7 +111,7 @@ namespace FacilitEase.Controllers
             try
             {
                 _ticketService.TicketDecision(request.TicketId, request.NewStatusId);
-                return Ok("Status of ticket changed successfully");
+                return Ok(new { Message = "Ticket assigned successfully" });
             }
             catch (Exception ex)
             {
