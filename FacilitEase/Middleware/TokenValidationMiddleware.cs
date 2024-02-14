@@ -16,7 +16,12 @@ public class TokenValidationMiddleware
         _authority = authority;
         _audience = audience;
     }
-
+    /// <summary>
+    /// Authenticate the http requests
+    /// Azure id token validation
+    /// </summary>
+    /// <param name="context">The http request</param>
+    /// <returns>The middleware forwards request to the routing</returns>
     public async Task Invoke(HttpContext context)
     {
         var token = context.Request.Headers["Authorization"].ToString()?.Replace("Bearer ", "");
@@ -29,9 +34,11 @@ public class TokenValidationMiddleware
 
         try
         {
+            //Decodin the azure token id
             var handler = new JwtSecurityTokenHandler();
             var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
 
+            //Get the email id of the user from the id token
             var usernameClaim = jsonToken.Claims.FirstOrDefault(claim => claim.Type == "preferred_username");
 
             if (usernameClaim != null)
@@ -39,8 +46,7 @@ public class TokenValidationMiddleware
                 var username = usernameClaim.Value;
             }
 
-            Console.WriteLine($"Issuer from Token: {jsonToken.Issuer}");
-
+            //Parameters to validate the id token
             var parameters = new TokenValidationParameters
             {
                 ValidIssuer = _authority,
@@ -68,7 +74,11 @@ public class TokenValidationMiddleware
             context.Response.StatusCode = 500; // Internal Server Error
         }
     }
-
+    /// <summary>
+    /// The contains the cryptographic keys used by the OpenID Connect provider to sign tokens. 
+    /// These are essential for verifying the authenticity of tokens received by the application
+    /// </summary>
+    /// <returns>Keys used by OpenID Connect</returns>
     private async Task<IEnumerable<SecurityKey>> GetSigningKeys()
     {
         var configurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(
@@ -79,7 +89,9 @@ public class TokenValidationMiddleware
         return openIdConfig.SigningKeys;
     }
 }
-
+/// <summary>
+/// Build the middleware during the initial execution of program.cs
+/// </summary>
 public static class TokenValidationMiddlewareExtensions
 {
     public static IApplicationBuilder UseTokenValidationMiddleware(this IApplicationBuilder builder, string authority, string audience)
