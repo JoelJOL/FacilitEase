@@ -68,6 +68,7 @@ namespace FacilitEase.Services
                                           ResolvedCount = groupResult.Count(ta => ta.EmployeeStatus == "resolved"),
                                           EscalatedCount = groupResult.Count(ta => ta.EmployeeStatus == "escalated")
                                       };
+           
             //Adding the data into the above api model with respect the months
             //The arrayentered here consists of numbers which represets [number of resolved tickets, number of escalated tickets]
             foreach (var entry in ticketCountsByMonth)
@@ -88,6 +89,9 @@ namespace FacilitEase.Services
                     case 12: chartData.December = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
                 }
             }
+
+
+
             return chartData;
         }
         /// <summary>
@@ -154,6 +158,103 @@ namespace FacilitEase.Services
                               WeeklyEscalated = g.Count(ta => ta.TicketAssignedTimestamp.Date >= startDateOfWeek.Date && ta.TicketAssignedTimestamp.Date <= endDateOfWeek.Date && ta.EmployeeStatus == "escalated")//Escalated tickets that are between startdate and enddate of the current week
                           }).FirstOrDefault();
             return weekReport;
+        }
+        /// <summary>
+        /// To get the data required to display the report data that is categorised by ticket category and sorted into months for each status of resolved, unresolved and escalated
+        /// </summary>
+        /// <param name="id">the user id of the user</param>
+        /// <returns>Dtaa for report of categories</returns>
+        public CategoryReportData CategoryReport(int id)
+        {
+
+            //creating object of Api model categoryReportData
+            var categoryReportData = new CategoryReportData
+            {
+                January = new CategoryReportMonthData[] { },
+                February = new CategoryReportMonthData[] { },
+                March = new CategoryReportMonthData[] { },
+                April = new CategoryReportMonthData[] { },
+                May = new CategoryReportMonthData[] { },
+                June = new CategoryReportMonthData[] { },
+                July = new CategoryReportMonthData[] { },
+                August = new CategoryReportMonthData[] { },
+                September = new CategoryReportMonthData[] { },
+                October = new CategoryReportMonthData[] { },
+                November = new CategoryReportMonthData[] { },
+                December = new CategoryReportMonthData[] { }
+            };
+
+            //Selecting the data based on category for each month and counting the number of resolved, unresolved and escalated tickets of that category in each month
+            var ticketCountsByMonthByCategory = from ta in _context.TBL_TICKET_ASSIGNMENT
+                                                join u in _context.TBL_USER on ta.EmployeeId equals u.EmployeeId
+                                                join t in _context.TBL_TICKET on ta.TicketId equals t.Id
+                                                join c in _context.TBL_CATEGORY on t.CategoryId equals c.Id
+                                                where u.Id == id
+                                                group new { ta, c } by new { ta.TicketAssignedTimestamp.Month, c.CategoryName } into groupResult
+                                                select new
+                                                {
+                                                    Month = groupResult.Key.Month,
+                                                    CategoryName = groupResult.Key.CategoryName,
+                                                    ResolvedCount = groupResult.Sum(x => x.ta.EmployeeStatus == "resolved" ? 1 : 0),
+                                                    UnresolvedCount = groupResult.Sum(x => x.ta.EmployeeStatus == "unresolved" ? 1 : 0),
+                                                    EscalatedCount = groupResult.Sum(x => x.ta.EmployeeStatus == "escalated" ? 1 : 0)
+                                                };
+            foreach (var entry in ticketCountsByMonthByCategory)
+            {
+                var categoryReportMonthData = new CategoryReportMonthData
+                {
+                    CategoryName = entry.CategoryName,
+                    ResolvedCount = entry.ResolvedCount,
+                    UnresolvedCount = entry.UnresolvedCount,
+                    EscalatedCount = entry.EscalatedCount
+                };
+
+                CategoryReportMonthData[] monthArray;
+                switch (entry.Month)
+                {
+                    case 1: monthArray = categoryReportData.January; break;
+                    case 2: monthArray = categoryReportData.February; break;
+                    case 3: monthArray = categoryReportData.March; break;
+                    case 4: monthArray = categoryReportData.April; break;
+                    case 5: monthArray = categoryReportData.May; break;
+                    case 6: monthArray = categoryReportData.June; break;
+                    case 7: monthArray = categoryReportData.July; break;
+                    case 8: monthArray = categoryReportData.August; break;
+                    case 9: monthArray = categoryReportData.September; break;
+                    case 10: monthArray = categoryReportData.October; break;
+                    case 11: monthArray = categoryReportData.November; break;
+                    case 12: monthArray = categoryReportData.December; break;
+                    default: monthArray = null; break;
+                }
+
+                // Append the new CategoryReportMonthData object to the existing array or create a new list
+                if (monthArray != null)
+                {
+                    var monthList = monthArray.ToList();
+                    monthList.Insert(0, categoryReportMonthData);
+                    monthArray = monthList.ToArray();
+
+                    // Assign the updated array back to the corresponding property
+                    switch (entry.Month)
+                    {
+                        case 1: categoryReportData.January = monthArray; break;
+                        case 2: categoryReportData.February = monthArray; break;
+                        case 3: categoryReportData.March = monthArray; break;
+                        case 4: categoryReportData.April = monthArray; break;
+                        case 5: categoryReportData.May = monthArray; break;
+                        case 6: categoryReportData.June = monthArray; break;
+                        case 7: categoryReportData.July = monthArray; break;
+                        case 8: categoryReportData.August = monthArray; break;
+                        case 9: categoryReportData.September = monthArray; break;
+                        case 10: categoryReportData.October = monthArray; break;
+                        case 11: categoryReportData.November = monthArray; break;
+                        case 12: categoryReportData.December = monthArray; break;
+                    }
+                }
+            }
+
+            return categoryReportData;
+
         }
     }
 }

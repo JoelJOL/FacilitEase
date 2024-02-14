@@ -25,8 +25,6 @@ namespace FacilitEase.Services
         /// <param name="pageSize"></param>
         /// <param name="searchQuery"></param>
         /// <returns></returns>
-
-
         public EmployeeTicketResponse<TicketDetailsDto> GetTicketDetailsByUserId(int userId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
 
@@ -77,8 +75,11 @@ namespace FacilitEase.Services
                 };
         }
 
-
-
+        /// <summary>
+        /// To cancel a particular ticket
+        /// </summary>
+        /// <param name="ticketId"></param>
+        /// <returns></returns>
         public TicketDetailsDto GetTicketDetailsById(int ticketId)
         {
             var query = from t in _context.TBL_TICKET
@@ -100,11 +101,5 @@ namespace FacilitEase.Services
 
             return query.FirstOrDefault();
         }
-
-        /// <summary>
-        /// To cancel a particular ticket
-        /// </summary>
-        /// <param name="ticketId"></param>
-        /// <returns></returns>
     }
 }

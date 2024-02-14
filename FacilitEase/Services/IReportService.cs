@@ -28,5 +28,12 @@ namespace FacilitEase.Services
         /// <param name="id">Iser id of the user whose data is required</param>
         /// <returns>Object of WeekReport ApiModel that consists of weekly ticket count of userunder each status</returns>
         WeekReport GetWeeklyData(int id);
+        /// <summary>
+        /// To get the data required to display the report data that is categorised by ticket category and sorted into months for each status of resolved, unresolved and escalated
+        /// </summary>
+        /// <param name="id">the user id of the user</param>
+        /// <returns>Dtaa for report of categories</returns>
+        CategoryReportData CategoryReport(int id);
+
     }
 }
