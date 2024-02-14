@@ -53,6 +53,11 @@ namespace FacilitEase.Services
         /// <param name="categoryId"></param>
         public string GetTimeSinceLastUpdate(int ticketId);
 
+        /// <summary>
+        /// To cancel a particular ticket
+        /// </summary>
+        /// <param name="ticketId"></param>
+        /// <returns></returns>
         bool RequestToCancelTicket(int ticketId);
 
         
