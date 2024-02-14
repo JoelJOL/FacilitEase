@@ -31,10 +31,15 @@ namespace FacilitEase.Services
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            //  cleanup logic if needed
+            
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Monitors changes in ticket statuses and controllers asynchronously.
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token to stop the monitoring process.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task MonitorTicketChanges(CancellationToken cancellationToken)
         {
             using (var scope = _scopeFactory.CreateScope())
@@ -79,6 +84,7 @@ namespace FacilitEase.Services
                                 // Send a notification to the user and controller
                                 foreach (var message in messages)
                                 {
+                                    //Connecting with the client and sending the data.
                                     await _hubContext.Clients.All.SendAsync("ReceiveNotification", new { UserId = message.UserId, Text = message.Text });
 
                                     // Create a new notification in the database
@@ -108,6 +114,13 @@ namespace FacilitEase.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves a list of messages based on the specified ticket status and controller information.
+        /// </summary>
+        /// <param name="statusId">The status ID of the ticket.</param>
+        /// <param name="controllerId">The controller ID of the ticket.</param>
+        /// <param name="ticketId">The ID of the ticket for which messages are generated.</param>
+        /// <returns>A list of messages related to the ticket status and controller.</returns>
 
         private List<Message> GetMessagesForStatusAndController(int? statusId, int? controllerId, int ticketId)
         {
