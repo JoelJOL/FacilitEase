@@ -13,38 +13,39 @@ namespace FacilitEase.Tests
     [TestFixture]
     public class ReportServiceTests
     {
-        [Test]
-        public void GetReportData_ReturnsCorrectReport()
-        {
-            // Arrange
-            int userId = 1;
-            var mockContext = new Mock<AppDbContext>();
-            var mockDbSet = new Mock<DbSet<TBL_TICKET_ASSIGNMENT>>();
-
-            var testData = new List<TBL_TICKET_ASSIGNMENT>
+            [Test]
+            public void GetReportData_ReturnsCorrectReport()
             {
-                new TBL_TICKET_ASSIGNMENT { EmployeeId = 1, EmployeeStatus = "resolved" },
-                new TBL_TICKET_ASSIGNMENT { EmployeeId = 1, EmployeeStatus = "resolved" },
-                new TBL_TICKET_ASSIGNMENT { EmployeeId = 1, EmployeeStatus = "escalated" }
-            }.AsQueryable();
+                // Arrange
+                int userId = 1;
+                var mockContext = new Mock<AppDbContext>();
+                var mockDbSet = new Mock<DbSet<TBL_TICKET_ASSIGNMENT>>();
 
-            mockDbSet.As<IQueryable<TBL_TICKET_ASSIGNMENT>>().Setup(m => m.Provider).Returns(testData.Provider);
-            mockDbSet.As<IQueryable<TBL_TICKET_ASSIGNMENT>>().Setup(m => m.Expression).Returns(testData.Expression);
-            mockDbSet.As<IQueryable<TBL_TICKET_ASSIGNMENT>>().Setup(m => m.ElementType).Returns(testData.ElementType);
-            mockDbSet.As<IQueryable<TBL_TICKET_ASSIGNMENT>>().Setup(m => m.GetEnumerator()).Returns(testData.GetEnumerator());
+                // Modify test data to intentionally make the test fail
+                var testData = new List<TBL_TICKET_ASSIGNMENT>
+        {
+            new TBL_TICKET_ASSIGNMENT { EmployeeId = 1, EmployeeStatus = "resolved" },
+            new TBL_TICKET_ASSIGNMENT { EmployeeId = 1, EmployeeStatus = "resolved" },
+            new TBL_TICKET_ASSIGNMENT { EmployeeId = 1, EmployeeStatus = "resolved" } // Changing this to 'resolved' instead of 'escalated'
+        }.AsQueryable();
 
-            mockContext.Setup(c => c.TBL_TICKET_ASSIGNMENT).Returns(mockDbSet.Object);
+                mockDbSet.As<IQueryable<TBL_TICKET_ASSIGNMENT>>().Setup(m => m.Provider).Returns(testData.Provider);
+                mockDbSet.As<IQueryable<TBL_TICKET_ASSIGNMENT>>().Setup(m => m.Expression).Returns(testData.Expression);
+                mockDbSet.As<IQueryable<TBL_TICKET_ASSIGNMENT>>().Setup(m => m.ElementType).Returns(testData.ElementType);
+                mockDbSet.As<IQueryable<TBL_TICKET_ASSIGNMENT>>().Setup(m => m.GetEnumerator()).Returns(testData.GetEnumerator());
 
-            var mockUnitOfWork = new Mock<IUnitOfWork>();
-            var reportService = new ReportService(mockUnitOfWork.Object, mockContext.Object);
+                mockContext.Setup(c => c.TBL_TICKET_ASSIGNMENT).Returns(mockDbSet.Object);
 
-            // Act
-            var report = reportService.GetReportData(userId);
+                var mockUnitOfWork = new Mock<IUnitOfWork>();
+                var reportService = new ReportService(mockUnitOfWork.Object, mockContext.Object);
 
-            // Assert
-            Assert.Equals(2, report.Resolved); // Two resolved tickets for the user with id 1
-            Assert.Equals(1, report.Escalated); // One escalated ticket for the user with id 1
-            Assert.Equals(3, report.Total); // Total should be sum of resolved and escalated tickets
+                // Act
+                var report = reportService.GetReportData(userId);
+
+                // Assert
+                Assert.Equals(2, report.Resolved); // Fail if the number of resolved tickets is not 2
+                Assert.Equals(1, report.Escalated); // Pass if there is one escalated ticket
+                Assert.Equals(5, report.Total); // Pass if the total is 5
+            }
         }
     }
-}
