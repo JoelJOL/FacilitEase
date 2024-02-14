@@ -551,6 +551,7 @@ namespace FacilitEase.Services
                                          PriorityName = priority.PriorityName,
                                          SubmittedDate = ticket.SubmittedDate,
                                          EmployeeName = $"{employee.FirstName} {employee.LastName}",
+                                         EmployeeId = employee.Id,
                                          ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : null,
                                          AssignedTo = _context.TBL_EMPLOYEE
                         .Where(employee => employee.Id == ticket.AssignedTo)

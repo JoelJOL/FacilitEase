@@ -10,6 +10,7 @@
         public string PriorityName { get; set; }
         public DateTime SubmittedDate { get; set; }
         public string EmployeeName { get; set; }
+        public int EmployeeId { get; set; }
         public string AssignedTo { get; set; }
         public string ManagerName { get; set; }
         public int? ManagerId { get; set; }
