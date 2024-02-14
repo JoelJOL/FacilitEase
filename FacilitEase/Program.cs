@@ -40,6 +40,10 @@ string connectionString = Env.GetString("ConnectionStrings__DefaultConnection");
 var jwtKey = Env.GetString("JWT_Key");
 var jwtIssuer = Env.GetString("JWT_Issuer");
 var jwtAudience = Env.GetString("JWT_Audience");
+
+builder.Configuration["Jwt:Key"] = jwtKey;
+builder.Configuration["Jwt:Issuer"] = jwtIssuer;
+builder.Configuration["Jwt:Audience"] = jwtAudience;
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
@@ -125,11 +129,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 
-
-
-
-/*app.UseTokenValidationMiddleware("https://login.microsoftonline.com/5b751804-232f-410d-bb2f-714e3bb466eb/v2.0", "d7104f84-ab29-436f-8f06-82fcf8d81381");
-*/
 app.UseRouting();
 app.UseCors("AllowAngularDev");
 
