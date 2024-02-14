@@ -1023,8 +1023,9 @@ namespace FacilitEase.Services
                          join e in _context.TBL_EMPLOYEE on u.EmployeeId equals e.Id
                          join p in _context.TBL_PRIORITY on t.PriorityId equals p.Id
                          join s in _context.TBL_STATUS on t.StatusId equals s.Id
-                         // Additional join with manager information
                          join m in _context.TBL_EMPLOYEE on e.ManagerId equals m.Id
+                         join forwarder in _context.TBL_EMPLOYEE on t.AssignedTo equals forwarder.Id
+ 
                          where t.Id == ticketId
                          select new DepartmentHeadManagerTicketDetails
                          {
@@ -1032,7 +1033,7 @@ namespace FacilitEase.Services
                              TicketName = t.TicketName,
                              EmployeeName = $"{e.FirstName} {e.LastName}",
                              // Extracting manager's name for "Forwarded By" field
-                             ForwardedBy = $"{((e.ManagerId == e.Id) ? e.FirstName + " " + e.LastName : m.FirstName + " " + m.LastName)}",
+                             ForwardedBy = $"{forwarder.FirstName} {forwarder.LastName}",
                              AssignedTo = $"{_context.TBL_EMPLOYEE.Where(emp => emp.Id == t.AssignedTo).Select(emp => $"{emp.FirstName} {emp.LastName}").FirstOrDefault()}",
                              SubmittedDate = t.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                              priorityName = p.PriorityName,
