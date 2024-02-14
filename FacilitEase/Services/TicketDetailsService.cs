@@ -2,6 +2,7 @@ using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Net.Sockets;
 
 namespace FacilitEase.Services
 {
@@ -37,6 +38,7 @@ namespace FacilitEase.Services
                         join emp in _context.TBL_EMPLOYEE on e.EmployeeId equals emp.Id into empJoin
                         from employee in empJoin.DefaultIfEmpty() // Use left join to include null values in TBL_EMPLOYEE
                         where t.UserId == userId
+                        where string.IsNullOrEmpty(searchQuery) || t.TicketName.Contains(searchQuery)
                         select new
                         {
                             Id = t.Id,
@@ -45,6 +47,7 @@ namespace FacilitEase.Services
                             AssignedTo = employee != null ? $"{employee.FirstName} {employee.LastName}" : "--------",
                             Priority = tp.PriorityName,
                             Status = ts.StatusName,
+                            UserId = t.UserId,
                         };
 
             var queryTicketList = query.ToList();
@@ -64,6 +67,7 @@ namespace FacilitEase.Services
                 AssignedTo = t.AssignedTo,
                 Priority = t.Priority,
                 SubmittedDate = t.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                UserId = t.UserId,
             });
 
             // Apply Pagination
@@ -89,6 +93,7 @@ namespace FacilitEase.Services
                         join e in _context.TBL_EMPLOYEE on u.Id equals e.Id into employeeJoin
                         from e in employeeJoin.DefaultIfEmpty()
                         where t.Id == ticketId
+
                         select new TicketDetailsDto
                         {
                             Id = t.Id,

@@ -2,6 +2,7 @@
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
 using System.Linq.Dynamic.Core;
+using System.Net.Sockets;
 namespace FacilitEase.Services
 {
     public class L1AdminService : IL1AdminService
@@ -277,7 +278,79 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
+        public EmployeeTicketResponse<L1AdminTicketView> GetAllTickets(string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
+        {
+            var query = from t in _context.TBL_TICKET
+                        join tp in _context.TBL_PRIORITY on t.PriorityId equals tp.Id
+                        join ts in _context.TBL_STATUS on t.StatusId equals ts.Id
+                        join tu in _context.TBL_USER on t.UserId equals tu.Id
+                        join ue in _context.TBL_EMPLOYEE on tu.EmployeeId equals ue.Id
+                        join ued in _context.TBL_EMPLOYEE_DETAIL on ue.Id equals ued.EmployeeId into empDetailJoin
+                        from employeeDetail in empDetailJoin.DefaultIfEmpty()
+                        join e in _context.TBL_EMPLOYEE on t.AssignedTo equals e.Id into empJoin
+                        from employee in empJoin.DefaultIfEmpty()
+                        join ul in _context.TBL_LOCATION on employeeDetail.LocationId equals ul.Id into locJoin
+                        from loc in locJoin.DefaultIfEmpty()
+                        join ud in _context.TBL_DEPARTMENT on employeeDetail.DepartmentId equals ud.Id into deptJoin
+                        from dept in deptJoin.DefaultIfEmpty()
+                        where string.IsNullOrEmpty(searchQuery) || t.TicketName.Contains(searchQuery)
+                        
+                        select new L1AdminTicketView
+                        {
+                           Id = t.Id,
+                            TicketName = t.TicketName,
+                            RaisedBy = $"{ue.FirstName} {ue.LastName}",
+                            Priority = tp.PriorityName,
+                            Status = ts.StatusName,
+                            Location = loc.LocationName,
+                            Department = dept.DeptName,
+                            SubmittedDate = t.SubmittedDate.ToString("yyyy-MM-dd"), // Corrected date format
+                            AssignedTo = employee != null ? $"{employee.FirstName} {employee.LastName}" : "--------",
+                            
+                        };
+
+            var result = query.ToList();
 
 
+
+            var queryTicketList = query.ToList();
+
+            // Apply Sorting
+            if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
+            {
+                string orderByString = $"{sortField} {sortOrder}";
+                queryTicketList = queryTicketList.AsQueryable().OrderBy(orderByString).ToList();
+            }
+
+            var queryList = queryTicketList.AsEnumerable().Select(t => new L1AdminTicketView
+            {
+                Id = t.Id,
+                TicketName = t.TicketName,
+                RaisedBy = t.RaisedBy,
+                Priority = t.Priority,
+                Status = t.Status,
+                Location = t.Location,
+                Department = t.Department,
+                SubmittedDate = t.SubmittedDate,
+                AssignedTo = t.AssignedTo,
+               
+                
+               
+                
+               
+
+            });
+
+            // Apply Pagination
+            var totalCount = query.Count();
+            queryList = queryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+            // Return the results in a paginated response object.
+            return new EmployeeTicketResponse<L1AdminTicketView>
+            {
+                Data = queryList,
+                TotalDataCount = totalCount
+            };
+        }
     }
 }
