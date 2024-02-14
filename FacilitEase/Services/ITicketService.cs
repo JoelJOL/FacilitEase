@@ -37,10 +37,20 @@ namespace FacilitEase.Services
 
         void CreateTicketWithDocuments([FromForm] TicketDto ticketDto, [FromForm] IFormFile file);
 
+        /// <summary>
+        /// Method to add field to to ticket tracking table
+        /// </summary>
+        /// <param name="ticketId"></param>
+        /// <param name="categoryId"></param>
         public void UpdateTicketTracking(int ticketId, int statusId, int? assignedTo, int? controllerId, DateTime? ticketRaisedTimestamp, int updatedBy);
 
         IEnumerable<DocumentDto> GetDocumentsByTicketId(int ticketId);
 
+        /// <summary>
+        /// This method gets the time since the comment of the ticket has been last updated.
+        /// </summary>
+        /// <param name="ticketId"></param>
+        /// <param name="categoryId"></param>
         public string GetTimeSinceLastUpdate(int ticketId);
 
         bool RequestToCancelTicket(int ticketId);
