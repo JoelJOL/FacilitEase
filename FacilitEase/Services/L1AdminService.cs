@@ -281,31 +281,36 @@ namespace FacilitEase.Services
         public EmployeeTicketResponse<L1AdminTicketView> GetAllTickets(string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             var query = from t in _context.TBL_TICKET
-                        join ts in _context.TBL_STATUS on t.StatusId equals ts.Id
                         join tp in _context.TBL_PRIORITY on t.PriorityId equals tp.Id
-                        join u in _context.TBL_USER on t.AssignedTo equals u.Id into userJoin
-                        from e in userJoin.DefaultIfEmpty()
-                        join empDetail in _context.TBL_EMPLOYEE_DETAIL on e.Id equals empDetail.EmployeeId into empDetailJoin
+                        join ts in _context.TBL_STATUS on t.StatusId equals ts.Id
+                        join tu in _context.TBL_USER on t.UserId equals tu.Id
+                        join ue in _context.TBL_EMPLOYEE on tu.EmployeeId equals ue.Id
+                        join ued in _context.TBL_EMPLOYEE_DETAIL on ue.Id equals ued.EmployeeId into empDetailJoin
                         from employeeDetail in empDetailJoin.DefaultIfEmpty()
-                        join emp in _context.TBL_EMPLOYEE on employeeDetail.EmployeeId equals emp.Id into empJoin
+                        join e in _context.TBL_EMPLOYEE on t.AssignedTo equals e.Id into empJoin
                         from employee in empJoin.DefaultIfEmpty()
-                        join location in _context.TBL_LOCATION on employeeDetail.LocationId equals location.Id into locationJoin
-                        from loc in locationJoin.DefaultIfEmpty()
-                        join department in _context.TBL_DEPARTMENT on employeeDetail.DepartmentId equals department.Id into deptJoin
+                        join ul in _context.TBL_LOCATION on employeeDetail.LocationId equals ul.Id into locJoin
+                        from loc in locJoin.DefaultIfEmpty()
+                        join ud in _context.TBL_DEPARTMENT on employeeDetail.DepartmentId equals ud.Id into deptJoin
                         from dept in deptJoin.DefaultIfEmpty()
                         where string.IsNullOrEmpty(searchQuery) || t.TicketName.Contains(searchQuery)
+                        
                         select new L1AdminTicketView
                         {
-                            TicketId = t.Id,
+                           Id = t.Id,
                             TicketName = t.TicketName,
-                            SubmittedDate = (t.SubmittedDate).ToString("yyyy-mm-dd"),
-                            AssignedTo = employee != null ? $"{employee.FirstName} {employee.LastName}" : "--------",
+                            RaisedBy = $"{ue.FirstName} {ue.LastName}",
                             Priority = tp.PriorityName,
                             Status = ts.StatusName,
-                            Location = loc != null ? loc.LocationName : "--------",
-                            Department = dept != null ? dept.DeptName : "--------",
-                            RaisedBy = employee != null ? $"{employee.FirstName} {employee.LastName}" : "--------",
+                            Location = loc.LocationName,
+                            Department = dept.DeptName,
+                            SubmittedDate = t.SubmittedDate.ToString("yyyy-MM-dd"), // Corrected date format
+                            AssignedTo = employee != null ? $"{employee.FirstName} {employee.LastName}" : "--------",
+                            
                         };
+
+            var result = query.ToList();
+
 
 
             var queryTicketList = query.ToList();
@@ -319,15 +324,20 @@ namespace FacilitEase.Services
 
             var queryList = queryTicketList.AsEnumerable().Select(t => new L1AdminTicketView
             {
-                TicketId = t.TicketId,
+                Id = t.Id,
                 TicketName = t.TicketName,
-                Status = t.Status,
-                AssignedTo = t.AssignedTo,
-                Priority = t.Priority,
-                SubmittedDate = t.SubmittedDate,
-                Department = t.Department,
-                Location = t.Location,
                 RaisedBy = t.RaisedBy,
+                Priority = t.Priority,
+                Status = t.Status,
+                Location = t.Location,
+                Department = t.Department,
+                SubmittedDate = t.SubmittedDate,
+                AssignedTo = t.AssignedTo,
+               
+                
+               
+                
+               
 
             });
 
