@@ -27,6 +27,7 @@ public class UnitOfWork : IUnitOfWork
         Location = new LocationRepository(_context);
         Position = new PositionRepository(_context);
         Notification = new NotificationRepository(_context);
+        UserRoleMapping = new UserRoleMappingRepository(_context);
     }
 
     public IDepartmentRepository Departments { get; set; }
@@ -48,6 +49,7 @@ public class UnitOfWork : IUnitOfWork
     public ITicketRepository TicketRepository { get; set; }
     public IL3AdminRepository L3Admin { get; set; }
 
+    public IUserRoleMappingRepository UserRoleMapping { get; set; }
 
     public int Complete()
     {

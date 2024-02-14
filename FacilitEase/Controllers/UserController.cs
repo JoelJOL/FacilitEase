@@ -77,10 +77,7 @@ namespace FacilitEase.Controllers
 
                 //To generate a JWT token if the user is present in the employee table
                 var appToken = _loginService.CheckUser(username);
-
-                //Get the roles from the active directory
-                var roless = _roleManagementService.GetAppRoles(accessToken);
-
+          /*      var roless = _roleManagementService.GetAppRoles(accessToken);*/
                 // You can add your business logic here or return a specific ActionResult
                 return Ok(appToken);
             }

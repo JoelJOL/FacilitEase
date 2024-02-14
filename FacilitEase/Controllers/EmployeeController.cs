@@ -102,7 +102,18 @@ namespace FacilitEase.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+        [HttpGet("facilitiease")]
+        public IActionResult GetCategoriesForFacilitiease()
+        {
+            var categories = _categoryService.GetCategoriesForFacilitiease();
 
+            if (categories == null || !categories.Any())
+            {
+                return NotFound("No categories found for Facilitiease.");
+            }
+
+            return Ok(categories);
+        }
         [HttpDelete("{id}")]
         public IActionResult DeleteEmployee(int id)
         {
