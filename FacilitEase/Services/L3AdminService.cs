@@ -173,6 +173,51 @@ namespace FacilitEase.Services
             }
         }
 
+       public void ForwardTicketDeptHead(int ticketId,int employeeId)
+        {
+            
+            var ticketToForward = _context.TBL_TICKET
+           .FirstOrDefault(t => t.Id == ticketId);
+
+            if (ticketToForward != null)
+            {
+                ticketToForward.StatusId = 6;
+                var employeeDepartmentId = (from employeeDetail in _context.TBL_EMPLOYEE_DETAIL
+                                            where employeeDetail.EmployeeId == employeeId
+                                            select employeeDetail.DepartmentId).FirstOrDefault();
+                var departmentHeadId = (from userRoleMapping in _context.TBL_USER_ROLE_MAPPING
+                                        join userRole in _context.TBL_USER_ROLE on userRoleMapping.UserRoleId equals userRole.Id
+                                        join user in _context.TBL_USER on userRoleMapping.UserId equals user.Id
+                                        join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
+                                        join employeeDetail in _context.TBL_EMPLOYEE_DETAIL on employee.Id equals employeeDetail.EmployeeId
+                                        where (userRole.UserRoleName == "DepartmentHead" || userRole.UserRoleName == "L1Admin") && employeeDetail.DepartmentId == employeeDepartmentId
+                                        select user.Id).FirstOrDefault();
+                if (departmentHeadId != 0)
+                {
+                    ticketToForward.ControllerId = departmentHeadId;
+                    ticketToForward.UpdatedDate = DateTime.Now;
+                    _context.SaveChanges();
+                    _ticketService.UpdateTicketTracking(
+                    ticketToForward.Id, 6,
+                    ticketToForward.AssignedTo,
+                    ticketToForward.ControllerId,
+                    ticketToForward.SubmittedDate,
+                    ticketToForward.UpdatedBy);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Dept Head IDv is null or invalid.");
+                }
+                _context.SaveChanges();
+
+
+            }
+
+            
+            
+
+        }
+
         public void AddTicket(TBL_TICKET ticket)
         {
             _unitOfWork.Ticket.Add(ticket);
@@ -397,6 +442,7 @@ namespace FacilitEase.Services
                               PriorityName = priority.PriorityName,
                               SubmittedDate = ticket.SubmittedDate,
                               EmployeeName = $"{employee.FirstName} {employee.LastName}",
+                              EmployeeId = employee.Id,
                               ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : null,
                               ManagerId = employee.ManagerId,
                               LocationName = location.LocationName,

@@ -24,13 +24,19 @@ namespace FacilitEase.Controllers
             _loginService = loginService;
             _roleManagementService = roleManagementService;
         }
-
+        /// <summary>
+        /// To validate the azure generated token and generate a JWT token of the applicaiton for authentication
+        /// </summary>
+        /// <param name="azureReturn">An ApiModel that has access token</param>
+        /// <returns>Application generated JWT token</returns>
         [HttpPost]
         public IActionResult Login([FromBody] AzureReturn azureReturn)
         {
             try
             {
                 var accessToken = azureReturn.AccessToken;
+
+                //Get the id token from the header of the http request
                 var token = Request.Headers["Authorization"].ToString()?.Replace("Bearer ", "");
                 string username = "";
 
@@ -39,9 +45,11 @@ namespace FacilitEase.Controllers
                     return Unauthorized();
                 }
 
+                //Decoding the id token
                 var handler = new JwtSecurityTokenHandler();
                 var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
 
+                //Decoding the email id from the azure JWT token
                 var usernameClaim = jsonToken?.Claims.FirstOrDefault(claim => claim.Type == "preferred_username");
 
                 if (usernameClaim != null)
@@ -49,27 +57,27 @@ namespace FacilitEase.Controllers
                     username = usernameClaim.Value.ToString();
                 }
 
-                Console.WriteLine($"Issuer from Token: {jsonToken.Issuer}");
-
+                //Setting the validate parameters to validate the id token from azure
                 var parameters = new TokenValidationParameters
                 {
                     ValidIssuer = _authority,
                     ValidAudience = _audience,
-                    IssuerSigningKeys = GetSigningKeys().Result, // Use .Result for simplicity
+                    IssuerSigningKeys = GetSigningKeys().Result,
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateIssuerSigningKey = true,
                     RequireSignedTokens = true,
                     RequireExpirationTime = true,
-                    ClockSkew = TimeSpan.FromMinutes(5) // Adjust as needed
+                    ClockSkew = TimeSpan.FromMinutes(5)
                 };
 
+                //Validating the azure token. If not azure token, an exception will be thrown
                 ClaimsPrincipal principal = handler.ValidateToken(token, parameters, out _);
                 HttpContext.User = principal;
 
+                //To generate a JWT token if the user is present in the employee table
                 var appToken = _loginService.CheckUser(username);
           /*      var roless = _roleManagementService.GetAppRoles(accessToken);*/
-
                 // You can add your business logic here or return a specific ActionResult
                 return Ok(appToken);
             }
@@ -82,7 +90,11 @@ namespace FacilitEase.Controllers
                 return StatusCode(500); // Internal Server Error
             }
         }
-
+        /// <summary>
+        /// The contains the cryptographic keys used by the OpenID Connect provider to sign tokens. 
+        /// These are essential for verifying the authenticity of tokens received by the application
+        /// </summary>
+        /// <returns>Keys used by OpenID Connect</returns>
         private async Task<IEnumerable<SecurityKey>> GetSigningKeys()
         {
             var configurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(
