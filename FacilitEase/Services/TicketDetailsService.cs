@@ -79,7 +79,6 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
-
         /// <summary>
         /// To cancel a particular ticket
         /// </summary>
