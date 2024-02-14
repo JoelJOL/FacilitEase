@@ -1031,7 +1031,7 @@ namespace FacilitEase.Services
                              TicketName = t.TicketName,
                              EmployeeName = $"{e.FirstName} {e.LastName}",
                              // Extracting manager's name for "Forwarded By" field
-                             ForwardedBy = $"{((e.ManagerId == e.Id) ? e.FirstName + " " + e.LastName : m.FirstName + " " + m.LastName)}",
+                             ForwardedBy = $"{((t.AssignedTo == e.Id) ? e.FirstName + " " + e.LastName : "")}",
                              AssignedTo = $"{_context.TBL_EMPLOYEE.Where(emp => emp.Id == t.AssignedTo).Select(emp => $"{emp.FirstName} {emp.LastName}").FirstOrDefault()}",
                              SubmittedDate = t.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
                              priorityName = p.PriorityName,
