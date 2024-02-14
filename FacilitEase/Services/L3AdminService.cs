@@ -53,6 +53,10 @@ namespace FacilitEase.Services
             }
         }
 
+        /// <summary>
+        /// Method to accept ticket cancellation request
+        /// </summary>
+        /// <param name="ticketId"></param>
         public void AcceptTicketCancellation(int ticketId)
         {
             var ticketToClose = _context.TBL_TICKET
@@ -82,6 +86,10 @@ namespace FacilitEase.Services
             }
         }
 
+        /// <summary>
+        /// Method to deny ticket cancellation request
+        /// </summary>
+        /// <param name="ticketId"></param>
         public void DenyTicketCancellation(int ticketId)
         {
             var ticketToClose = _context.TBL_TICKET
@@ -173,7 +181,11 @@ namespace FacilitEase.Services
             }
         }
 
-       public void ForwardTicketDeptHead(int ticketId,int employeeId)
+        /// <summary>
+        /// Method to forward ticket to dept head
+        /// </summary>
+        /// <param name="ticketId"></param>
+        public void ForwardTicketDeptHead(int ticketId,int employeeId)
         {
             
             var ticketToForward = _context.TBL_TICKET
