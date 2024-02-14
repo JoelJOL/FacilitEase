@@ -454,6 +454,11 @@ namespace FacilitEase.Services
             UpdateTicketTracking(ticketEntity.Id, 1, null, null, DateTime.Now, ticketEntity.CreatedBy);
         }
 
+        /// <summary>
+        /// To cancel a particular ticket
+        /// </summary>
+        /// <param name="ticketId"></param>
+        /// <returns></returns>
         public bool RequestToCancelTicket(int ticketId)
         {
             var ticket = _context.TBL_TICKET.FirstOrDefault(t => t.Id == ticketId);

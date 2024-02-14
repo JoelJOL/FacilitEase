@@ -100,56 +100,6 @@ namespace FacilitEase.Services
             _context.SaveChanges();
         }
 
-        /*   public EmployeeTicketResponse<L1AdminTicketView> GetAllTickets(string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
-           {
-               var query = from t in _context.TBL_TICKET
-                           join ts in _context.TBL_STATUS on t.StatusId equals ts.Id
-                           join tp in _context.TBL_PRIORITY on t.PriorityId equals tp.Id
-                           join u in _context.TBL_USER on t.AssignedTo equals u.Id into userJoin
-                           from e in userJoin.DefaultIfEmpty()
-                           join emp in _context.TBL_EMPLOYEE on e.EmployeeId equals emp.Id into empJoin
-                           from employee in empJoin.DefaultIfEmpty()
-                           join c in _context.TBL_CATEGORY on t.CategoryId equals c.Id into categoryJoin
-                           from category in categoryJoin.DefaultIfEmpty()
-                           join d in _context.TBL_DEPARTMENT on category.DepartmentId equals d.Id into departmentJoin
-                           from department in departmentJoin.DefaultIfEmpty()
-                           join ed in _context.TBL_EMPLOYEE_DETAIL on e.Id equals ed.Id into employeeDetailsJoin
-                           from employeeDetails in employeeDetailsJoin.DefaultIfEmpty()
-                           join raisedByUser in _context.TBL_USER on t.UserId equals raisedByUser.Id into raisedByUserJoin
-                           from raisedBy in raisedByUserJoin.DefaultIfEmpty()
-                           select new L1AdminTicketView
-                           {
-                               TicketId = t.Id, // Assuming TicketId is the property in L1AdminTicketView corresponding to t.Id
-                               TicketName = t.TicketName,
-                               SubmittedDate = t.SubmittedDate,
-                               AssignedTo = employee != null ? $"{employee.FirstName} {employee.LastName}" : "--------",
-                               Priority = tp.PriorityName,
-                               Status = ts.StatusName,
-                               Location = employeeDetails.LocationId,
-                               Department = department ,
-                               RaisedBy = raisedBy != null ? raisedBy.UserName : "Unknown User",
-                           };
-
-               // Apply Sorting
-               if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
-               {
-                   string orderByString = $"{sortField} {sortOrder}";
-                   query = query.OrderByDynamic(orderByString); // Assuming you have a method to handle dynamic sorting
-               }
-
-               var totalCount = query.Count();
-
-               // Apply Pagination
-               var paginatedQuery = query.Skip(pageIndex * pageSize).Take(pageSize).ToList();
-
-               // Return the results in a paginated response object.
-               return new EmployeeTicketResponse<L1AdminTicketView>
-               {
-                   Data = paginatedQuery,
-                   TotalDataCount = totalCount
-               };
-           }*/
-
         public ManagerTicketResponse<TicketApiModel> GetEscalatedTickets(int userId, int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery)
         {
             // Step 1: Retrieve DepartmentId based on UserId
@@ -278,6 +228,16 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
+
+        /// <summary>
+        /// Retrieves all the tickets raised by employees with their details for L1 Admin.
+        /// </summary>
+        /// <param name="sortField"></param>
+        /// <param name="sortOrder"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="searchQuery"></param>
+        /// <returns></returns>
         public EmployeeTicketResponse<L1AdminTicketView> GetAllTickets(string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             var query = from t in _context.TBL_TICKET
@@ -311,8 +271,6 @@ namespace FacilitEase.Services
 
             var result = query.ToList();
 
-
-
             var queryTicketList = query.ToList();
 
             // Apply Sorting
@@ -333,12 +291,6 @@ namespace FacilitEase.Services
                 Department = t.Department,
                 SubmittedDate = t.SubmittedDate,
                 AssignedTo = t.AssignedTo,
-               
-                
-               
-                
-               
-
             });
 
             // Apply Pagination
