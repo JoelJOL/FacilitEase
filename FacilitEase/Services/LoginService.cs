@@ -12,13 +12,14 @@ namespace FacilitEase.Services
     {
         private readonly AppDbContext _context;
         private readonly IConfiguration _config;
-        ResourceManager resourceManager = new ResourceManager("FacilitEase.Resource", typeof(Program).Assembly);
+        private ResourceManager resourceManager = new ResourceManager("FacilitEase.Resource", typeof(Program).Assembly);
 
         public LoginService(AppDbContext context, IConfiguration config)
         {
             _context = context;
             _config = config;
         }
+
         /// <summary>
         /// To check if the login user is present in the user table
         /// </summary>
@@ -58,7 +59,7 @@ namespace FacilitEase.Services
                     _context.TBL_USER_ROLE_MAPPING.Add(roleMap);
                     _context.SaveChanges();
 
-                    //Generate the JWT token 
+                    //Generate the JWT token
                     var token = new { token = GenerateJwtToken(newUser, _config) };
                     return token;
                 }
@@ -75,6 +76,7 @@ namespace FacilitEase.Services
                 return token;
             }
         }
+
         /// <summary>
         /// Generation of JWT token with the necessary informations
         /// </summary>
@@ -84,10 +86,10 @@ namespace FacilitEase.Services
         public string GenerateJwtToken(TBL_USER User, IConfiguration _config)
         {
             //Selecting the employee name from database
-            var EmployeeName=(from e in _context.TBL_EMPLOYEE
-                             join u in _context.TBL_USER on e.Id equals u.EmployeeId
-                             where u.Id==User.EmployeeId
-                             select (e.FirstName+" "+e.LastName).ToString()).FirstOrDefault();
+            var EmployeeName = (from e in _context.TBL_EMPLOYEE
+                                join u in _context.TBL_USER on e.Id equals u.EmployeeId
+                                where u.Id == User.EmployeeId
+                                select (e.FirstName + " " + e.LastName).ToString()).FirstOrDefault();
 
             //Selecting the roles fo the user from userrolemapping table
             var roles = from m in _context.TBL_USER_ROLE_MAPPING

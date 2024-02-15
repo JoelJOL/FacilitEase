@@ -14,6 +14,7 @@ namespace FacilitEase.Services
             _unitOfWork = unitOfWork;
             _context = context;
         }
+
         /// <summary>
         /// To get the number of resolved, escalated and total tickets of an admin for a year
         /// </summary>
@@ -34,6 +35,7 @@ namespace FacilitEase.Services
 
             return report;
         }
+
         /// <summary>
         /// To group the number of resolved and escalated tickets of an admin with respect to months of an year
         /// </summary>
@@ -68,9 +70,9 @@ namespace FacilitEase.Services
                                           ResolvedCount = groupResult.Count(ta => ta.EmployeeStatus == "resolved"),
                                           EscalatedCount = groupResult.Count(ta => ta.EmployeeStatus == "escalated")
                                       };
-           
+
             //Adding the data into the above api model with respect the months
-            //The arrayentered here consists of numbers which represets [number of resolved tickets, number of escalated tickets]
+            //The array entered here consists of numbers which represents [number of resolved tickets, number of escalated tickets]
             foreach (var entry in ticketCountsByMonth)
             {
                 switch (entry.Month)
@@ -90,10 +92,9 @@ namespace FacilitEase.Services
                 }
             }
 
-
-
             return chartData;
         }
+
         /// <summary>
         /// To get the EmployeeId, FirstName, LastName, JobTitle and Username of an employee
         /// </summary>
@@ -127,6 +128,7 @@ namespace FacilitEase.Services
                                     select p.PositionName).FirstOrDefault()?.ToString() ?? "";
             return profileData;
         }
+
         /// <summary>
         /// To get the number of resolved, unresolved and escalated tickets of an admin in a week
         /// </summary>
@@ -159,6 +161,7 @@ namespace FacilitEase.Services
                           }).FirstOrDefault();
             return weekReport;
         }
+
         /// <summary>
         /// To get the data required to display the report data that is categorised by ticket category and sorted into months for each status of resolved, unresolved and escalated
         /// </summary>
@@ -166,11 +169,10 @@ namespace FacilitEase.Services
         /// <returns>Dtaa for report of categories</returns>
         public CategoryReportData CategoryReport(int id)
         {
-
             //creating object of Api model categoryReportData
             var categoryReportData = new CategoryReportData
             {
-                January = new CategoryReportMonthData[] { },
+                January = Array.Empty<CategoryReportMonthData>(),
                 February = new CategoryReportMonthData[] { },
                 March = new CategoryReportMonthData[] { },
                 April = new CategoryReportMonthData[] { },
@@ -187,9 +189,10 @@ namespace FacilitEase.Services
             //Selecting the data based on category for each month and counting the number of resolved, unresolved and escalated tickets of that category in each month
             var ticketCountsByMonthByCategory = from ta in _context.TBL_TICKET_ASSIGNMENT
                                                 join u in _context.TBL_USER on ta.EmployeeId equals u.EmployeeId
+                                                join ed in _context.TBL_EMPLOYEE_DETAIL on u.Id equals ed.Id
                                                 join t in _context.TBL_TICKET on ta.TicketId equals t.Id
                                                 join c in _context.TBL_CATEGORY on t.CategoryId equals c.Id
-                                                where u.Id == id
+                                                where u.Id == id && ed.DepartmentId == c.DepartmentId
                                                 group new { ta, c } by new { ta.TicketAssignedTimestamp.Month, c.CategoryName } into groupResult
                                                 select new
                                                 {
@@ -254,7 +257,6 @@ namespace FacilitEase.Services
             }
 
             return categoryReportData;
-
         }
     }
 }

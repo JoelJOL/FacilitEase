@@ -104,6 +104,7 @@ namespace FacilitEase.Services
 
             return query.SingleOrDefault();
         }
+
         public List<AssetHistory> GetDetailsForUnassignedAsset(int unassignedAssetId)
         {
             var query = from mapping in _context.TBL_ASSET_EMPLOYEE_MAPPING
@@ -120,8 +121,5 @@ namespace FacilitEase.Services
 
             return query.ToList();
         }
-
-
     }
 }
-

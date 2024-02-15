@@ -98,6 +98,7 @@ namespace FacilitEase.Services
         /// <param name="request">The request containing the new status.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a boolean indicating the success of the operation.</returns>
         Task<bool> ChangeTicketStatus(int ticketId, TicketStatusChangeRequest request);
+
         /// <summary>
         /// retrieve assigned tickets with optional search criteria
         /// </summary>
@@ -108,12 +109,14 @@ namespace FacilitEase.Services
         /// <param name="searchQuery"></param>
         /// <returns></returns>
         ManagerTicketResponse<TicketApiModel> GetAssignedTickets(int userId, int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery);
+
         /// <summary>
         /// retrieve detailed information about a specific ticket
         /// </summary>
         /// <param name="desiredTicketId"></param>
         /// <returns></returns>
         TicketDetails GetTicketDetails(int desiredTicketId);
+
         /// <summary>
         /// retrieve unassigned tickets with optional search criteria
         /// </summary>
@@ -124,12 +127,14 @@ namespace FacilitEase.Services
         /// <param name="searchQuery"></param>
         /// <returns></returns>
         ManagerTicketResponse<UnassignedTicketModel> GetUnassignedTickets(int userId, int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery);
+
         /// <summary>
         /// Assign the ticket to the agent
         /// </summary>
         /// <param name="ticketId"></param>
         /// <param name="agentId"></param>
         void AssignTicketToAgent(int userId, int ticketId, int agentId);
+
         /// <summary>
         /// retrieve escalated tickets with optional search criteria
         /// </summary>
@@ -165,7 +170,5 @@ namespace FacilitEase.Services
         /// <param name="ticketId"></param>
         /// <returns></returns>
         bool RequestToCancelTicket(int ticketId);
-
-        
     }
 }

@@ -24,6 +24,7 @@ namespace FacilitEase.Controllers
             _loginService = loginService;
             _roleManagementService = roleManagementService;
         }
+
         /// <summary>
         /// To validate the azure generated token and generate a JWT token of the applicaiton for authentication
         /// </summary>
@@ -77,7 +78,7 @@ namespace FacilitEase.Controllers
 
                 //To generate a JWT token if the user is present in the employee table
                 var appToken = _loginService.CheckUser(username);
-          /*      var roless = _roleManagementService.GetAppRoles(accessToken);*/
+                /*      var roless = _roleManagementService.GetAppRoles(accessToken);*/
                 // You can add your business logic here or return a specific ActionResult
                 return Ok(appToken);
             }
@@ -90,8 +91,9 @@ namespace FacilitEase.Controllers
                 return StatusCode(500); // Internal Server Error
             }
         }
+
         /// <summary>
-        /// The contains the cryptographic keys used by the OpenID Connect provider to sign tokens. 
+        /// The contains the cryptographic keys used by the OpenID Connect provider to sign tokens.
         /// These are essential for verifying the authenticity of tokens received by the application
         /// </summary>
         /// <returns>Keys used by OpenID Connect</returns>
