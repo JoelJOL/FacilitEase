@@ -2,7 +2,7 @@
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
 using System.Linq.Dynamic.Core;
-using System.Net.Sockets;
+
 namespace FacilitEase.Services
 {
     public class L1AdminService : IL1AdminService
@@ -13,6 +13,7 @@ namespace FacilitEase.Services
         {
             _context = context;
         }
+
         /// <summary>
         /// To get the suggestions of details of employees that are having similar names to the string contained in text
         /// </summary>
@@ -51,6 +52,7 @@ namespace FacilitEase.Services
                     .ToList();
             return suggestions;
         }
+
         /// <summary>
         /// To get all the roles of an employee that are available to him
         /// </summary>
@@ -73,6 +75,7 @@ namespace FacilitEase.Services
 
             return roles;
         }
+
         /// <summary>
         /// Assigning a role to an employee
         /// </summary>
@@ -215,7 +218,6 @@ namespace FacilitEase.Services
                 Status = q.Status,
                 Department = q.Department,
                 Location = q.Location
-
             }).ToList();
             // Apply Pagination
             var totalCount = escalatedTicketsQuery.Count();
@@ -254,10 +256,10 @@ namespace FacilitEase.Services
                         join ud in _context.TBL_DEPARTMENT on employeeDetail.DepartmentId equals ud.Id into deptJoin
                         from dept in deptJoin.DefaultIfEmpty()
                         where string.IsNullOrEmpty(searchQuery) || t.TicketName.Contains(searchQuery)
-                        
+
                         select new L1AdminTicketView
                         {
-                           Id = t.Id,
+                            Id = t.Id,
                             TicketName = t.TicketName,
                             RaisedBy = $"{ue.FirstName} {ue.LastName}",
                             Priority = tp.PriorityName,
@@ -266,7 +268,6 @@ namespace FacilitEase.Services
                             Department = dept.DeptName,
                             SubmittedDate = t.SubmittedDate.ToString("yyyy-MM-dd"), // Corrected date format
                             AssignedTo = employee != null ? $"{employee.FirstName} {employee.LastName}" : "--------",
-                            
                         };
 
             var result = query.ToList();

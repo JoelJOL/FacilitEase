@@ -31,7 +31,6 @@ namespace FacilitEase.Services
             return MapToDepartmentDtoList(departments);
         }
 
-
         /// <summary>
         /// Mapping a collection of TBL_DEPARTMENT entities to a collection of DepartmentDto objects.
         /// </summary>
@@ -113,7 +112,6 @@ namespace FacilitEase.Services
 
             return departments;
         }
-
 
         public List<DeptCategoryDto> GetCategoriesByDepartmentId(int departmentId)
         {

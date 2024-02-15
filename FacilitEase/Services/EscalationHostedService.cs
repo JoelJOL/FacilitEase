@@ -1,13 +1,5 @@
 ﻿using FacilitEase.Data;
 using FacilitEase.Models.EntityModels;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Graph.Models;
-using System;
-using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace FacilitEase.Services
 {

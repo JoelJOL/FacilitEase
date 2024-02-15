@@ -6,5 +6,4 @@ namespace FacilitEase.Repositories
     {
         IEnumerable<int> GetUserIdsByRoleId(int userRoleId);
     }
-
 }

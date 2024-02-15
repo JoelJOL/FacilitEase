@@ -1,10 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using FacilitEase.UnitOfWork;
-using FacilitEase.Models.EntityModels;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using FacilitEase.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
 
 [Route("api/[controller]")]
 [ApiController]

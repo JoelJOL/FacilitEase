@@ -94,6 +94,5 @@ namespace FacilitEase.Services
 
             return categories;
         }
-
     }
 }

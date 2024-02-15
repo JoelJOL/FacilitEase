@@ -3,18 +3,14 @@ using FacilitEase.Models.EntityModels;
 
 namespace FacilitEase.Repositories
 {
-    public class UserRoleMappingRepository :Repository<TBL_USER_ROLE_MAPPING>, IUserRoleMappingRepository
+    public class UserRoleMappingRepository : Repository<TBL_USER_ROLE_MAPPING>, IUserRoleMappingRepository
     {
         private readonly AppDbContext _dbContext;
 
-        public UserRoleMappingRepository(AppDbContext dbContext) : base(dbContext) {
-            
-            
+        public UserRoleMappingRepository(AppDbContext dbContext) : base(dbContext)
+        {
             _dbContext = dbContext;
         }
-
-
-
 
         public IEnumerable<int> GetUserIdsByRoleId(int userRoleId)
         {
@@ -25,5 +21,4 @@ namespace FacilitEase.Repositories
                 .ToList();
         }
     }
-
 }
