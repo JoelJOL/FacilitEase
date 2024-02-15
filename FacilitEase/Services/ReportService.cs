@@ -72,7 +72,7 @@ namespace FacilitEase.Services
                                       };
 
             //Adding the data into the above api model with respect the months
-            //The arrayentered here consists of numbers which represets [number of resolved tickets, number of escalated tickets]
+            //The array entered here consists of numbers which represents [number of resolved tickets, number of escalated tickets]
             foreach (var entry in ticketCountsByMonth)
             {
                 switch (entry.Month)
@@ -172,7 +172,7 @@ namespace FacilitEase.Services
             //creating object of Api model categoryReportData
             var categoryReportData = new CategoryReportData
             {
-                January = new CategoryReportMonthData[] { },
+                January = Array.Empty<CategoryReportMonthData>(),
                 February = new CategoryReportMonthData[] { },
                 March = new CategoryReportMonthData[] { },
                 April = new CategoryReportMonthData[] { },
