@@ -10,6 +10,7 @@ namespace FacilitEase.Services
         void CreateCategory(CategoryDto categoryDto);
 
         IEnumerable<CategoryDto> GetCategoryByDepartmentId(int departmentId);
+
         List<CategoryDto> GetCategoriesForFacilitiease();
     }
 }

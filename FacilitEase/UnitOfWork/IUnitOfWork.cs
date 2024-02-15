@@ -1,4 +1,3 @@
-using FacilitEase.Models.EntityModels;
 using FacilitEase.Repositories;
 
 namespace FacilitEase.UnitOfWork
@@ -22,8 +21,6 @@ namespace FacilitEase.UnitOfWork
         IPositionRepository Position { get; }
 
         public IUserRoleMappingRepository UserRoleMapping { get; set; }
-
-
 
         Task<int> CompleteAsync();
 

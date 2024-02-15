@@ -20,13 +20,13 @@ namespace FacilitEase.Controllers
             return Ok(assets);
         }
 
-      
         [HttpGet("assets/unassigned-assets")]
         public IActionResult GetUnassignedAssets(string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             var unassignedAssets = _assetService.GetUnassignedAssets(sortField, sortOrder, pageIndex, pageSize, searchQuery);
             return Ok(unassignedAssets);
         }
+
         [HttpGet("assets/unassigned-asset-details/{unassignedAssetId}")]
         public ActionResult<Asset> GetUnassignedAssetDetails(int unassignedAssetId)
         {

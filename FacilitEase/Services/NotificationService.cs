@@ -31,7 +31,6 @@ namespace FacilitEase.Services
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            
             return Task.CompletedTask;
         }
 
@@ -212,7 +211,7 @@ namespace FacilitEase.Services
         }
     }
 
-        public class Message
+    public class Message
     {
         public int UserId { get; set; }
         public string Text { get; set; }

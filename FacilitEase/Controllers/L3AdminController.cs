@@ -88,7 +88,7 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpGet("forward-ticket/{ticketId}/{managerId}")]
+        [HttpPatch("forward-ticket/{ticketId}/{managerId}")]
         public IActionResult ForwardRaisedTicketStatus([FromRoute] int ticketId, [FromRoute] int managerId)
         {
             try
@@ -109,7 +109,7 @@ namespace FacilitEase.Controllers
         {
             try
             {
-                _adminService.ForwardTicketDeptHead(ticketId,employeeId);
+                _adminService.ForwardTicketDeptHead(ticketId, employeeId);
                 _logger.LogInformation($"Ticket {ticketId} status updated successfully. Forwarded to DU Head ID: {employeeId}");
                 return Ok(new ApiResponse { Message = $"Ticket {ticketId} status updated successfully." });
             }
@@ -119,9 +119,6 @@ namespace FacilitEase.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
-
-
-        
 
         [HttpGet("GetRaisedTicketsByAgent/{agentId}")]
         public IActionResult GetTicketsByAgent(

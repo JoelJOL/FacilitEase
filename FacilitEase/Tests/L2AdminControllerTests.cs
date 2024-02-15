@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using FacilitEase.Controllers;
+﻿using FacilitEase.Controllers;
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Services;
 using Microsoft.AspNetCore.Mvc;
