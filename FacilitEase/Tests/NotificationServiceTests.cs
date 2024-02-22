@@ -33,17 +33,23 @@ public class NotificationServiceTests
         userRoleMappingRepositoryMock.Setup(repo => repo.GetUserIdsByRoleId(It.IsAny<int>())).Returns(new List<int>());
 
         unitOfWorkMock.SetupGet(uow => uow.Ticket).Returns(Mock.Of<ITicketRepository>());
-
         unitOfWorkMock.SetupGet(uow => uow.User).Returns(Mock.Of<IUserRepository>());
         unitOfWorkMock.SetupGet(uow => uow.Employee).Returns(Mock.Of<IEmployeeRepository>());
         unitOfWorkMock.SetupGet(uow => uow.UserRoleMapping).Returns(Mock.Of<IUserRoleMappingRepository>());
         unitOfWorkMock.SetupGet(uow => uow.Notification).Returns(Mock.Of<INotificationRepository>());
 
-        scopeFactoryMock.Setup(factory => factory.CreateScope()).Returns(Mock.Of<IServiceScope>());
+        var serviceProviderMock = new Mock<IServiceProvider>();
+        serviceProviderMock.Setup(provider => provider.GetService(typeof(IUnitOfWork))).Returns(unitOfWorkMock.Object);
+
+        var serviceScopeMock = new Mock<IServiceScope>();
+        serviceScopeMock.Setup(scope => scope.ServiceProvider).Returns(serviceProviderMock.Object);
+
+        var scopeMock = new Mock<IServiceScopeFactory>();
+        scopeMock.Setup(factory => factory.CreateScope()).Returns(serviceScopeMock.Object);
 
         hubContextMock.SetupGet(hub => hub.Clients).Returns(Mock.Of<IHubClients>());
 
-        var service = new NotificationService(hubContextMock.Object, scopeFactoryMock.Object);
+        var service = new NotificationService(hubContextMock.Object, scopeMock.Object);
 
         // Act
         await service.MonitorTicketChanges(CancellationToken.None);
@@ -51,6 +57,5 @@ public class NotificationServiceTests
         // Assert
         // Add your assertions here to verify the expected behavior, for example, checking if notifications were sent.
         hubContextMock.Verify(hub => hub.Clients.All.SendAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.AtLeastOnce);
-
     }
 }
