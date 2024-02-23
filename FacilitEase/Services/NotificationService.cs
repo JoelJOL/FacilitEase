@@ -49,7 +49,7 @@ namespace FacilitEase.Services
                 var initialTickets = unitOfWork.Ticket.GetAll().ToDictionary(t => t.Id, t => new { t.StatusId, t.ControllerId });
 
                 while (!cancellationToken.IsCancellationRequested)
-                {
+                {   
                     // Create a new scope for the current iteration
                     using (var innerScope = _scopeFactory.CreateScope())
                     {
