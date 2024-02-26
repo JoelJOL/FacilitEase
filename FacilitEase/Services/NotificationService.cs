@@ -130,7 +130,7 @@ namespace FacilitEase.Services
                                                                  <tr>
                                                                  <td align='center' bgcolor='#70bbd9' style='padding: 40px 0 30px 0;'>
                                                                  <img src='https://drive.google.com/uc?id=1tkgPkI5FDlS8vMbBTX7lSrx6addaYvl0' alt='Your Logo' style='display: inline-block; width:26px;height:36px;' />
-                              <h1 style='font-size: 48px; color: white; display: inline-block;'>FacilitEase</h1>
+                                                                 <h1 style='font-size: 48px; color: white; display: inline-block;'>FacilitEase</h1>
                                                                  </td>
                                                                  </tr>
                                                                  <tr>
