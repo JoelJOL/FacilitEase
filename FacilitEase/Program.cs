@@ -37,6 +37,8 @@ builder.Services.AddCors(options =>
     });
 });
 string connectionString = Env.GetString("ConnectionStrings__DefaultConnection");
+string applicationAuthority = Env.GetString("Application_Authority");
+string applicationAudience = Env.GetString("Application_Audience");
 var jwtKey = Env.GetString("JWT_Key");
 var jwtIssuer = Env.GetString("JWT_Issuer");
 var jwtAudience = Env.GetString("JWT_Audience");
@@ -129,7 +131,10 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
+
 app.UseCors("AllowAngularDev");
+
+app.UseTokenValidationMiddleware(applicationAuthority, applicationAudience);
 
 app.UseEndpoints(endpoints =>
 {
@@ -140,6 +145,7 @@ app.UseEndpoints(endpoints =>
 //app.UseMiddleware<LogMiddleware>();
 
 app.UseStaticFiles();
+
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"Resources")),
