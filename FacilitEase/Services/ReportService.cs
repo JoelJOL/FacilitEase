@@ -77,18 +77,18 @@ namespace FacilitEase.Services
             {
                 switch (entry.Month)
                 {
-                    case 1: chartData.January = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 2: chartData.February = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 3: chartData.March = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 4: chartData.April = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 5: chartData.May = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 6: chartData.June = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 7: chartData.July = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 8: chartData.August = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 9: chartData.September = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 10: chartData.October = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 11: chartData.November = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 12: chartData.December = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
+                    case 1: chartData.January = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 2: chartData.February = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 3: chartData.March = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 4: chartData.April = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 5: chartData.May = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 6: chartData.June = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 7: chartData.July = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 8: chartData.August = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 9: chartData.September = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 10: chartData.October = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 11: chartData.November = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 12: chartData.December = [entry.ResolvedCount, entry.EscalatedCount]; break;
                 }
             }
 

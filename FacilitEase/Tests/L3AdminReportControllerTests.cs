@@ -14,7 +14,7 @@ namespace FacilitEase.UnitTests.Controllers
         {
             // Arrange
             var reportServiceMock = new Mock<IReportService>();
-            var report = new Report { Total = 10, Resolved = 5, Escalated = 5};
+            var report = new Report { Total = 10, Resolved = 5, Escalated = 5 };
             reportServiceMock.Setup(service => service.GetReportDataYearTicketStatus(2)).Returns(report);
             var controller = new L3AdminReportController(reportServiceMock.Object);
 
@@ -23,6 +23,6 @@ namespace FacilitEase.UnitTests.Controllers
 
             // Assert
             Assert.IsType<OkObjectResult>(result.Result);
-        }   
+        }
     }
 }
