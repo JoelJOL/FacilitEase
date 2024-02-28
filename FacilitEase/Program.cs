@@ -88,6 +88,7 @@ builder.Services.AddScoped<IManagerService, ManagerService>();
 builder.Services.AddScoped<IL1AdminService, L1AdminService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IAssetService, AssetService>();
+builder.Services.AddScoped<InvoiceService, InvoiceService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IAzureRoleManagementService, AzureRoleManagementService>();
 builder.Services.AddScoped<ISLAService, SLAService>();

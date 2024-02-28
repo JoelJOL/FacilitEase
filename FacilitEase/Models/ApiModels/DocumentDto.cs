@@ -6,5 +6,6 @@
     public class DocumentDto
     {
         public string documentLink { get; set; }
+        public string category { get; set; }
     }
 }

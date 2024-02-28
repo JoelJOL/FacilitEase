@@ -446,6 +446,7 @@ namespace FacilitEase.Services
                     TicketId = ticketEntity.Id,
                     CreatedBy = 1,
                     UpdatedBy = 1,
+                    Category = "Attachment"
                 };
 
                 _documentRepository.Add(documentEntity);
@@ -484,7 +485,7 @@ namespace FacilitEase.Services
         public IEnumerable<DocumentDto> GetDocumentsByTicketId(int ticketId)
         {
             var documents = _context.TBL_DOCUMENT
-                .Where(d => d.TicketId == ticketId)
+                .Where(d => d.TicketId == ticketId && d.Category == "Attachment")
                 .Select(d => new DocumentDto
                 {
                     documentLink = d.DocumentLink.Replace("\\", "/")

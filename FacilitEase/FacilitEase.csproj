@@ -71,6 +71,7 @@
 
   <ItemGroup>
     <Folder Include="Resources\Images\" />
+    <Folder Include="Resources\Invoice\" />
   </ItemGroup>
 
 </Project>
