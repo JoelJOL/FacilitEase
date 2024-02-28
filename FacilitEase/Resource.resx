@@ -117,22 +117,56 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="DepartmentHead" xml:space="preserve">
+  <data name="CANCELLATIONREQUESTED" xml:space="preserve">
+    <value>CancellationRequested</value>
+    <comment>Ticket Status</comment>
+  </data>
+  <data name="CANCELLED" xml:space="preserve">
+    <value>Cancelled</value>
+    <comment>Ticket Status</comment>
+  </data>
+  <data name="DEPARTMENTHEAD" xml:space="preserve">
     <value>DepartmentHead</value>
+    <comment>Application Role</comment>
   </data>
-  <data name="Employee" xml:space="preserve">
+  <data name="EMPLOYEE" xml:space="preserve">
     <value>Employee</value>
+    <comment>Application Role</comment>
   </data>
-  <data name="EmployeeManager" xml:space="preserve">
-    <value>EmployeeManager</value>
+  <data name="ESCALATED" xml:space="preserve">
+    <value>Escalated</value>
+    <comment>Ticket Status</comment>
   </data>
-  <data name="Executive" xml:space="preserve">
-    <value>Executive</value>
+  <data name="INPROGRESS" xml:space="preserve">
+    <value>InProgress</value>
+    <comment>Ticket Status</comment>
   </data>
-  <data name="Lead" xml:space="preserve">
-    <value>Lead</value>
+  <data name="L1ADMIN" xml:space="preserve">
+    <value>L1Admin</value>
+    <comment>Application Role</comment>
   </data>
-  <data name="Manager" xml:space="preserve">
+  <data name="L2ADMIN" xml:space="preserve">
+    <value>L2Admin</value>
+    <comment>Application Role</comment>
+  </data>
+  <data name="L3ADMIN" xml:space="preserve">
+    <value>L3Admin</value>
+    <comment>Application Role</comment>
+  </data>
+  <data name="MANAGER" xml:space="preserve">
     <value>Manager</value>
+    <comment>Application Role</comment>
+  </data>
+  <data name="OPEN" xml:space="preserve">
+    <value>Open</value>
+    <comment>Ticket Status</comment>
+  </data>
+  <data name="PENDINGAPPROVAL" xml:space="preserve">
+    <value>PendingApproval</value>
+    <comment>Ticket Status</comment>
+  </data>
+  <data name="RESOLVED" xml:space="preserve">
+    <value>Resolved</value>
+    <comment>Ticket Status</comment>
   </data>
 </root>
