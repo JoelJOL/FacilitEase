@@ -4,14 +4,14 @@ using FacilitEase.Services;
 using FacilitEase.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using NUnit.Framework;
-
+using System.Collections.Generic;
+using System.Linq;
+using Xunit;
 namespace FacilitEase.Tests
 {
-    [TestFixture]
     public class ReportServiceTests
     {
-        [Test]
+        [Fact]
         public void GetReportData_ReturnsCorrectReport()
         {
             // Arrange
@@ -21,11 +21,11 @@ namespace FacilitEase.Tests
 
             // Modify test data to intentionally make the test fail
             var testData = new List<TBL_TICKET_ASSIGNMENT>
-        {
-            new TBL_TICKET_ASSIGNMENT { EmployeeId = 1, EmployeeStatus = "resolved" },
-            new TBL_TICKET_ASSIGNMENT { EmployeeId = 1, EmployeeStatus = "resolved" },
-            new TBL_TICKET_ASSIGNMENT { EmployeeId = 1, EmployeeStatus = "resolved" } // Changing this to 'resolved' instead of 'escalated'
-        }.AsQueryable();
+            {
+                new TBL_TICKET_ASSIGNMENT { EmployeeId = 1, EmployeeStatus = "resolved" },
+                new TBL_TICKET_ASSIGNMENT { EmployeeId = 1, EmployeeStatus = "resolved" },
+                new TBL_TICKET_ASSIGNMENT { EmployeeId = 1, EmployeeStatus = "escalated" } // Corrected to 'escalated' instead of 'resolved'
+            }.AsQueryable();
 
             mockDbSet.As<IQueryable<TBL_TICKET_ASSIGNMENT>>().Setup(m => m.Provider).Returns(testData.Provider);
             mockDbSet.As<IQueryable<TBL_TICKET_ASSIGNMENT>>().Setup(m => m.Expression).Returns(testData.Expression);
@@ -41,9 +41,9 @@ namespace FacilitEase.Tests
             var report = reportService.GetReportData(userId);
 
             // Assert
-            Assert.Equals(2, report.Resolved); // Fail if the number of resolved tickets is not 2
-            Assert.Equals(1, report.Escalated); // Pass if there is one escalated ticket
-            Assert.Equals(5, report.Total); // Pass if the total is 5
+            Assert.Equal(2, report.Resolved); // Pass if the number of resolved tickets is 2
+            Assert.Equal(1, report.Escalated); // Pass if there is one escalated ticket
+            Assert.Equal(3, report.Total); // Pass if the total is 3
         }
     }
 }
