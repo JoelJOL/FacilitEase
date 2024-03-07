@@ -633,10 +633,10 @@ namespace FacilitEase.Services
                          .Where(priority => priority.Id == ticket.PriorityId)
                          .Select(priority => priority.PriorityName)
                          .FirstOrDefault(),
-                     /*Status = _context.TBL_STATUS
+                     Status = _context.TBL_STATUS
                          .Where(status => status.Id == ticket.StatusId)
                          .Select(status => status.StatusName)
-                         .FirstOrDefault(),*/
+                         .FirstOrDefault(),
                      Department = _context.TBL_USER
                          .Where(user => user.Id == ticket.UserId)
                          .Select(user => _context.TBL_EMPLOYEE
@@ -663,7 +663,7 @@ namespace FacilitEase.Services
                                  .FirstOrDefault())
                              .FirstOrDefault())
                          .FirstOrDefault(),
-                 }) ;
+                         });
 
             var queryList = unassignedTicketsQuery.ToList();
 
@@ -680,7 +680,7 @@ namespace FacilitEase.Services
                 RaisedBy = q.RaisedBy,
                 SubmittedDate = q.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
                 Priority = q.Priority,
-                AssignTo = "",
+                Status = q.Status,
                 Department = q.Department,
                 Location = q.Location
             }).ToList();
