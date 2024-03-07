@@ -14,12 +14,13 @@ namespace FacilitEase.Services
             _unitOfWork = unitOfWork;
             _context = context;
         }
+
         /// <summary>
         /// To get the number of resolved, escalated and total tickets of an admin for a year
         /// </summary>
         /// <param name="id">The user id of the user whose data is required</param>
         /// <returns>An object of Report ApiModel</returns>
-        public Report GetReportData(int id)
+        public Report GetReportDataYearTicketStatus(int id)
         {
             Report report = new Report();
             report.Resolved = (from ta in _context.TBL_TICKET_ASSIGNMENT
@@ -34,28 +35,29 @@ namespace FacilitEase.Services
 
             return report;
         }
+
         /// <summary>
         /// To group the number of resolved and escalated tickets of an admin with respect to months of an year
         /// </summary>
         /// <param name="id">User id of the user whose</param>
         /// <returns>Object of the ApiModel chardata that consists of ticket count of each status sorted by the month</returns>
-        public ChartData GetChartData(int id)
+        public ChartData GetBarChartData(int id)
         {
             //ApiModel to store data
             var chartData = new ChartData
             {
-                January = new int[] { 0, 0, 0 },
-                February = new int[] { 0, 0, 0 },
-                March = new int[] { 0, 0, 0 },
-                April = new int[] { 0, 0, 0 },
-                May = new int[] { 0, 0, 0 },
-                June = new int[] { 0, 0, 0 },
-                July = new int[] { 0, 0, 0 },
-                August = new int[] { 0, 0, 0 },
-                September = new int[] { 0, 0, 0 },
-                October = new int[] { 0, 0, 0 },
-                November = new int[] { 0, 0, 0 },
-                December = new int[] { 0, 0, 0 }
+                January = [0, 0, 0],
+                February = [0, 0, 0],
+                March = [0, 0, 0],
+                April = [0, 0, 0],
+                May = [0, 0, 0],
+                June = [0, 0, 0],
+                July = [0, 0, 0],
+                August = [0, 0, 0],
+                September = [0, 0, 0],
+                October = [0, 0, 0],
+                November = [0, 0, 0],
+                December = [0, 0, 0]
             };
             //Get the resolved and unresolved number of tickets from TicketAssignment table and group them usign a key
             var ticketCountsByMonth = from ta in _context.TBL_TICKET_ASSIGNMENT
@@ -68,32 +70,31 @@ namespace FacilitEase.Services
                                           ResolvedCount = groupResult.Count(ta => ta.EmployeeStatus == "resolved"),
                                           EscalatedCount = groupResult.Count(ta => ta.EmployeeStatus == "escalated")
                                       };
-           
+
             //Adding the data into the above api model with respect the months
-            //The arrayentered here consists of numbers which represets [number of resolved tickets, number of escalated tickets]
+            //The array entered here consists of numbers which represents [number of resolved tickets, number of escalated tickets]
             foreach (var entry in ticketCountsByMonth)
             {
                 switch (entry.Month)
                 {
-                    case 1: chartData.January = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 2: chartData.February = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 3: chartData.March = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 4: chartData.April = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 5: chartData.May = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 6: chartData.June = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 7: chartData.July = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 8: chartData.August = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 9: chartData.September = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 10: chartData.October = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 11: chartData.November = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
-                    case 12: chartData.December = new int[] { entry.ResolvedCount, entry.EscalatedCount }; break;
+                    case 1: chartData.January = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 2: chartData.February = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 3: chartData.March = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 4: chartData.April = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 5: chartData.May = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 6: chartData.June = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 7: chartData.July = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 8: chartData.August = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 9: chartData.September = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 10: chartData.October = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 11: chartData.November = [entry.ResolvedCount, entry.EscalatedCount]; break;
+                    case 12: chartData.December = [entry.ResolvedCount, entry.EscalatedCount]; break;
                 }
             }
 
-
-
             return chartData;
         }
+
         /// <summary>
         /// To get the EmployeeId, FirstName, LastName, JobTitle and Username of an employee
         /// </summary>
@@ -127,12 +128,13 @@ namespace FacilitEase.Services
                                     select p.PositionName).FirstOrDefault()?.ToString() ?? "";
             return profileData;
         }
+
         /// <summary>
         /// To get the number of resolved, unresolved and escalated tickets of an admin in a week
         /// </summary>
         /// <param name="id">Iser id of the user whose data is required</param>
         /// <returns>Object of WeekReport ApiModel that consists of weekly ticket count of userunder each status</returns>
-        public WeekReport GetWeeklyData(int id)
+        public WeekReport GetDailyAndWeeklyData(int id)
         {
             //WeekReport is an ApiModel to store data from database
             WeekReport weekReport = new WeekReport();
@@ -159,37 +161,38 @@ namespace FacilitEase.Services
                           }).FirstOrDefault();
             return weekReport;
         }
+
         /// <summary>
         /// To get the data required to display the report data that is categorised by ticket category and sorted into months for each status of resolved, unresolved and escalated
         /// </summary>
         /// <param name="id">the user id of the user</param>
         /// <returns>Dtaa for report of categories</returns>
-        public CategoryReportData CategoryReport(int id)
+        public CategoryReportData GetReportDataByCategory(int id)
         {
-
             //creating object of Api model categoryReportData
             var categoryReportData = new CategoryReportData
             {
-                January = new CategoryReportMonthData[] { },
-                February = new CategoryReportMonthData[] { },
-                March = new CategoryReportMonthData[] { },
-                April = new CategoryReportMonthData[] { },
-                May = new CategoryReportMonthData[] { },
-                June = new CategoryReportMonthData[] { },
-                July = new CategoryReportMonthData[] { },
-                August = new CategoryReportMonthData[] { },
-                September = new CategoryReportMonthData[] { },
-                October = new CategoryReportMonthData[] { },
-                November = new CategoryReportMonthData[] { },
-                December = new CategoryReportMonthData[] { }
+                January = Array.Empty<CategoryReportMonthData>(),
+                February = [],
+                March = [],
+                April = [],
+                May = [],
+                June = [],
+                July = [],
+                August = [],
+                September = [],
+                October = [],
+                November = [],
+                December =[]
             };
 
             //Selecting the data based on category for each month and counting the number of resolved, unresolved and escalated tickets of that category in each month
             var ticketCountsByMonthByCategory = from ta in _context.TBL_TICKET_ASSIGNMENT
                                                 join u in _context.TBL_USER on ta.EmployeeId equals u.EmployeeId
+                                                join ed in _context.TBL_EMPLOYEE_DETAIL on u.Id equals ed.Id
                                                 join t in _context.TBL_TICKET on ta.TicketId equals t.Id
                                                 join c in _context.TBL_CATEGORY on t.CategoryId equals c.Id
-                                                where u.Id == id
+                                                where u.Id == id && ed.DepartmentId == c.DepartmentId
                                                 group new { ta, c } by new { ta.TicketAssignedTimestamp.Month, c.CategoryName } into groupResult
                                                 select new
                                                 {
@@ -254,7 +257,6 @@ namespace FacilitEase.Services
             }
 
             return categoryReportData;
-
         }
     }
 }

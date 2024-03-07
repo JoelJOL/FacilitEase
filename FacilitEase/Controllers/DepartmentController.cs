@@ -16,8 +16,6 @@ namespace FacilitEase.Controllers
             _deptService = deptService;
         }
 
-
-    
         [HttpGet("getAllExceptUserDepartment/{userId}")]
         public IActionResult GetAllDepartmentsExceptUserDepartment(int userId)
         {

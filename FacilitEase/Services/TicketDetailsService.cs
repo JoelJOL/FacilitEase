@@ -1,8 +1,6 @@
 using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
-using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Net.Sockets;
 
 namespace FacilitEase.Services
 {
@@ -79,6 +77,7 @@ namespace FacilitEase.Services
                 TotalDataCount = totalCount
             };
         }
+
         /// <summary>
         /// To cancel a particular ticket
         /// </summary>
