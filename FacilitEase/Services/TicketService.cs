@@ -634,10 +634,6 @@ namespace FacilitEase.Services
                          .Where(priority => priority.Id == ticket.PriorityId)
                          .Select(priority => priority.PriorityName)
                          .FirstOrDefault(),
-                     Status = _context.TBL_STATUS
-                         .Where(status => status.Id == ticket.StatusId)
-                         .Select(status => status.StatusName)
-                         .FirstOrDefault(),
                      Department = _context.TBL_USER
                          .Where(user => user.Id == ticket.UserId)
                          .Select(user => _context.TBL_EMPLOYEE
