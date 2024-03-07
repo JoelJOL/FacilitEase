@@ -43,7 +43,6 @@ namespace FacilitEase.Services
                             AssignedTo = employee != null ? $"{employee.FirstName} {employee.LastName}" : "--------",
                             Priority = tp.PriorityName,
                             Status = ts.StatusName,
-                            UserId = t.UserId,
                         };
 
             var queryTicketList = query.ToList();

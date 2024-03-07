@@ -677,7 +677,7 @@ namespace FacilitEase.Services
                 RaisedBy = q.RaisedBy,
                 SubmittedDate = q.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
                 Priority = q.Priority,
-                Status = q.Status,
+                /*Status = q.Status,*/
                 Department = q.Department,
                 Location = q.Location
             }).ToList();
