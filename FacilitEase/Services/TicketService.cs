@@ -633,10 +633,6 @@ namespace FacilitEase.Services
                          .Where(priority => priority.Id == ticket.PriorityId)
                          .Select(priority => priority.PriorityName)
                          .FirstOrDefault(),
-                     Status = _context.TBL_STATUS
-                         .Where(status => status.Id == ticket.StatusId)
-                         .Select(status => status.StatusName)
-                         .FirstOrDefault(),
                      Department = _context.TBL_USER
                          .Where(user => user.Id == ticket.UserId)
                          .Select(user => _context.TBL_EMPLOYEE
@@ -680,7 +676,7 @@ namespace FacilitEase.Services
                 RaisedBy = q.RaisedBy,
                 SubmittedDate = q.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
                 Priority = q.Priority,
-                Status = q.Status,
+                AssignTo = "", 
                 Department = q.Department,
                 Location = q.Location
             }).ToList();
@@ -1023,7 +1019,8 @@ namespace FacilitEase.Services
                          join p in _context.TBL_PRIORITY on t.PriorityId equals p.Id
                          join s in _context.TBL_STATUS on t.StatusId equals s.Id
                          join m in _context.TBL_EMPLOYEE on e.ManagerId equals m.Id
-                         join forwarder in _context.TBL_EMPLOYEE on t.AssignedTo equals forwarder.Id
+                         join tt in _context.TBL_TICKET_TRACKING on t.Id equals tt.TicketId
+                         join forwarder in _context.TBL_EMPLOYEE on tt.UpdatedBy equals forwarder.Id
 
                          where t.Id == ticketId
                          select new DepartmentHeadManagerTicketDetails
@@ -1031,7 +1028,6 @@ namespace FacilitEase.Services
                              Id = t.Id,
                              TicketName = t.TicketName,
                              EmployeeName = $"{e.FirstName} {e.LastName}",
-                             // Extracting manager's name for "Forwarded By" field
                              ForwardedBy = $"{forwarder.FirstName} {forwarder.LastName}",
                              AssignedTo = $"{_context.TBL_EMPLOYEE.Where(emp => emp.Id == t.AssignedTo).Select(emp => $"{emp.FirstName} {emp.LastName}").FirstOrDefault()}",
                              SubmittedDate = t.SubmittedDate.ToString("dd-MM-yy hh:mm tt"),
@@ -1051,6 +1047,7 @@ namespace FacilitEase.Services
 
             return ticket.FirstOrDefault();
         }
+
 
         /// <summary>
         /// Retrieves a paginated list of tickets for approval by a department head.
