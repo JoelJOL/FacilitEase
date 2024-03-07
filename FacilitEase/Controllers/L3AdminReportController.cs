@@ -1,4 +1,4 @@
-﻿using FacilitEase.Models.ApiModels;
+﻿﻿using FacilitEase.Models.ApiModels;
 using FacilitEase.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,15 +16,15 @@ namespace FacilitEase.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Report>> GetReportData(int id)
+        public async Task<ActionResult<Report>> GetReportDataYearTicketStatus(int id)
         {
-            return Ok(_reportService.GetReportData(id));
+            return Ok(_reportService.GetReportDataYearTicketStatus(id));
         }
 
         [HttpGet("chartdata/{id}")]
-        public async Task<ActionResult<ChartData>> GetChartData(int id)
+        public async Task<ActionResult<ChartData>> GetBarChartData(int id)
         {
-            return Ok(_reportService.GetChartData(id));
+            return Ok(_reportService.GetBarChartData(id));
         }
 
         [HttpGet("profiledata/{id}")]
@@ -34,15 +34,15 @@ namespace FacilitEase.Controllers
         }
 
         [HttpGet("reportdata/{id}")]
-        public async Task<ActionResult<WeekReport>> GetWeeklyData(int id)
+        public async Task<ActionResult<WeekReport>> GetDailyAndWeeklyData(int id)
         {
-            return Ok(_reportService.GetWeeklyData(id));
+            return Ok(_reportService.GetDailyAndWeeklyData(id));
         }
 
         [HttpGet("categoryReport/{id}")]
         public async Task<ActionResult<CategoryReportData>> GetCategoryReport(int id)
         {
-            return Ok(_reportService.CategoryReport(id));
+            return Ok(_reportService.GetReportDataByCategory(id));
         }
     }
 }
