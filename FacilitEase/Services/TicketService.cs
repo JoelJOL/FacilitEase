@@ -659,7 +659,7 @@ namespace FacilitEase.Services
                                  .FirstOrDefault())
                              .FirstOrDefault())
                          .FirstOrDefault(),
-                 }) ;
+                         });
 
             var queryList = unassignedTicketsQuery.ToList();
 
