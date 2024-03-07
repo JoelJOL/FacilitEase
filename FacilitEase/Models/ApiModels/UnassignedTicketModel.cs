@@ -10,7 +10,7 @@
         public string RaisedBy { get; set; }
         public string SubmittedDate { get; set; }
         public string Priority { get; set; }
-        public string AssignTO { get; set; }
+        public string AssignTo { get; set; }
         public string Department { get; set; }
         public string Location { get; set; }
     }
