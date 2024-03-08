@@ -63,7 +63,7 @@ namespace FacilitEase.Services
                 AssignedTo = t.AssignedTo,
                 Priority = t.Priority,
                 SubmittedDate = t.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
-                UserId = t.UserId,
+               
             });
 
             // Apply Pagination
