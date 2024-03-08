@@ -4,6 +4,7 @@ using FacilitEase.Models.EntityModels;
 using FacilitEase.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace FacilitEase.Services
 {
@@ -232,15 +233,56 @@ namespace FacilitEase.Services
         /// </summary>
         /// <param name="ticketId"></param>
         /// <returns></returns>
-        public string GetCommentTextByTicketId(int ticketId)
+        /*public List<RetrieveCommentDto> GetCommentTextsByTicketId(int ticketId)
         {
-            var commentText = _context.TBL_COMMENT
-                .Where(comment => comment.TicketId == ticketId)
-                .Where(comment => comment.Category == "Note")
-                .Select(comment => comment.Text)
-                .FirstOrDefault();
+            var comments = (from comment in _context.TBL_COMMENT
+                            join user in _context.TBL_USER on comment.CreatedBy equals user.Id
+                            join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
+                            where comment.TicketId == ticketId
+                            select new RetrieveCommentDto
+                            {
+                                Id = comment.Id,
+                                Text = comment.Text,
+                                TicketId = comment.TicketId,
+                                ParentId = comment.ParentId,
+                                UserId = comment.CreatedBy,
+                                EmployeeName = $"{employee.FirstName} {employee.LastName}",
+                                CreatedAt = comment.CreatedDate,
+                            }).ToList();
 
-            return commentText;
+            return comments;
+        }*/
+
+        public List<RetrieveCommentDto> GetCommentTextsByTicketId(int ticketId)
+        {
+            var comments = (from comment in _context.TBL_COMMENT
+                            join user in _context.TBL_USER on comment.CreatedBy equals user.Id
+                            join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
+                            where comment.TicketId == ticketId
+                            select new RetrieveCommentDto
+                            {
+                                Id = comment.Id,
+                                Text = comment.Text,
+                                TicketId = comment.TicketId,
+                                ParentId = comment.ParentId,
+                                UserId = comment.CreatedBy,
+                                EmployeeName = $"{employee.FirstName} {employee.LastName}",
+                                CreatedAt = comment.CreatedDate,
+                            }).ToList();
+
+            // Organize comments into a hierarchical structure
+            var commentDictionary = comments.ToDictionary(comment => comment.Id);
+            foreach (var comment in comments)
+            {
+                if (comment.ParentId.HasValue && commentDictionary.ContainsKey(comment.ParentId.Value))
+                {
+                    var parentComment = commentDictionary[comment.ParentId.Value];
+                    parentComment.Replies.Add(comment);
+                }
+            }
+            // Filter out comments that are not top-level (replies to other comments)
+            var topLevelComments = comments.Where(comment => !comment.ParentId.HasValue).ToList();
+            return topLevelComments;
         }
 
         /// <summary>
@@ -248,30 +290,159 @@ namespace FacilitEase.Services
         /// </summary>
         /// <param name="ticketId"></param>
         /// <param name="newText"></param>
-        public void UpdateCommentTextByTicketId(int ticketId, string newText)
+        /// 
+        public RetrieveCommentDto UpdateComment(int commentId, string text)
         {
-            // Retrieving the first comment related to the specified ticket ID.
-            var comment = _context.TBL_COMMENT
-                .FirstOrDefault(c => c.TicketId == ticketId);
-
-            // Checking if a comment is found for the specified ticket ID.
-            if (comment != null)
+            try
             {
-                comment.Text = newText;
-                comment.UpdatedDate = DateTime.Now;
+                // Update the comment text and save changes
+                TBL_COMMENT commentToUpdate = _context.TBL_COMMENT.FirstOrDefault(c => c.Id == commentId);
+                if (commentToUpdate == null)
+                {
+                    throw new ArgumentException("Comment not found");
+                }
+
+                commentToUpdate.Text = text;
+                commentToUpdate.UpdatedDate = DateTime.Now;
                 _context.SaveChanges();
+
+                // Retrieve the updated comment along with its replies
+                var comments = (from comment in _context.TBL_COMMENT
+                                join user in _context.TBL_USER on comment.CreatedBy equals user.Id
+                                join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
+                                where comment.TicketId == commentToUpdate.TicketId
+                                select new RetrieveCommentDto
+                                {
+                                    Id = comment.Id,
+                                    Text = comment.Text,
+                                    TicketId = comment.TicketId,
+                                    ParentId = comment.ParentId,
+                                    UserId = comment.CreatedBy,
+                                    EmployeeName = $"{employee.FirstName} {employee.LastName}",
+                                    CreatedAt = comment.CreatedDate,
+                                }).ToList();
+
+                // Organize comments into a hierarchical structure
+                var commentDictionary = comments.ToDictionary(comment => comment.Id);
+                foreach (var comment in comments)
+                {
+                    if (comment.ParentId.HasValue && commentDictionary.ContainsKey(comment.ParentId.Value))
+                    {
+                        var parentComment = commentDictionary[comment.ParentId.Value];
+                        parentComment.Replies.Add(comment);
+                    }
+                }
+
+                // Filter out comments that are not top-level (replies to other comments)
+                var topLevelComments = comments.Where(comment => !comment.ParentId.HasValue).ToList();
+                var updatedComment = topLevelComments.FirstOrDefault(c => c.Id == commentId);
+
+                if (updatedComment == null)
+                {
+                    throw new Exception("Error retrieving updated comment");
+                }
+
+                return updatedComment;
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+                throw; // Or handle it accordingly
             }
         }
+
+        /*public RetrieveCommentDto UpdateComment(int commentId, string text)
+        {
+            // Retrieving the first comment related to the specified ticket ID.
+            try
+            {
+                TBL_COMMENT commentToUpdate = _context.TBL_COMMENT.FirstOrDefault(c => c.Id == commentId);
+                if (commentToUpdate == null)
+                {
+                    throw new ArgumentException("Comment not found");
+                }
+
+                commentToUpdate.Text = text;
+                commentToUpdate.UpdatedDate = DateTime.Now;
+
+                _context.SaveChanges();
+                TBL_COMMENT updatedComment = _context.TBL_COMMENT.FirstOrDefault(c => c.Id == commentId);
+                if (updatedComment == null)
+                {
+                    throw new Exception("Error retrieving updated comment");
+                }
+
+                TBL_USER user = _context.TBL_USER.FirstOrDefault(u => u.Id == updatedComment.CreatedBy);
+                if (user == null)
+                {
+                    throw new Exception("Error retrieving associated user");
+                }
+
+                TBL_EMPLOYEE employee = _context.TBL_EMPLOYEE.FirstOrDefault(e => e.Id == user.EmployeeId);
+                if (employee == null)
+                {
+                    throw new Exception("Error retrieving associated employee");
+                }
+
+                // Create RetrieveCommentDto object
+                RetrieveCommentDto retrieveCommentDto = new RetrieveCommentDto
+                {
+                    Id = updatedComment.Id,
+                    Text = updatedComment.Text,
+                    TicketId = updatedComment.TicketId,
+                    ParentId = updatedComment.ParentId,
+                    UserId = updatedComment.CreatedBy,
+                    EmployeeName = $"{employee.FirstName} {employee.LastName}",
+                    CreatedAt = updatedComment.CreatedDate
+                };
+
+                // Return RetrieveCommentDto object
+                return retrieveCommentDto;
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+                throw; // Or handle it accordingly
+            }
+        }*/
 
         /// <summary>
         /// This method adds the comment of a particular ticket
         /// </summary>
         /// <param name="comment"></param>
-        public void AddComment(TBL_COMMENT comment)
+        public RetrieveCommentDto AddComment(CommentRequestDto commentRequestDto)
         {
+            TBL_COMMENT comment = new TBL_COMMENT
+            {
+                TicketId = commentRequestDto.TicketId,
+                Text = commentRequestDto.Text,
+                ParentId = commentRequestDto.ParentId,
+                CreatedBy = commentRequestDto.UserId,
+                UpdatedBy = commentRequestDto.UserId,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now
+            };
             _context.TBL_COMMENT.Add(comment);
             _context.SaveChanges();
+
+            // Retrieve user and employee information
+            TBL_USER user = _context.TBL_USER.FirstOrDefault(u => u.Id == commentRequestDto.UserId);
+            TBL_EMPLOYEE employee = _context.TBL_EMPLOYEE.FirstOrDefault(e => e.Id == user.EmployeeId);
+
+            RetrieveCommentDto retrieveCommentDto = new RetrieveCommentDto
+            {
+                Id = comment.Id,
+                Text = comment.Text,
+                TicketId = comment.TicketId,
+                ParentId = comment.ParentId,
+                UserId = comment.CreatedBy,
+                EmployeeName = $"{employee.FirstName} {employee.LastName}",
+                CreatedAt = comment.CreatedDate
+            };
+
+            return retrieveCommentDto;
         }
+
 
         /// <summary>
         /// This method deletes the comment of a particular ticket
@@ -279,28 +450,26 @@ namespace FacilitEase.Services
         /// <param name="ticketId"></param>
         /// <returns></returns>
 
-        public async Task<bool> DeleteCommentAsync(int ticketId)
+        public void DeleteComment(int commentId)
         {
             try
             {
-                var comment = await _context.TBL_COMMENT.FirstOrDefaultAsync(c => c.TicketId == ticketId);
+                // Retrieve the comment from the database
+                TBL_COMMENT commentToDelete = _context.TBL_COMMENT.Find(commentId);
 
-                if (comment != null)
+                if (commentToDelete == null)
                 {
-                    _context.TBL_COMMENT.Remove(comment);
-                    await _context.SaveChangesAsync();
-                    return true; // Successfully deleted
+                    throw new ArgumentException("Comment not found"); // Or handle the case where comment is not found
                 }
-                else
-                {
-                    return false; // Comment not found
-                }
+
+                // Delete the comment from the database
+                _context.TBL_COMMENT.Remove(commentToDelete);
+                _context.SaveChanges();
             }
             catch (Exception ex)
             {
-                // Log or handle the exception as needed
-                Console.WriteLine($"Error deleting comment: {ex.Message}");
-                return false;
+                // Handle exception
+                throw; // Or handle it accordingly
             }
         }
 
@@ -453,7 +622,7 @@ namespace FacilitEase.Services
             if (result != null)
             {
                 result.Notes = _context.TBL_COMMENT
-                    .Where(comment => comment.TicketId == desiredTicketId && comment.Category == "Note")
+                    .Where(comment => comment.TicketId == desiredTicketId )
                     .Select(comment => comment.Text)
                     .FirstOrDefault();
                 if (string.IsNullOrEmpty(result.Notes))

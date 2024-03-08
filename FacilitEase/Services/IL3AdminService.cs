@@ -19,13 +19,13 @@ namespace FacilitEase.Services
 
         public void ForwardTicketDeptHead(int ticketId, int employeeId);
 
-        public string GetCommentTextByTicketId(int ticketId);
+        public List<RetrieveCommentDto> GetCommentTextsByTicketId(int ticketId);
 
-        public void UpdateCommentTextByTicketId(int ticketId, string newText);
+        public RetrieveCommentDto UpdateComment(int commentId, string text);
 
-        public void AddComment(TBL_COMMENT comment);
+        public RetrieveCommentDto AddComment(CommentRequestDto commentRequestDto);
 
-        public Task<bool> DeleteCommentAsync(int ticketId);
+        public void DeleteComment(int commentId);
 
         string GetTimeSinceLastUpdate(int ticketId);
 
