@@ -230,30 +230,19 @@ namespace FacilitEase.Controllers
             }
         }
 
+      
+
         [HttpPost]
         public IActionResult PostComment([FromBody] CommentRequestDto commentRequestDto)
         {
             try
             {
-                // Create a new Comment object with predefined values and provided text and TicketId
-                TBL_COMMENT comment = new TBL_COMMENT
-                {
-                    TicketId = commentRequestDto.TicketId,
-                    Text = commentRequestDto.Text,
-                    Sender = 1, // Predefined value, replace with actual value
-                    Receiver = 2, // Predefined value, replace with actual value
-                    Category = "Note", // Predefined value, replace with actual value
-                    CreatedBy = 1, // Predefined value, replace with actual value
-                    UpdatedBy = 1, // Predefined value, replace with actual value
-                    CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now
-                };
+                RetrieveCommentDto createdComment = _adminService.AddComment(commentRequestDto);
 
-                // Call the service method to save the comment
-                _adminService.AddComment(comment);
+                _logger.LogInformation($"Comment posted successfully for Ticket ID: {createdComment.TicketId}");
 
-                _logger.LogInformation($"Comment posted successfully for Ticket ID: {comment.TicketId}");
-                return Ok(new { Message = "Comment posted successfully" });
+                // Return the created comment in the desired format
+                return Ok(createdComment);
             }
             catch (Exception ex)
             {
@@ -263,64 +252,59 @@ namespace FacilitEase.Controllers
         }
 
         [HttpGet("ticket-commenttext/{ticketId}")]
-        public ActionResult<string> GetCommentTextByTicketId(int ticketId)
+        public ActionResult<List<RetrieveCommentDto>> GetCommentsForTicket(int ticketId)
         {
             try
             {
-                var commentText = _adminService.GetCommentTextByTicketId(ticketId);
-
-                if (commentText == null)
-                {
-                    _logger.LogInformation($"No comment text found for TicketId: {ticketId}");
-                    return NotFound($"No comment text found for TicketId: {ticketId}");
-                }
-
-                _logger.LogInformation($"Retrieved comment text for TicketId: {ticketId}");
-                return Ok(commentText);
+                var comments = _adminService.GetCommentTextsByTicketId(ticketId);
+                return Ok(comments);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error retrieving comment text for TicketId: {ticketId}");
                 return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
         }
 
-        [HttpDelete("delete-comment/{ticketId}")]
-        public async Task<IActionResult> DeleteComment(int ticketId)
+
+        [HttpDelete("delete-comment/{commentId}")]
+        public IActionResult DeleteComment(int commentId)
         {
             try
             {
-                var isDeleted = await _adminService.DeleteCommentAsync(ticketId);
-                if (isDeleted)
-                {
-                    return Ok("Comment deleted successfully"); // Return plain text
-                }
-                else
-                {
-                    return NotFound("Comment not found"); // Return plain text
-                }
+                // Call the service method to delete the comment
+                _adminService.DeleteComment(commentId);
+
+                _logger.LogInformation($"Comment deleted successfully: ID {commentId}");
+
+                // Return a success message
+                return Ok(new { Message = "Comment deleted successfully" });
             }
             catch (Exception ex)
             {
-                // Log or handle the exception as needed
-                Console.WriteLine($"Error deleting comment: {ex.Message}");
-                return StatusCode(500, "An error occurred while deleting the comment"); // Return plain text
+                _logger.LogError(ex, "Error deleting comment");
+                return StatusCode(500, new { Error = "Internal Server Error", Message = ex.Message });
             }
         }
 
-        [HttpPatch("update-comment/{ticketId}")]
-        public IActionResult UpdateComment([FromRoute] int ticketId, [FromBody] UpdateCommentDto model)
+        [HttpPatch("update-comment/{commentId}")]
+        public IActionResult UpdateComment(int commentId, [FromBody] UpdateCommentDto updateCommentDto)
         {
             try
             {
-                _adminService.UpdateCommentTextByTicketId(ticketId, model.NewText);
-                _logger.LogInformation($"Comment updated successfully for TicketId: {ticketId}");
-                return Ok("Comment updated successfully");
+                _logger.LogInformation($"Comment udpated successfully for Ticket ID");
+                RetrieveCommentDto updatedComment =_adminService.UpdateComment(commentId, updateCommentDto.Text);
+
+                return Ok(updatedComment);
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogError(ex, "Error updating comment");
+                return NotFound(new { Error = "Not Found", Message = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error updating comment for TicketId: {ticketId}");
-                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+                _logger.LogError(ex, "Error updating comment");
+                return StatusCode(500, new { Error = "Internal Server Error", Message = ex.Message });
             }
         }
 

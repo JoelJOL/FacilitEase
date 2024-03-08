@@ -1,14 +1,13 @@
-﻿namespace FacilitEase.Models.EntityModels
+﻿namespace FacilitEase.Models.ApiModels
 {
-    public class TBL_COMMENT
+    public class CommentSectionDto
     {
         public int Id { get; set; }
         public int TicketId { get; set; }
+        public string ParentId { get; set; }
         public string Text { get; set; }
-        public int? ParentId { get; set; }
+        public string EmployeeName { get; set; }
         public int CreatedBy { get; set; }
-        public int UpdatedBy { get; set; }
-        public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
 
     }

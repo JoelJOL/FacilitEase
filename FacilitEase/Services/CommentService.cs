@@ -25,10 +25,7 @@ namespace FacilitEase.Services
                 {
                     Id = comment.Id,
                     TicketId = comment.TicketId,
-                    Sender = comment.Sender,
-                    Receiver = comment.Receiver,
                     Text = comment.Text,
-                    Category = comment.Category
                 })
                 .ToList();
 
