@@ -1,6 +1,9 @@
 ﻿using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
 using FacilitEase.UnitOfWork;
+using Microsoft.Data.SqlClient;
+using System.Linq.Dynamic.Core;
+
 
 namespace FacilitEase.Services
 {
@@ -257,6 +260,65 @@ namespace FacilitEase.Services
             }
 
             return categoryReportData;
+        }
+        public ManagerTicketResponse<AdminReportTickets> GetTicketsByAdmin(int adminId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
+        {
+            var adminEmployeeId = _context.TBL_USER.Where(u => u.Id == adminId)
+                                            .Select(u => u.EmployeeId)
+                                            .FirstOrDefault();
+            var query = from ticket in _context.TBL_TICKET
+                        join user in _context.TBL_USER on ticket.UserId equals user.Id
+                        join employee in _context.TBL_EMPLOYEE on user.EmployeeId equals employee.Id
+                        join employeedetail in _context.TBL_EMPLOYEE_DETAIL on employee.Id equals employeedetail.EmployeeId
+                        join location in _context.TBL_LOCATION on employeedetail.LocationId equals location.Id
+                        join priority in _context.TBL_PRIORITY on ticket.PriorityId equals priority.Id
+                        join status in _context.TBL_STATUS on ticket.StatusId equals status.Id
+                                where ticket.AssignedTo == adminEmployeeId
+                                where string.IsNullOrEmpty(searchQuery) || ticket.TicketName.Contains(searchQuery)
+                                select new
+                                {
+                                    Id = ticket.Id,
+                                    TicketName = ticket.TicketName,
+                                    EmployeeName = $"{employee.FirstName} {employee.LastName}",
+                                    Location = location.LocationName,
+                                    AssignedTo = ticket.AssignedTo != null
+                                            ? _context.TBL_EMPLOYEE
+                                            .Where(emp => emp.Id == ticket.AssignedTo)
+                                            .Select(emp => $"{emp.FirstName} {emp.LastName}")
+                                            .FirstOrDefault()
+                                            : "-------",
+                                    SubmittedDate = ticket.SubmittedDate,
+                                    Priority = $"{priority.PriorityName}",
+                                    Status = $"{status.StatusName}",
+                                };
+            var queryList = query.ToList();
+
+            // Apply Sorting
+            if (!string.IsNullOrEmpty(sortField) && !string.IsNullOrEmpty(sortOrder))
+            {
+                string orderByString = $"{sortField} {sortOrder}";
+                queryList = queryList.AsQueryable().OrderBy(orderByString).ToList();
+            }
+
+            var finalQueryList = queryList.Select(q => new AdminReportTickets
+            {
+                Id = q.Id,
+                TicketName = q.TicketName,
+                EmployeeName = q.EmployeeName,
+                Location = q.Location,
+                AssignedTo = q.AssignedTo,
+                SubmittedDate = q.SubmittedDate.ToString("yyyy-MM-dd hh:mm tt"),
+                Priority = q.Priority,
+                Status = q.Status,
+            }).ToList();
+            // Apply Pagination
+            var totalCount = query.Count();
+            finalQueryList = finalQueryList.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            return new ManagerTicketResponse<AdminReportTickets>
+            {
+                Data = finalQueryList,
+                TotalDataCount = totalCount
+            };
         }
     }
 }

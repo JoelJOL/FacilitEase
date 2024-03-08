@@ -51,6 +51,7 @@
   <ItemGroup>
     <PackageReference Include="DotEnv" Version="0.0.1.1" />
     <PackageReference Include="DotNetEnv" Version="3.0.0" />
+    <PackageReference Include="EPPlus" Version="7.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.1" />
     <PackageReference Include="Mailjet.Api" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
