@@ -20,6 +20,6 @@
         public int CreatedBy { get; set; }
         public int UpdatedBy { get; set; }
         public int StatusId { get; set; }
-        public int AssignedTo { get; set; }
+        public int? AssignedTo { get; set; }
     }
 }

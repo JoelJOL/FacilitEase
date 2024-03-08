@@ -102,7 +102,7 @@ namespace FacilitEase.Services
 
 
                                     //  Code for email notification
-                                    await Task.Run(() =>
+                                   /* await Task.Run(() =>
                                     {
                                         try
                                         {
@@ -161,7 +161,7 @@ namespace FacilitEase.Services
                                             Debug.WriteLine($"Error sending email: {ex.Message}");
                                         }
 
-                                    });
+                                    });*/
 
 
                                 }

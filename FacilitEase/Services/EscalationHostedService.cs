@@ -47,7 +47,7 @@ namespace FacilitEase.Services
                                          join controllerEmployee in dbContext.TBL_EMPLOYEE
                                              on tickets.ControllerId equals controllerEmployee.Id into controllerEmployees
                                          from controllerEmployee in controllerEmployees.DefaultIfEmpty()
-                                         where sla.PriorityId == tickets.PriorityId
+                                         where sla.CategoryId == tickets.CategoryId
                                                && (tickets.StatusId == 1 || tickets.StatusId == 2 || tickets.StatusId == 6)
                                                && DateTime.UtcNow > tickets.SubmittedDate.AddMinutes(sla.Time)
                                          select new
