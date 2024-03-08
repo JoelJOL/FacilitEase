@@ -145,7 +145,11 @@ namespace FacilitEase.Services
         /// <param name="searchQuery"></param>
         /// <returns></returns>
         ManagerTicketResponse<TicketApiModel> GetEscalatedTickets(int userId, int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery);
-
+        /// <summary> working
+        /// To create a new ticket along with associated documents in the database.
+        /// </summary>
+        /// <param name="ticketDto"></param>
+        /// 
         void CreateTicketWithDocuments([FromForm] TicketDto ticketDto, [FromForm] IFormFile file);
 
         /// <summary>

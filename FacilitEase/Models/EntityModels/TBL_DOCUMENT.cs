@@ -13,5 +13,6 @@ namespace FacilitEase.Models.EntityModels
         public int UpdatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+        public string Category { get; set; }
     }
 }

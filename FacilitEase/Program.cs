@@ -95,10 +95,13 @@ builder.Services.AddScoped<IManagerService, ManagerService>();
 builder.Services.AddScoped<IL1AdminService, L1AdminService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IAssetService, AssetService>();
+builder.Services.AddScoped<InvoiceService, InvoiceService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IAzureRoleManagementService, AzureRoleManagementService>();
 builder.Services.AddScoped<ISLAService, SLAService>();
 builder.Services.AddScoped<IL1AdminService, L1AdminService>();
+builder.Services.AddScoped<IEmailToTicketProcessor, EmailToTicketProcessor>();
+builder.Services.AddScoped<TicketService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHostedService<NotificationService>();
@@ -137,7 +140,8 @@ app.UseRouting();
 
 app.UseCors("AllowAngularDev");
 
-app.UseTokenValidationMiddleware(applicationAuthority, applicationAudience);
+/*app.UseTokenValidationMiddleware(applicationAuthority, applicationAudience);
+*/
 
 app.UseEndpoints(endpoints =>
 {

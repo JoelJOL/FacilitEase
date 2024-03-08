@@ -12,12 +12,14 @@
         public int DepartmentId { get; set; }
         public int UserId { get; set; }
         public string DocumentLink { get; set; }
+
+        public string Category {  get; set; }
         public DateTime SubmissionDate { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
         public int CreatedBy { get; set; }
         public int UpdatedBy { get; set; }
         public int StatusId { get; set; }
-        public int AssignedTo { get; set; }
+        public int? AssignedTo { get; set; }
     }
 }
