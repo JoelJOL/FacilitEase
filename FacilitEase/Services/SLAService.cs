@@ -12,12 +12,12 @@ namespace FacilitEase.Services
             _context = context;
         }
 
-        public void EditSLA(int departmentId, int priorityId, int Time)
+        public void EditSLA(int departmentId, int CategoryId, int Time)
         {
             var selectedSla = (from sla in _context.TBL_SLA
                                join department in _context.TBL_DEPARTMENT on sla.DepartmentId equals department.Id
-                               join priority in _context.TBL_PRIORITY on sla.PriorityId equals priority.Id
-                               where ((sla.DepartmentId == departmentId) && (sla.PriorityId == priorityId))
+                               join category in _context.TBL_CATEGORY on sla.CategoryId equals category.Id
+                               where ((sla.DepartmentId == departmentId) && (sla.CategoryId == CategoryId))
                                select sla).FirstOrDefault();
             if (selectedSla != null)
             {
@@ -33,12 +33,12 @@ namespace FacilitEase.Services
                           join employeedetail in _context.TBL_EMPLOYEE_DETAIL on employee.Id equals employeedetail.EmployeeId
                           join department in _context.TBL_DEPARTMENT on employeedetail.DepartmentId equals department.Id
                           join sla in _context.TBL_SLA on department.Id equals sla.DepartmentId
-                          join priority in _context.TBL_PRIORITY on sla.PriorityId equals priority.Id
+                          join category in _context.TBL_CATEGORY on sla.CategoryId equals category.Id
                           where user.Id == userid
                           select new ShowSLAInfo
                           {
                               DepartmentId = sla.DepartmentId,
-                              PriorityName = priority.PriorityName,
+                              CategoryName = category.CategoryName,
                               Time = sla.Time
                           };
             var slaInfoList = slaInfo.ToList();

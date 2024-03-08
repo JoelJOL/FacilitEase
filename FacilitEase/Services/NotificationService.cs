@@ -3,6 +3,7 @@ using FacilitEase.Models.EntityModels;
 using FacilitEase.UnitOfWork;
 using Microsoft.AspNetCore.SignalR;
 using System.Diagnostics;
+using System.Net.Mail;
 
 namespace FacilitEase.Services
 {
@@ -11,7 +12,8 @@ namespace FacilitEase.Services
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly IServiceScopeFactory _scopeFactory;
         /*  private readonly AppDbContext _context;*/
-
+        private readonly string apiKey = DotNetEnv.Env.GetString("MailJetApiKey");
+        private readonly string apiSecret = DotNetEnv.Env.GetString("MailApiSecretKey");
         public NotificationService(IHubContext<NotificationHub> hubContext, IServiceScopeFactory scopeFactory)
         {
             _hubContext = hubContext;
@@ -49,7 +51,7 @@ namespace FacilitEase.Services
                 var initialTickets = unitOfWork.Ticket.GetAll().ToDictionary(t => t.Id, t => new { t.StatusId, t.ControllerId });
 
                 while (!cancellationToken.IsCancellationRequested)
-                {
+                {   
                     // Create a new scope for the current iteration
                     using (var innerScope = _scopeFactory.CreateScope())
                     {
@@ -97,6 +99,71 @@ namespace FacilitEase.Services
                                     unitOfWork.Notification.Add(notification);
                                     // Save the changes to the database
                                     await unitOfWork.CompleteAsync();
+
+
+                                    //  Code for email notification
+                                   /* await Task.Run(() =>
+                                    {
+                                        try
+                                        {
+                                            var user = unitOfWork.User.GetById(message.UserId);
+                                            if (user != null && !string.IsNullOrEmpty(user.Email))
+                                            {
+                                                // Fetch the employee's first name and last name from the Employee table
+                                                var employee = unitOfWork.Employee.GetById(user.EmployeeId);
+                                                var employeeName = $"{employee.FirstName} {employee.LastName}";
+                                                Console.WriteLine(user.Email);
+
+                                                using (MailMessage mail = new MailMessage("nathanielyeldo22@gmail.com", user.Email))
+                                                using (SmtpClient client = new SmtpClient("in-v3.mailjet.com"))
+                                                {
+                                                    client.Port = 587;
+                                                    client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                                                    client.UseDefaultCredentials = false;
+                                                    client.Credentials = new System.Net.NetworkCredential(apiKey, apiSecret);
+
+                                                    mail.Subject = "FacilitEase Notification";
+                                                    mail.Body = $@"
+                                                                 <html>
+                                                                 <body style='font-family: Arial, sans-serif; background-color: #cecece; margin: 0; padding: 0;'>
+                                                                 <table align='center' border='0' cellpadding='0' cellspacing='0' width='600' style='border-collapse: collapse;'>
+                                                                 <tr>
+                                                                 <td align='center' bgcolor='#70bbd9' style='padding: 40px 0 30px 0;'>
+                                                                 <img src='https://drive.google.com/uc?id=1tkgPkI5FDlS8vMbBTX7lSrx6addaYvl0' alt='Your Logo' style='display: inline-block; width:26px;height:36px;' />
+                                                                 <h1 style='font-size: 48px; color: white; display: inline-block;'>FacilitEase</h1>
+                                                                 </td>
+                                                                 </tr>
+                                                                 <tr>
+                                                                 <td bgcolor='#ffffff' style='padding: 40px 30px 40px 30px;'>
+                                                                 <p style='color: #153643; font-size: 24px;'>Dear {employeeName},</p>
+                                                                 <p style='color: #153643; font-size: 18px;'>This is a notification from FacilitEase:</p>
+                                                                 <p style='color: #153643; font-size: 18px;'>
+                                                                 <strong>Ticket ID:</strong> {changedTicket.Key}<br />
+                                                                 <strong>Message:</strong> {message.Text}
+                                                                 </p>
+                                                                 <p style='color: #153643; font-size: 18px;'>Best regards,<br />FacilitEase Team</p>
+                                                                 </td>
+                                                                 </tr>
+                                                                 </table>
+                                                                 </body>
+                                                                 </html>
+                                                                 ";
+                                                    mail.IsBodyHtml = true; // To display the mail body in html!!
+
+                                                    client.Send(mail);
+                                                    Console.WriteLine("Mail Send Successfully");
+                                                }
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            // Log the exception details for troubleshooting
+                                            Debug.WriteLine($"Error sending email: {ex.Message}");
+                                        }
+
+                                    });*/
+
+
                                 }
                             }
                         }
@@ -146,10 +213,16 @@ namespace FacilitEase.Services
                 // Get the userId for the controllerId and AssignedTo
                 var controllerUserId = users.FirstOrDefault(u => u.EmployeeId == controllerId)?.Id;
                 var controllerName = employees.FirstOrDefault(e => e.Id == controllerId)?.FirstName.ToString();
+
                 var assignedToUserId = users.FirstOrDefault(u => u.EmployeeId == ticket.AssignedTo)?.Id;
                 var employeeId = users.FirstOrDefault(u => u.Id == ticket.UserId)?.EmployeeId;
-                var managerId = employees.FirstOrDefault(e => e.Id == employeeId)?.ManagerId;
-                var employeeFirstName = employees.FirstOrDefault(e => e.Id == employeeId)?.FirstName.ToString();
+                var managerEmployee = employees.FirstOrDefault(e => e.Id == employeeId);
+                var managerId = managerEmployee?.ManagerId;
+
+                // Ensure managerId is not null before trying to find the corresponding user ID
+                var managerUserId = managerId.HasValue ? users.FirstOrDefault(u => u.EmployeeId == managerId.Value)?.Id : null;
+
+                var employeeFirstName = managerEmployee?.FirstName.ToString();
 
                 if (statusId == 1)
                 {
@@ -160,9 +233,10 @@ namespace FacilitEase.Services
                         messages.Add(new Message { UserId = l2AdminUserId, Text = $"New ticket is generated by {employeeFirstName}" });
                     }
                     // Send a notification to the manager
-                    if (managerId.HasValue)
+                    if (managerUserId.HasValue)
                     {
-                        messages.Add(new Message { UserId = managerId.Value, Text = $"New ticket created by your employee  {employeeFirstName}" });
+                        messages.Add(new Message { UserId = managerUserId.Value, Text = $"New ticket created by your employee  {employeeFirstName}" });
+                        Console.WriteLine(messages);
                     }
                 }
                 else if (statusId.HasValue && (controllerUserId.HasValue || statusId == 5))
@@ -209,6 +283,7 @@ namespace FacilitEase.Services
                 return messages;
             }
         }
+
     }
 
     public class Message
