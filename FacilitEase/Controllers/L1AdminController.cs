@@ -52,12 +52,12 @@ namespace FacilitEase.Controllers
             return CreatedAtAction(nameof(GetDepartments), new { }, departmentDto);
         }
 
-        [HttpPatch("EditSLA")]
+        [HttpPost("EditSLA")]
         public IActionResult EditSla([FromBody] EditSLAInfo request)
         {
             try
             {
-                _slaService.EditSLA(request.DepartmentId, request.PriorityId, request.Time);
+                _slaService.EditSLA(request.DepartmentId, request.CategoryId, request.Time);
                 return Ok();
             }
             catch (Exception ex)

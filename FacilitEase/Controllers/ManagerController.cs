@@ -97,7 +97,7 @@ namespace FacilitEase.Controllers
             try
             {
                 _ticketService.SendForApproval(request.TicketId, request.CurrentControllerId);
-                 return Ok(new { Message = "Ticket assigned successfully" }); 
+                return Ok(new { Message = "Ticket assigned successfully" });
             }
             catch (Exception ex)
             {

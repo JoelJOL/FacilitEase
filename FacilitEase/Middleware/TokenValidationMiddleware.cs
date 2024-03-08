@@ -16,6 +16,7 @@ public class TokenValidationMiddleware
         _authority = authority;
         _audience = audience;
     }
+
     /// <summary>
     /// Authenticate the http requests
     /// Azure id token validation
@@ -74,8 +75,9 @@ public class TokenValidationMiddleware
             context.Response.StatusCode = 500; // Internal Server Error
         }
     }
+
     /// <summary>
-    /// The contains the cryptographic keys used by the OpenID Connect provider to sign tokens. 
+    /// The contains the cryptographic keys used by the OpenID Connect provider to sign tokens.
     /// These are essential for verifying the authenticity of tokens received by the application
     /// </summary>
     /// <returns>Keys used by OpenID Connect</returns>
@@ -89,6 +91,7 @@ public class TokenValidationMiddleware
         return openIdConfig.SigningKeys;
     }
 }
+
 /// <summary>
 /// Build the middleware during the initial execution of program.cs
 /// </summary>

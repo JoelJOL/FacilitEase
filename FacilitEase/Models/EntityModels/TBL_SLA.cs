@@ -6,7 +6,8 @@ namespace FacilitEase.Models.EntityModels
     {
         [Key]
         public int Id { get; set; }
-        public int PriorityId { get; set; }
+
+        public int CategoryId { get; set; }
         public int DepartmentId { get; set; }
         public int Time { get; set; }
         public int CreatedBy { get; set; }

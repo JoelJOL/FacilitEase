@@ -1,13 +1,5 @@
 ﻿using FacilitEase.Data;
 using FacilitEase.Models.EntityModels;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Graph.Models;
-using System;
-using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace FacilitEase.Services
 {
@@ -55,7 +47,7 @@ namespace FacilitEase.Services
                                          join controllerEmployee in dbContext.TBL_EMPLOYEE
                                              on tickets.ControllerId equals controllerEmployee.Id into controllerEmployees
                                          from controllerEmployee in controllerEmployees.DefaultIfEmpty()
-                                         where sla.PriorityId == tickets.PriorityId
+                                         where sla.CategoryId == tickets.CategoryId
                                                && (tickets.StatusId == 1 || tickets.StatusId == 2 || tickets.StatusId == 6)
                                                && DateTime.UtcNow > tickets.SubmittedDate.AddMinutes(sla.Time)
                                          select new

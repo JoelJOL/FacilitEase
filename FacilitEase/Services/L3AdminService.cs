@@ -53,6 +53,10 @@ namespace FacilitEase.Services
             }
         }
 
+        /// <summary>
+        /// Method to accept ticket cancellation request
+        /// </summary>
+        /// <param name="ticketId"></param>
         public void AcceptTicketCancellation(int ticketId)
         {
             var ticketToClose = _context.TBL_TICKET
@@ -82,6 +86,10 @@ namespace FacilitEase.Services
             }
         }
 
+        /// <summary>
+        /// Method to deny ticket cancellation request
+        /// </summary>
+        /// <param name="ticketId"></param>
         public void DenyTicketCancellation(int ticketId)
         {
             var ticketToClose = _context.TBL_TICKET
@@ -135,8 +143,6 @@ namespace FacilitEase.Services
             }
         }
 
-
-
         /// <summary>
         /// Method to forward ticket to the manager of the employee who raised the ticket
         /// </summary>
@@ -173,9 +179,12 @@ namespace FacilitEase.Services
             }
         }
 
-       public void ForwardTicketDeptHead(int ticketId,int employeeId)
+        /// <summary>
+        /// Method to forward ticket to dept head
+        /// </summary>
+        /// <param name="ticketId"></param>
+        public void ForwardTicketDeptHead(int ticketId, int employeeId)
         {
-            
             var ticketToForward = _context.TBL_TICKET
            .FirstOrDefault(t => t.Id == ticketId);
 
@@ -209,13 +218,7 @@ namespace FacilitEase.Services
                     throw new InvalidOperationException("Dept Head IDv is null or invalid.");
                 }
                 _context.SaveChanges();
-
-
             }
-
-            
-            
-
         }
 
         public void AddTicket(TBL_TICKET ticket)
@@ -366,7 +369,7 @@ namespace FacilitEase.Services
               // Filtering resolved tickets based on searchQuery (if provided).
               .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
               // Selecting the desired fields and creating a new TicketResolveJoin object.
-              .Select(joined => new 
+              .Select(joined => new
               {
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
@@ -376,9 +379,7 @@ namespace FacilitEase.Services
                   Status = joined.Status.StatusName,
                   Department = joined.Department.DeptName,
                   Location = joined.Location.LocationName,
-
               });
-
 
             var queryList = query.ToList();
 
@@ -441,6 +442,7 @@ namespace FacilitEase.Services
                               StatusName = status.StatusName,
                               PriorityName = priority.PriorityName,
                               SubmittedDate = ticket.SubmittedDate,
+                              AssignedTo = $"{_context.TBL_EMPLOYEE.Where(emp => emp.Id == ticket.AssignedTo).Select(emp => $"{emp.FirstName} {emp.LastName}").FirstOrDefault()}",
                               EmployeeName = $"{employee.FirstName} {employee.LastName}",
                               EmployeeId = employee.Id,
                               ManagerName = manager != null ? $"{manager.FirstName} {manager.LastName}" : null,
@@ -529,7 +531,7 @@ namespace FacilitEase.Services
               // Filtering resolved tickets based on searchQuery (if provided).
               .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
               // Selecting the desired fields and creating a new TicketResolveJoin object.
-              .Select(joined => new 
+              .Select(joined => new
               {
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
@@ -540,8 +542,6 @@ namespace FacilitEase.Services
                   Status = joined.Status.StatusName,
                   Department = joined.Department.DeptName,
                   Location = joined.Location.LocationName,
-
-
               });
 
             var queryList = query.ToList();
@@ -639,7 +639,7 @@ namespace FacilitEase.Services
               // Filtering resolved tickets based on searchQuery (if provided).
               .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
               // Selecting the desired fields and creating a new TicketResolveJoin object.
-              .Select(joined => new 
+              .Select(joined => new
               {
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
@@ -650,7 +650,6 @@ namespace FacilitEase.Services
                   Status = joined.Status.StatusName,
                   Department = joined.Department.DeptName,
                   Location = joined.Location.LocationName,
-
               });
 
             var queryList = query.ToList();
@@ -690,10 +689,10 @@ namespace FacilitEase.Services
 
         public AgentTicketResponse<ResolvedTicketDto> GetCancelRequestTicketsByAgent(int userId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
-                int agentId = _context.TBL_USER
-            .Where(user => user.Id == userId)
-            .Select(user => user.EmployeeId)
-            .FirstOrDefault();
+            int agentId = _context.TBL_USER
+        .Where(user => user.Id == userId)
+        .Select(user => user.EmployeeId)
+        .FirstOrDefault();
             // Joining multiple tables to fetch necessary information about cancellation request tickets.
             var query = _context.TBL_TICKET
               .Join(
@@ -743,7 +742,7 @@ namespace FacilitEase.Services
               // Filtering resolved tickets based on searchQuery (if provided).
               .Where(joined => string.IsNullOrEmpty(searchQuery) || joined.Ticket.TicketName.Contains(searchQuery))
               // Selecting the desired fields and creating a new TicketResolveJoin object.
-              .Select(joined => new 
+              .Select(joined => new
               {
                   Id = joined.Ticket.Id,
                   TicketName = joined.Ticket.TicketName,
@@ -754,7 +753,6 @@ namespace FacilitEase.Services
                   Status = joined.Status.StatusName,
                   Department = joined.Department.DeptName,
                   Location = joined.Location.LocationName,
-
               });
 
             var queryList = query.ToList();
