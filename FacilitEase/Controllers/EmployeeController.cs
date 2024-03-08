@@ -158,7 +158,7 @@ namespace FacilitEase.Controllers
             return Ok(ticketDetails);
         }
 
-        /*[HttpGet("ticket/{ticketId}")]
+        [HttpGet("ticket/{ticketId}")]
         public IActionResult GetTicketDetailsById(int ticketId)
         {
             var ticketDetails = _ticketDetailsService.GetTicketDetailsById(ticketId);
@@ -169,7 +169,7 @@ namespace FacilitEase.Controllers
             }
 
             return Ok(ticketDetails);
-        }*/
+        }
 
         [HttpGet("GetCategoryByDepartmentId/{departmentId}")]
         public IActionResult GetCategoryByDepartmentId(int departmentId)
