@@ -134,8 +134,8 @@ app.UseRouting();
 
 app.UseCors("AllowAngularDev");
 
-app.UseTokenValidationMiddleware(applicationAuthority, applicationAudience);
-
+/*app.UseTokenValidationMiddleware(applicationAuthority, applicationAudience);
+*/
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();

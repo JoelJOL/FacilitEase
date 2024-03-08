@@ -1,12 +1,14 @@
 ﻿using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FacilitEase.Controllers
 {
     [EnableCors("AllowAngularDev")]
+    [AllowAnonymous]
     [ApiController]
     [Route("api/[controller]")]
     public class L3AdminController : ControllerBase
