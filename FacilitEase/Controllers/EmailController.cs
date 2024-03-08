@@ -9,10 +9,12 @@ namespace FacilitEase.Controllers
     public class EmailController : ControllerBase
     {
         private readonly MailJetService _mailjetService;
+        private readonly EmailToTicketProcessor _emailProcessor;
 
-        public EmailController(MailJetService mailjetService)
+        public EmailController(MailJetService mailjetService, EmailToTicketProcessor emailProcessor)
         {
             _mailjetService = mailjetService;
+            _emailProcessor = emailProcessor;
         }
 
         /* [HttpPost("send")]
@@ -80,5 +82,21 @@ namespace FacilitEase.Controllers
                 return StatusCode(500, "Failed to retrieve user email");
             }
         }
+
+        //Email to ticket trigger post
+        [HttpPost("process")]
+        public async Task<IActionResult> ProcessEmails()
+        {
+            try
+            {
+                await _emailProcessor.ReadEmailsAndCreateTickets();
+                return Ok("Emails processed successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"An error occurred while processing emails: {ex.Message}");
+            }
+        }
+
     }
 }
