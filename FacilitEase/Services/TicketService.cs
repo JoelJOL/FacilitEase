@@ -425,7 +425,11 @@ namespace FacilitEase.Services
                 UpdatedDate = DateTime.Now,
                 CreatedBy = ticketDto.CreatedBy,
                 UpdatedBy = ticketDto.UpdatedBy,
-            };
+                EscalationTime = (from sla in _context.TBL_SLA
+                                  where sla.CategoryId == ticketDto.CategoryId
+                                  select sla.Time)
+                           .FirstOrDefault(),
+        };
 
             _context.Add(ticketEntity);
             _context.SaveChanges();

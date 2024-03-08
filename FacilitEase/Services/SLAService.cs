@@ -44,5 +44,26 @@ namespace FacilitEase.Services
             var slaInfoList = slaInfo.ToList();
             return slaInfoList;
         }
+
+        public int GetTicketSLA(int ticketId)
+        {
+            var selectedTicket = (from ticket in _context.TBL_TICKET
+                                  where (ticket.Id == ticketId)
+                                  select ticket).FirstOrDefault();
+
+            return selectedTicket.EscalationTime;
+
+        }
+        public void EditTicketSLA(int ticketId, int time)
+        {
+            var selectedTicket = (from ticket in _context.TBL_TICKET
+                                  where (ticket.Id == ticketId)
+                                  select ticket).FirstOrDefault();
+            if (selectedTicket != null)
+            {
+                selectedTicket.EscalationTime = time;
+            }
+            _context.SaveChanges();
+        }
     }
 }
