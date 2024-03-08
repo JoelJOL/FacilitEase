@@ -9,6 +9,5 @@
         public string Priority { get; set; }
         public string SubmittedDate { get; set; }
 
-        public int UserId { get; set; }
     }
 }

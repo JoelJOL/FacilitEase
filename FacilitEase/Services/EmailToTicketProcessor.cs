@@ -9,7 +9,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 
-public class EmailToTicketProcessor
+public class EmailToTicketProcessor : IEmailToTicketProcessor
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly TicketService _ticketService;
