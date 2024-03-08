@@ -232,7 +232,7 @@ namespace FacilitEase.Services
                              priorityName = p.PriorityName,
                              statusName = s.StatusName,
                              Notes = _context.TBL_COMMENT
-                                 .Where(comment => comment.TicketId == ticketId && comment.Category == "Note")
+                                 .Where(comment => comment.TicketId == ticketId)
                                  .Select(comment => comment.Text)
                                  .FirstOrDefault(),
                              LastUpdate = GetTimeSinceLastUpdate(ticketId),
@@ -573,7 +573,7 @@ namespace FacilitEase.Services
             if (ticketDetails != null)
             {
                 ticketDetails.Notes = _context.TBL_COMMENT
-                    .Where(comment => comment.TicketId == desiredTicketId && comment.Category == "Note")
+                    .Where(comment => comment.TicketId == desiredTicketId)
                     .Select(comment => comment.Text)
                     .FirstOrDefault();
 
@@ -1035,7 +1035,7 @@ namespace FacilitEase.Services
                              priorityName = p.PriorityName,
                              statusName = s.StatusName,
                              Notes = _context.TBL_COMMENT
-                                 .Where(comment => comment.TicketId == ticketId && comment.Category == "Note")
+                                 .Where(comment => comment.TicketId == ticketId)
                                  .Select(comment => comment.Text)
                                  .FirstOrDefault(),
                              LastUpdate = GetTimeSinceLastUpdate(ticketId),
