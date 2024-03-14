@@ -6,6 +6,7 @@ using FacilitEase.Repositories;
 using FacilitEase.Services;
 using FacilitEase.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
@@ -140,14 +141,15 @@ app.UseRouting();
 
 app.UseCors("AllowAngularDev");
 
-/*app.UseTokenValidationMiddleware(applicationAuthority, applicationAudience);
-*/
+app.MapControllers();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-    endpoints.MapHub<NotificationHub>("/notificationHub").RequireCors("AllowAngularDev");
-});
+app.MapHub<NotificationHub>("/notificationHub").RequireCors("AllowAngularDev");
+
+app.UseTokenValidationMiddleware(applicationAuthority, applicationAudience);
+
+app.UseAuthentication();
+
+app.UseAuthorization();
 
 //app.UseMiddleware<LogMiddleware>();
 
@@ -159,7 +161,6 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = new PathString("/Resources")
 });
 
-app.UseAuthorization();
 app.UseHttpsRedirection();
 
 app.Run();

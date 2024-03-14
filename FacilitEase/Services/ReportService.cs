@@ -1,20 +1,16 @@
 ﻿using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
 using FacilitEase.UnitOfWork;
-using Microsoft.Data.SqlClient;
 using System.Linq.Dynamic.Core;
-
 
 namespace FacilitEase.Services
 {
     public class ReportService : IReportService
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly AppDbContext _context;
 
-        public ReportService(IUnitOfWork unitOfWork, AppDbContext context)
+        public ReportService(AppDbContext context)
         {
-            _unitOfWork = unitOfWork;
             _context = context;
         }
 
@@ -94,7 +90,7 @@ namespace FacilitEase.Services
                     case 12: chartData.December = [entry.ResolvedCount, entry.EscalatedCount]; break;
                 }
             }
-
+            
             return chartData;
         }
 

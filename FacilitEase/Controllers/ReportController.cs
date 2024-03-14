@@ -1,60 +1,58 @@
 ﻿﻿using FacilitEase.Models.ApiModels;
 using FacilitEase.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using NUnit.Framework.Internal.Execution;
 using OfficeOpenXml;
-using System.Net;
-using System.Net.Http.Headers;
 
 namespace FacilitEase.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize(Roles="L2Admin")]
     [ApiController]
-    public class L3AdminReportController : ControllerBase
+    public class ReportController : ControllerBase
     {
         private readonly IReportService _reportService;
 
-        public L3AdminReportController(IReportService reportService)
+        public ReportController(IReportService reportService)
         {
             _reportService = reportService;
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("api/{id}")]
         public async Task<ActionResult<Report>> GetReportDataYearTicketStatus(int id)
         {
             return Ok(_reportService.GetReportDataYearTicketStatus(id));
         }
 
-        [HttpGet("chartdata/{id}")]
+        [HttpGet("api/chartdata/{id}")]
         public async Task<ActionResult<ChartData>> GetBarChartData(int id)
         {
             return Ok(_reportService.GetBarChartData(id));
         }
 
-        [HttpGet("profiledata/{id}")]
+        [HttpGet("api/profiledata/{id}")]
         public async Task<ActionResult<ProfileData>> GetProfileData(int id)
         {
             return Ok(_reportService.GetProfileData(id));
         }
 
-        [HttpGet("reportdata/{id}")]
+        [HttpGet("api/reportdata/{id}")]
         public async Task<ActionResult<WeekReport>> GetDailyAndWeeklyData(int id)
         {
             return Ok(_reportService.GetDailyAndWeeklyData(id));
         }
 
-        [HttpGet("categoryReport/{id}")]
+        [HttpGet("api/categoryReport/{id}")]
         public async Task<ActionResult<CategoryReportData>> GetCategoryReport(int id)
         {
             return Ok(_reportService.GetReportDataByCategory(id));
         }
-        [HttpGet("tickets/admin/{id}")]
+        [HttpGet("api/tickets/admin/{id}")]
         public IActionResult GetTicketsByAdmin(int Id, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             return Ok(_reportService.GetTicketsByAdmin(Id, sortField, sortOrder, pageIndex, pageSize, searchQuery));
         }
-        [HttpGet("exportdata")]
+        [HttpGet("api/exportdata")]
         public async Task<IActionResult> ExportToExcel()
         {
             ExcelPackage excel = new ExcelPackage();

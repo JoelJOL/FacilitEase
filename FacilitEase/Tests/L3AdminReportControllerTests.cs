@@ -16,7 +16,7 @@ namespace FacilitEase.UnitTests.Controllers
             var reportServiceMock = new Mock<IReportService>();
             var report = new Report { Total = 10, Resolved = 5, Escalated = 5 };
             reportServiceMock.Setup(service => service.GetReportDataYearTicketStatus(2)).Returns(report);
-            var controller = new L3AdminReportController(reportServiceMock.Object);
+            var controller = new ReportController(reportServiceMock.Object);
 
             // Act
             var result = await controller.GetReportDataYearTicketStatus(It.IsAny<int>());

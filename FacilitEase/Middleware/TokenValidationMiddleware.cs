@@ -58,7 +58,7 @@ public class TokenValidationMiddleware
                 ValidateIssuerSigningKey = true,
                 RequireSignedTokens = true,
                 RequireExpirationTime = true,
-                ClockSkew = TimeSpan.FromMinutes(5) // Adjust as needed
+                ClockSkew = TimeSpan.FromMinutes(100) // Adjust as needed
             };
 
             ClaimsPrincipal principal = handler.ValidateToken(token, parameters, out _);
