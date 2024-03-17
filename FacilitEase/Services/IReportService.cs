@@ -38,5 +38,6 @@ namespace FacilitEase.Services
         /// <param name="id">the user id of the user</param>
         /// <returns>Dtaa for report of categories</returns>
         CategoryReportData GetReportDataByCategory(int id);
+        ManagerTicketResponse<AdminReportTickets> GetTicketsByAdmin(int adminId, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery);
     }
 }
