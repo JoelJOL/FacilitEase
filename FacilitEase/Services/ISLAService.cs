@@ -8,7 +8,7 @@ namespace FacilitEase.Services
 
         public void EditSLA(int departmentId, int priorityId, int time);
 
-        public int GetTicketSLA(int ticketId);
+        public DateTime GetTicketSLA(int ticketId);
 
         public void EditTicketSLA(int ticketId, int time);
 

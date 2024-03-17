@@ -1,5 +1,6 @@
 ﻿using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
+using Microsoft.Graph.Models;
 
 namespace FacilitEase.Services
 {
@@ -45,7 +46,7 @@ namespace FacilitEase.Services
             return slaInfoList;
         }
 
-        public int GetTicketSLA(int ticketId)
+        public DateTime GetTicketSLA(int ticketId)
         {
             var selectedTicket = (from ticket in _context.TBL_TICKET
                                   where (ticket.Id == ticketId)
@@ -61,7 +62,7 @@ namespace FacilitEase.Services
                                   select ticket).FirstOrDefault();
             if (selectedTicket != null)
             {
-                selectedTicket.EscalationTime = time;
+                selectedTicket.EscalationTime = DateTime.UtcNow.AddDays(time); 
             }
             _context.SaveChanges();
         }
