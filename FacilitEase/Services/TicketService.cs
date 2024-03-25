@@ -412,6 +412,10 @@ namespace FacilitEase.Services
         public void CreateTicketWithDocuments(TicketDto ticketDto, IFormFile file)
         {
             var categoryName = GetCategoryNameById(ticketDto.CategoryId);
+            var slaTime = (from sla in _context.TBL_SLA
+                           where sla.CategoryId == ticketDto.CategoryId
+                           select sla.Time)
+                   .FirstOrDefault();
             var ticketEntity = new TBL_TICKET
             {
                 TicketName = categoryName,
@@ -425,6 +429,7 @@ namespace FacilitEase.Services
                 UpdatedDate = DateTime.Now,
                 CreatedBy = ticketDto.CreatedBy,
                 UpdatedBy = ticketDto.UpdatedBy,
+                EscalationTime = DateTime.UtcNow.AddDays(slaTime)
             };
 
             _context.Add(ticketEntity);
@@ -564,6 +569,7 @@ namespace FacilitEase.Services
                                          LocationName = location.LocationName,
                                          DeptName = department.DeptName,
                                          DocumentLink = "new",
+                                         ExpectedDate = ticket.EscalationTime,
                                      })
         .ToList();  // Materialize the main query first
             Console.WriteLine(ticketDetailsList);

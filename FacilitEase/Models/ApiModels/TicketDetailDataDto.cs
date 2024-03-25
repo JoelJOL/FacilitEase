@@ -24,5 +24,7 @@
         public int ProjectCode { get; set; }
         public string Notes { get; set; }
         public string LastUpdate { get; set; }
+
+        public DateTime EscalationTime { get; set; }
     }
 }

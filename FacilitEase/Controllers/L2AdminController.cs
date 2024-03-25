@@ -12,11 +12,13 @@ namespace FacilitEase.Controllers
     {
         private readonly IEmployeeService _employeeService;
         private readonly ITicketService _ticketService;
+        private readonly ISLAService _slaService;
 
-        public L2AdminController(IEmployeeService employeeService, ITicketService ticketService)
+        public L2AdminController(IEmployeeService employeeService, ITicketService ticketService, ISLAService slaService)
         {
             _employeeService = employeeService;
             _ticketService = ticketService;
+            _slaService = slaService;
         }
 
         [HttpGet("agents/{userId}")]
@@ -102,6 +104,27 @@ namespace FacilitEase.Controllers
         {
             var agents = _employeeService.GetAgentsByDepartment(userId);
             return Ok(agents);
+        }
+
+        [HttpGet("SLATicketInfo/{TicketId}")]
+        public ActionResult GetSlaInfo(int TicketId)
+        {
+            var slaTicketInfo = _slaService.GetTicketSLA(TicketId);
+            return Ok(slaTicketInfo);
+        }
+
+        [HttpPost("EditTicketSLA")]
+        public IActionResult EditTicketSla([FromBody] EditTicketSLAInfo request)
+        {
+            try
+            {
+                _slaService.EditTicketSLA(request.TicketId, request.Time);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"An error occurred: {ex.Message}");
+            }
         }
     }
 }

@@ -27,7 +27,7 @@ namespace FacilitEase.Services
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _timer = new System.Threading.Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMinutes(3));
+            _timer = new System.Threading.Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMinutes(20));
             return Task.CompletedTask;
         }
 
@@ -49,16 +49,18 @@ namespace FacilitEase.Services
                                          from controllerEmployee in controllerEmployees.DefaultIfEmpty()
                                          where sla.CategoryId == tickets.CategoryId
                                                && (tickets.StatusId == 1 || tickets.StatusId == 2 || tickets.StatusId == 6)
-                                               && DateTime.UtcNow > tickets.SubmittedDate.AddMinutes(sla.Time)
+                                               && DateTime.UtcNow > tickets.EscalationTime
                                          select new
                                          {
                                              Ticket = tickets,
+                                             SlaTime = sla.Time,
                                              ControllerManagerId = controllerEmployee != null ? controllerEmployee.ManagerId : null
                                          }).ToList();
 
                 foreach (var ticketInfo in ticketsToEscalate)
                 {
                     ticketInfo.Ticket.StatusId = 3;
+                    ticketInfo.Ticket.EscalationTime = DateTime.UtcNow.AddDays(ticketInfo.SlaTime);
                     if (ticketInfo.Ticket.ControllerId != ticketInfo.Ticket.AssignedTo)
                     {
                         ticketInfo.Ticket.ControllerId = ticketInfo.ControllerManagerId;

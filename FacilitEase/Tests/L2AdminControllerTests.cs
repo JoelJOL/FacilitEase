@@ -15,8 +15,8 @@ namespace FacilitEase.Tests
             // Arrange
             var employeeServiceMock = new Mock<IEmployeeService>();
             var ticketServiceMock = new Mock<ITicketService>();
-            var controller = new L2AdminController(employeeServiceMock.Object, ticketServiceMock.Object);
-
+            var slaServiceMock = new Mock<ISLAService>();
+            var controller = new L2AdminController(employeeServiceMock.Object, ticketServiceMock.Object, slaServiceMock.Object); // Provide ISLAService in the constructor
             // Act
             var result = controller.GetAgents(It.IsAny<int>());
 
@@ -30,7 +30,8 @@ namespace FacilitEase.Tests
             // Arrange
             var employeeServiceMock = new Mock<IEmployeeService>();
             var ticketServiceMock = new Mock<ITicketService>();
-            var controller = new L2AdminController(employeeServiceMock.Object, ticketServiceMock.Object);
+            var slaServiceMock = new Mock<ISLAService>();
+            var controller = new L2AdminController(employeeServiceMock.Object, ticketServiceMock.Object, slaServiceMock.Object); // Provide ISLAService in the constructor
 
             // Act
             var result = controller.GetTicketDetails(It.IsAny<int>());
@@ -45,7 +46,8 @@ namespace FacilitEase.Tests
             // Arrange
             var employeeServiceMock = new Mock<IEmployeeService>();
             var ticketServiceMock = new Mock<ITicketService>();
-            var controller = new L2AdminController(employeeServiceMock.Object, ticketServiceMock.Object);
+            var slaServiceMock = new Mock<ISLAService>();
+            var controller = new L2AdminController(employeeServiceMock.Object, ticketServiceMock.Object, slaServiceMock.Object); // Provide ISLAService in the constructor
 
             // Act
             var result = controller.GetUnassignedTickets(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>());
@@ -60,7 +62,8 @@ namespace FacilitEase.Tests
             // Arrange
             var employeeServiceMock = new Mock<IEmployeeService>();
             var ticketServiceMock = new Mock<ITicketService>();
-            var controller = new L2AdminController(employeeServiceMock.Object, ticketServiceMock.Object);
+            var slaServiceMock = new Mock<ISLAService>();
+            var controller = new L2AdminController(employeeServiceMock.Object, ticketServiceMock.Object, slaServiceMock.Object); // Provide ISLAService in the constructor
 
             // Act
             var result = controller.AssignTicketToAgent(new AssignTicket());
@@ -75,7 +78,8 @@ namespace FacilitEase.Tests
             // Arrange
             var employeeServiceMock = new Mock<IEmployeeService>();
             var ticketServiceMock = new Mock<ITicketService>();
-            var controller = new L2AdminController(employeeServiceMock.Object, ticketServiceMock.Object);
+            var slaServiceMock = new Mock<ISLAService>();
+            var controller = new L2AdminController(employeeServiceMock.Object, ticketServiceMock.Object, slaServiceMock.Object); // Provide ISLAService in the constructor
 
             // Act
             var result = controller.GetAssignedTickets(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>());
@@ -90,7 +94,8 @@ namespace FacilitEase.Tests
             // Arrange
             var employeeServiceMock = new Mock<IEmployeeService>();
             var ticketServiceMock = new Mock<ITicketService>();
-            var controller = new L2AdminController(employeeServiceMock.Object, ticketServiceMock.Object);
+            var slaServiceMock = new Mock<ISLAService>();
+            var controller = new L2AdminController(employeeServiceMock.Object, ticketServiceMock.Object, slaServiceMock.Object); // Provide ISLAService in the constructor
 
             // Act
             var result = controller.GetEscalatedTickets(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>());
@@ -105,7 +110,8 @@ namespace FacilitEase.Tests
             // Arrange
             var employeeServiceMock = new Mock<IEmployeeService>();
             var ticketServiceMock = new Mock<ITicketService>();
-            var controller = new L2AdminController(employeeServiceMock.Object, ticketServiceMock.Object);
+            var slaServiceMock = new Mock<ISLAService>();
+            var controller = new L2AdminController(employeeServiceMock.Object, ticketServiceMock.Object, slaServiceMock.Object); // Provide ISLAService in the constructor
 
             // Act
             var result = controller.GetAgentsByDepartment(It.IsAny<int>());
