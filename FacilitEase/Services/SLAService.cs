@@ -62,7 +62,7 @@ namespace FacilitEase.Services
                                   select ticket).FirstOrDefault();
             if (selectedTicket != null)
             {
-                selectedTicket.EscalationTime = DateTime.UtcNow.AddDays(time); 
+                selectedTicket.EscalationTime = selectedTicket.EscalationTime.AddDays(time); 
             }
             _context.SaveChanges();
         }

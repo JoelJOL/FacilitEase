@@ -569,6 +569,7 @@ namespace FacilitEase.Services
                                          LocationName = location.LocationName,
                                          DeptName = department.DeptName,
                                          DocumentLink = "new",
+                                         ExpectedDate = ticket.EscalationTime,
                                      })
         .ToList();  // Materialize the main query first
             Console.WriteLine(ticketDetailsList);

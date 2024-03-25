@@ -2,7 +2,7 @@
 {
     public class EditTicketSLAInfo
     {
-        public int TicketId;
-        public int Time;
+        public int TicketId { get; set; }
+        public int Time { get; set; }
     }
 }
