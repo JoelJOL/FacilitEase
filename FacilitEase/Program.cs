@@ -145,7 +145,7 @@ app.MapControllers();
 
 app.MapHub<NotificationHub>("/notificationHub").RequireCors("AllowAngularDev");
 
-app.UseTokenValidationMiddleware(applicationAuthority, applicationAudience);
+//app.UseTokenValidationMiddleware(applicationAuthority, applicationAudience);
 
 app.UseAuthentication();
 

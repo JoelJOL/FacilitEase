@@ -618,6 +618,7 @@ namespace FacilitEase.Services
                               ManagerId = employee.ManagerId,
                               LocationName = location.LocationName,
                               DeptName = department.DeptName,
+                              EscalationTime = ticket.EscalationTime,
                           }).FirstOrDefault();
             if (result != null)
             {

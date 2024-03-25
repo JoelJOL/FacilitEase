@@ -25,7 +25,7 @@ namespace FacilitEase.Controllers
         [HttpGet("getInvoices/{ticketId}")]
         public IActionResult GetInvoicesByTicketId(int ticketId)
         {
-            var invoices = _invoiceService.GetDocumentsByTicketIdAndCategory(ticketId);
+            var invoices = _invoiceService.GetDocumentByTicketIdAndCategory(ticketId);
             return Ok(invoices);
         }
     }
