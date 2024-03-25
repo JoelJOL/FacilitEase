@@ -97,11 +97,11 @@ namespace FacilitEase.Services
                             EmployeeName = $"{employee.FirstName} {employee.LastName}",
                             Location = location.LocationName,
                             AssignedTo = ticket.AssignedTo != null
-    ? _context.TBL_EMPLOYEE
-        .Where(emp => emp.Id == ticket.AssignedTo)
-        .Select(emp => $"{emp.FirstName} {emp.LastName}")
-        .FirstOrDefault()
-    : "-------",
+                            ? _context.TBL_EMPLOYEE
+                                .Where(emp => emp.Id == ticket.AssignedTo)
+                                .Select(emp => $"{emp.FirstName} {emp.LastName}")
+                                .FirstOrDefault()
+                            : "-------",
                             SubmittedDate = ticket.SubmittedDate,
                             Priority = $"{priority.PriorityName}",
                             Status = $"{status.StatusName}",
