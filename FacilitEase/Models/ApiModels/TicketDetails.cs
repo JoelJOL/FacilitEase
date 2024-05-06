@@ -14,12 +14,12 @@
         public string AssignedTo { get; set; }
         public string ManagerName { get; set; }
         public int? ManagerId { get; set; }
-        public string LocationName { get; set; }
-        public string DeptName { get; set; }
-        public string DocumentLink { get; set; }
-        public string Notes { get; set; }
-        public string LastUpdate { get; set; }
+        public string? LocationName { get; set; }
+        public string? DeptName { get; set; }
+        public string? DocumentLink { get; set; }
+        public string? Notes { get; set; }
+        public string? LastUpdate { get; set; }
 
-        public DateTime ExpectedDate { get; set; }
+        public DateTime? ExpectedDate { get; set; }
     }
 }
