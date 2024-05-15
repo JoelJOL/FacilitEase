@@ -1,7 +1,6 @@
 ﻿﻿using FacilitEase.Models.ApiModels;
 using FacilitEase.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 
@@ -47,11 +46,13 @@ namespace FacilitEase.Controllers
         {
             return Ok(_reportService.GetReportDataByCategory(id));
         }
+
         [HttpGet("api/tickets/admin/{id}")]
         public IActionResult GetTicketsByAdmin(int Id, string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             return Ok(_reportService.GetTicketsByAdmin(Id, sortField, sortOrder, pageIndex, pageSize, searchQuery));
         }
+
         [HttpGet("api/exportdata")]
         public async Task<IActionResult> ExportToExcel()
         {
@@ -88,7 +89,6 @@ namespace FacilitEase.Controllers
                     workSheet.Cells[row, 7].Value = item.Priority;
                     workSheet.Cells[row, 8].Value = item.Status;
                     workSheet.Cells[row, 9].Value = item.Location;
-                    // Add other values similarly
                     row++;
                 }
 
@@ -100,7 +100,7 @@ namespace FacilitEase.Controllers
             else
             {
                 // Handle case where there is no data or an error occurred
-                return NotFound(); // Or return an appropriate response
+                return NotFound();
             }
 
         }
