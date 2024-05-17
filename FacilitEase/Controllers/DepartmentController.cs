@@ -1,4 +1,4 @@
-﻿using FacilitEase.Services;
+﻿using FacilitEase.Contracts.ServiceContracts;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 

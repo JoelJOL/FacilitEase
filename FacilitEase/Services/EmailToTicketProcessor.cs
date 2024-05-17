@@ -8,6 +8,7 @@ using FacilitEase.Services;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using FacilitEase.Contracts.ServiceContracts;
 
 public class EmailToTicketProcessor : IEmailToTicketProcessor
 {

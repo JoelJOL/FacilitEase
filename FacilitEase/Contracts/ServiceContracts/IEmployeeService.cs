@@ -1,0 +1,28 @@
+﻿using FacilitEase.Models.ApiModels;
+using FacilitEase.Models.EntityModels;
+
+namespace FacilitEase.Contracts.ServiceContracts
+{
+    public interface IEmployeeService
+    {
+        List<ManagerSubordinateEmployee> GetSubordinates(int managerId);
+
+        IEnumerable<AgentApiModel> GetAgents(int userId);
+
+        IEnumerable<AgentDetailsModel> GetAgentsByDepartment(int userId);
+
+        void AddEmployees(IEnumerable<EmployeeInputModel> employeeInputs1, params EmployeeInputModel[] employeeInputs);
+
+        //void AddEmployees(IEnumerable<EmployeeInputModel> employeeInputs, params EmployeeInputModel[] additionalEmployeeInputs);
+
+        void DeleteEmployee(int id);
+
+        public IEnumerable<TBL_LOCATION> GetLocations();
+
+        public IEnumerable<TBL_POSITION> GetPositions();
+
+        IEnumerable<EmployeeDetails> GetEmployeeDetails(int empId);
+
+        List<ProjectEmployeeDetails> GetEmployeesByProject(int userId);
+    }
+}

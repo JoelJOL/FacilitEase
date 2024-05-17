@@ -1,4 +1,5 @@
-﻿using FacilitEase.Data;
+﻿using FacilitEase.Contracts.RepositoryContracts;
+using FacilitEase.Data;
 using FacilitEase.Models.EntityModels;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,5 +1,5 @@
-﻿using FacilitEase.Models.ApiModels;
-using FacilitEase.Services;
+﻿using FacilitEase.Contracts.ServiceContracts;
+using FacilitEase.Models.ApiModels;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 

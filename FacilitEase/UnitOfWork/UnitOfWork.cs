@@ -1,3 +1,4 @@
+using FacilitEase.Contracts.RepositoryContracts;
 using FacilitEase.Data;
 using FacilitEase.Repositories;
 using FacilitEase.UnitOfWork;

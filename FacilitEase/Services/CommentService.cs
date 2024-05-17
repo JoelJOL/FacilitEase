@@ -1,4 +1,5 @@
-﻿using FacilitEase.Data;
+﻿using FacilitEase.Contracts.ServiceContracts;
+using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
 
 namespace FacilitEase.Services

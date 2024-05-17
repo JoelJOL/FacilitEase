@@ -1,6 +1,6 @@
-﻿using FacilitEase.Models.ApiModels;
+﻿using FacilitEase.Contracts.ServiceContracts;
+using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
-using FacilitEase.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;

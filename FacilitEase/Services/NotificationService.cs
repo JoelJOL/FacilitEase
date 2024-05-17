@@ -1,4 +1,5 @@
-﻿using FacilitEase.Hubs;
+﻿using FacilitEase.Contracts.ServiceContracts;
+using FacilitEase.Hubs;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.UnitOfWork;
 using Microsoft.AspNetCore.SignalR;

@@ -1,6 +1,6 @@
-﻿using FacilitEase.Controllers;
+﻿using FacilitEase.Contracts.ServiceContracts;
+using FacilitEase.Controllers;
 using FacilitEase.Models.ApiModels;
-using FacilitEase.Services;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Xunit;

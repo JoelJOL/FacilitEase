@@ -1,7 +1,8 @@
-﻿using FacilitEase.Data;
+﻿using FacilitEase.Contracts.RepositoryContracts;
+using FacilitEase.Contracts.ServiceContracts;
+using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
-using FacilitEase.Repositories;
 using FacilitEase.UnitOfWork;
 using System.Net.Http.Headers;
 
