@@ -1,6 +1,6 @@
 ﻿// TicketController.cs
+using FacilitEase.Contracts.ServiceContracts;
 using FacilitEase.Models.ApiModels;
-using FacilitEase.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 

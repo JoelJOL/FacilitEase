@@ -1,6 +1,6 @@
-﻿using FacilitEase.Data;
+﻿using FacilitEase.Contracts.RepositoryContracts;
+using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
-using FacilitEase.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 /// <summary>

@@ -1,7 +1,6 @@
 ﻿using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
-using FacilitEase.Repositories;
 using FacilitEase.UnitOfWork;
 using System.Linq.Dynamic.Core;
 using System.Linq;
@@ -10,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http.HttpResults;
 using System.Net.Sockets;
 using Microsoft.Graph.Models;
+using FacilitEase.Contracts.ServiceContracts;
+using FacilitEase.Contracts.RepositoryContracts;
 
 namespace FacilitEase.Services
 {
@@ -168,11 +169,11 @@ namespace FacilitEase.Services
                             EmployeeName = $"{employee.FirstName} {employee.LastName}",
                             Location = location.LocationName,
                             AssignedTo = ticket.AssignedTo != null
-    ? _context.TBL_EMPLOYEE
-        .Where(emp => emp.Id == ticket.AssignedTo)
-        .Select(emp => $"{emp.FirstName} {emp.LastName}")
-        .FirstOrDefault()
-    : "-------",
+                            ? _context.TBL_EMPLOYEE
+                                .Where(emp => emp.Id == ticket.AssignedTo)
+                                .Select(emp => $"{emp.FirstName} {emp.LastName}")
+                                .FirstOrDefault()
+                            : "-------",
                             SubmittedDate = ticket.SubmittedDate,
                             Priority = $"{priority.PriorityName}",
                             Status = $"{status.StatusName}",
@@ -278,11 +279,11 @@ namespace FacilitEase.Services
                             EmployeeName = $"{employee.FirstName} {employee.LastName}",
                             Location = location.LocationName,
                             AssignedTo = ticket.AssignedTo != null
-    ? _context.TBL_EMPLOYEE
-        .Where(emp => emp.Id == ticket.AssignedTo)
-        .Select(emp => $"{emp.FirstName} {emp.LastName}")
-        .FirstOrDefault()
-    : "-------",
+                            ? _context.TBL_EMPLOYEE
+                                .Where(emp => emp.Id == ticket.AssignedTo)
+                                .Select(emp => $"{emp.FirstName} {emp.LastName}")
+                                .FirstOrDefault()
+                            : "-------",
                             SubmittedDate = ticket.SubmittedDate,
                             Priority = $"{priority.PriorityName}",
                             Status = $"{status.StatusName}",

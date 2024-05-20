@@ -1,3 +1,4 @@
+using FacilitEase.Contracts.RepositoryContracts;
 using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;

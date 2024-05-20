@@ -1,6 +1,6 @@
+using FacilitEase.Contracts.ServiceContracts;
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
-using FacilitEase.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FacilitEase.Controllers

@@ -1,4 +1,6 @@
 ﻿using DotNetEnv;
+using FacilitEase.Contracts.RepositoryContracts;
+using FacilitEase.Contracts.ServiceContracts;
 using FacilitEase.Data;
 using FacilitEase.Hubs;
 using FacilitEase.Models.EntityModels;

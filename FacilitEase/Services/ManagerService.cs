@@ -1,5 +1,6 @@
-﻿using FacilitEase.Models.ApiModels;
-using FacilitEase.Repositories;
+﻿using FacilitEase.Contracts.RepositoryContracts;
+using FacilitEase.Contracts.ServiceContracts;
+using FacilitEase.Models.ApiModels;
 
 namespace FacilitEase.Services
 {

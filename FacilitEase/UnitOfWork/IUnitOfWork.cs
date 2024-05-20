@@ -1,4 +1,4 @@
-using FacilitEase.Repositories;
+using FacilitEase.Contracts.RepositoryContracts;
 
 namespace FacilitEase.UnitOfWork
 {

@@ -1,4 +1,5 @@
-﻿using FacilitEase.Data;
+﻿using FacilitEase.Contracts.RepositoryContracts;
+using FacilitEase.Data;
 
 namespace FacilitEase.Repositories
 {

@@ -1,4 +1,5 @@
-﻿using FacilitEase.Models.ApiModels;
+﻿using FacilitEase.Contracts.ServiceContracts;
+using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.UnitOfWork;
 

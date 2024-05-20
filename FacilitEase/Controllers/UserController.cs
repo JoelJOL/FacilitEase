@@ -1,6 +1,6 @@
 ﻿using DotNetEnv;
+using FacilitEase.Contracts.ServiceContracts;
 using FacilitEase.Models.ApiModels;
-using FacilitEase.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
