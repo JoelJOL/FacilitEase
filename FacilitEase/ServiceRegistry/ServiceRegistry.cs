@@ -58,7 +58,6 @@ namespace FacilitEase.ServiceRegistry
             });
 
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddHostedService<NotificationService>();
             builder.Services.Configure<FormOptions>(o =>
             {
                 o.ValueLengthLimit = int.MaxValue;
@@ -153,6 +152,7 @@ namespace FacilitEase.ServiceRegistry
             services.AddScoped<ISLAService, SLAService>();
             services.AddScoped<IL1AdminService, L1AdminService>();
             services.AddScoped<IEmailToTicketProcessor, EmailToTicketProcessor>();
+            services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<TicketService>();
         }
         #endregion

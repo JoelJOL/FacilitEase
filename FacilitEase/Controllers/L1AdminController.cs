@@ -7,7 +7,7 @@ namespace FacilitEase.Controllers
 {
     [EnableCors("AllowAngularDev")]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api")]
     public class L1AdminController : ControllerBase
     {
         private readonly IDepartmentService _departmentService;
@@ -32,27 +32,7 @@ namespace FacilitEase.Controllers
             _l1AdminService = l1AdminService;
         }
 
-        [HttpGet("departments")]
-        public ActionResult<IEnumerable<DepartmentDto>> GetDepartments()
-        {
-            var departments = _departmentService.GetDepartments();
-            return Ok(departments);
-        }
-
-        [HttpPost("departments")]
-        public IActionResult CreateDepartment([FromBody] DepartmentDto departmentDto)
-        {
-            if (departmentDto == null)
-            {
-                return BadRequest("DepartmentDto cannot be null");
-            }
-
-            _departmentService.CreateDepartment(departmentDto);
-
-            return CreatedAtAction(nameof(GetDepartments), new { }, departmentDto);
-        }
-
-        [HttpPost("EditSLA")]
+        [HttpPost("l1/edit-sla")]
         public IActionResult EditSla([FromBody] EditSLAInfo request)
         {
             try
@@ -66,7 +46,7 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpGet("escalated-tickets/{userId}")]
+        [HttpGet("l1/escalated-tickets/{userId}")]
         public ActionResult<ManagerTicketResponse<TicketApiModel>> GetEscalatedTickets(int userId, int pageIndex, int pageSize, string sortField, string sortOrder, string searchQuery)
         {
             try
@@ -80,7 +60,7 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpGet("all-tickets")]
+        [HttpGet("l1/tickets")]
         public ActionResult<EmployeeTicketResponse<L1AdminTicketView>> GetAllTickets(string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             try
@@ -94,7 +74,7 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpGet("SLAInfo/{userId}")]
+        [HttpGet("l1/sla-info/{userId}")]
         public ActionResult GetSlaInfo(int userId)
         {
             var slaInfo = _slaService.GetSLAInfo(userId);

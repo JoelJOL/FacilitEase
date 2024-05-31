@@ -6,7 +6,7 @@ namespace FacilitEase.Controllers
 {
     [EnableCors("AllowAngularDev")]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api")]
     public class DepartmentController : ControllerBase
     {
         private readonly IDepartmentService _deptService;
@@ -16,7 +16,7 @@ namespace FacilitEase.Controllers
             _deptService = deptService;
         }
 
-        [HttpGet("getAllExceptUserDepartment/{userId}")]
+        [HttpGet("departments/{userId}/exclude")]
         public IActionResult GetAllDepartmentsExceptUserDepartment(int userId)
         {
             try
@@ -31,7 +31,7 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpGet("categories-by-department/{departmentId}")]
+        [HttpGet("categories/{departmentId}")]
         public IActionResult GetCategoriesByDepartmentId(int departmentId)
         {
             var categories = _deptService.GetCategoriesByDepartmentId(departmentId);

@@ -2,6 +2,7 @@
 using FacilitEase.Data;
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
+using FacilitEase.Shared;
 using FacilitEase.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
@@ -14,12 +15,14 @@ namespace FacilitEase.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly AppDbContext _context;
         private readonly ITicketService _ticketService;
+        private readonly INotificationService _notificationService;
 
-        public L3AdminService(IUnitOfWork unitOfWork, AppDbContext context, ITicketService ticketService)
+        public L3AdminService(IUnitOfWork unitOfWork, AppDbContext context, ITicketService ticketService, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _context = context;
             _ticketService = ticketService;
+            _notificationService = notificationService;
         }
 
         /// <summary>
@@ -31,6 +34,7 @@ namespace FacilitEase.Services
             var ticketToClose = _context.TBL_TICKET
                 .FirstOrDefault(t => t.Id == ticketId);
 
+            ticketToClose.StatusChanged += _notificationService.OnTicketStatusChanged;
             if (ticketToClose != null)
             {
                 ticketToClose.StatusId = 4;

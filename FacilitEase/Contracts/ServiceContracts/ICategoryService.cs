@@ -5,7 +5,6 @@ namespace FacilitEase.Contracts.ServiceContracts
     public interface ICategoryService
 
     {
-        IEnumerable<CategoryDto> GetCategory();
         void CreateCategory(CategoryDto categoryDto);
         IEnumerable<CategoryDto> GetCategoryByDepartmentId(int departmentId);
 

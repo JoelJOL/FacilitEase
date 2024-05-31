@@ -3,12 +3,7 @@ using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
 using FacilitEase.UnitOfWork;
 using System.Linq.Dynamic.Core;
-using System.Linq;
 using Microsoft.Net.Http.Headers;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http.HttpResults;
-using System.Net.Sockets;
-using Microsoft.Graph.Models;
 using FacilitEase.Contracts.ServiceContracts;
 using FacilitEase.Contracts.RepositoryContracts;
 
@@ -16,17 +11,17 @@ namespace FacilitEase.Services
 {
     public class TicketService : ITicketService
     {
-        private readonly ITicketRepository _ticketRepository;
         private readonly IDocumentRepository _documentRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly INotificationService _notificationService;
         private readonly AppDbContext _context;
 
-        public TicketService(AppDbContext context, ITicketRepository ticketRepository, IDocumentRepository documentRepository, IUnitOfWork unitOfWork)
+        public TicketService(AppDbContext context, ITicketRepository ticketRepository, IDocumentRepository documentRepository, IUnitOfWork unitOfWork, INotificationService notificationService, IServiceScopeFactory scopeFactory)
         {
             _context = context;
-            _ticketRepository = ticketRepository;
             _documentRepository = documentRepository;
             _unitOfWork = unitOfWork;
+            _notificationService = notificationService;
         }
 
         //Avinash
@@ -461,6 +456,7 @@ namespace FacilitEase.Services
                 _context.SaveChanges();
             }
             UpdateTicketTracking(ticketEntity.Id, 1, null, null, DateTime.Now, ticketEntity.CreatedBy);
+            ticketEntity.StatusChanged += _notificationService.OnTicketStatusChanged;
         }
 
         /// <summary>
@@ -476,7 +472,7 @@ namespace FacilitEase.Services
             {
                 return false;
             }
-
+            ticket.StatusChanged += _notificationService.OnTicketStatusChanged;
             ticket.StatusId = (ticket.StatusId == 1) ? 5 : 7;
             ticket.ControllerId = ticket.AssignedTo;
             _context.SaveChanges();
@@ -722,6 +718,7 @@ namespace FacilitEase.Services
                     ticket.UpdatedDate = DateTime.Now;
                     ticket.UpdatedBy = userId;
 
+                    ticket.StatusChanged += _notificationService.OnTicketStatusChanged;
                     // Update the status to "In Progress"
                     ticket.StatusId = 2;
 

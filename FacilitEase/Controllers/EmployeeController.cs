@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FacilitEase.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api")]
     public class EmployeeController : ControllerBase
     {
         private readonly IDepartmentService _departmentService;
@@ -56,13 +56,6 @@ namespace FacilitEase.Controllers
             return Ok(locations);
         }
 
-        [HttpGet("categories")]
-        public ActionResult<IEnumerable<CategoryDto>> GetCategory()
-        {
-            var categories = _categoryService.GetCategory();
-            return Ok(categories);
-        }
-
         [HttpGet("priorities")]
         public ActionResult<IEnumerable<PriorityDto>> GetPriority()
         {
@@ -70,7 +63,7 @@ namespace FacilitEase.Controllers
             return Ok(priority);
         }
 
-        [HttpPost("create-with-documents")]
+        [HttpPost("raise-ticket")]
         public IActionResult CreateTicketWithDocuments([FromForm] TicketDto ticketDto, [FromForm] IFormFile file)
         {
             try
@@ -84,26 +77,7 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpPost("AddEmployees")]
-        public IActionResult AddEmployees([FromBody] IEnumerable<EmployeeInputModel> employeeInputs)
-        {
-            if (employeeInputs == null || !employeeInputs.Any())
-            {
-                return BadRequest("Employee data is null or empty.");
-            }
-
-            try
-            {
-                _employeeService.AddEmployees(employeeInputs);
-                return Ok("Employees added successfully.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        [HttpGet("facilitiease")]
+        [HttpGet("categories")]
         public IActionResult GetCategoriesForFacilitiease()
         {
             var categories = _categoryService.GetCategoriesForFacilitiease();
@@ -116,21 +90,7 @@ namespace FacilitEase.Controllers
             return Ok(categories);
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult DeleteEmployee(int id)
-        {
-            try
-            {
-                _employeeService.DeleteEmployee(id);
-                return Ok($"Employee with ID {id} deleted successfully.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        [HttpPatch("cancel-request/{ticketId}")]
+        [HttpPatch("cancellation-request/{ticketId}")]
         public IActionResult RequestToCancelTicket(int ticketId)
         {
             bool success = _ticketService.RequestToCancelTicket(ticketId);
@@ -158,7 +118,7 @@ namespace FacilitEase.Controllers
             return Ok(ticketDetails);
         }
 
-        [HttpGet("ticket/{ticketId}")]
+        [HttpGet("ticket-details/{ticketId}")]
         public IActionResult GetTicketDetailsById(int ticketId)
         {
             var ticketDetails = _ticketDetailsService.GetTicketDetailsById(ticketId);
@@ -171,21 +131,7 @@ namespace FacilitEase.Controllers
             return Ok(ticketDetails);
         }
 
-        [HttpGet("GetCategoryByDepartmentId/{departmentId}")]
-        public IActionResult GetCategoryByDepartmentId(int departmentId)
-        {
-            try
-            {
-                var categories = _categoryService.GetCategoryByDepartmentId(departmentId);
-                return Ok(categories);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest("Error processing the request. Please try again later.");
-            }
-        }
-
-        [HttpGet("GetCommentsByTicketId/{ticketId}")]
+        [HttpGet("comments/{ticketId}")]
         public IActionResult GetCommentsByTicketId(int ticketId)
         {
             try
@@ -199,7 +145,7 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpGet("get-documents-by-ticket/{ticketId}")]
+        [HttpGet("documents/{ticketId}")]
         public IActionResult GetDocumentsByTicketId(int ticketId)
         {
             try
@@ -219,13 +165,13 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("emplopyee/{id}")]
         public IActionResult GetEmployeeDetails(int id)
         {
             return Ok(_employeeService.GetEmployeeDetails(id));
         }
 
-        [HttpGet("employeesByProject/{userId}")]
+        [HttpGet("{userId}/project/employees")]
         public ActionResult<IEnumerable<ProjectEmployeeDetails>> GetEmployeesByProject(int userId)
         {
             try

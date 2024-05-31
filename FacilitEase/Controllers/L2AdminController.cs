@@ -35,12 +35,12 @@ namespace FacilitEase.Controllers
             }
         }
 
-        [HttpGet("ticketById")]
-        public ActionResult<TicketDetails> GetTicketDetails(int desiredTicketId)
+        [HttpGet("ticket-details/{ticketId}")]
+        public ActionResult<TicketDetails> GetTicketDetails(int ticketId)
         {
             try
             {
-                var tickets = _ticketService.GetTicketDetails(desiredTicketId);
+                var tickets = _ticketService.GetTicketDetails(ticketId);
                 return Ok(tickets);
             }
             catch (Exception ex)
@@ -99,21 +99,21 @@ namespace FacilitEase.Controllers
             return Ok(escalatedTickets);
         }
 
-        [HttpGet("agentsByDepartmentId/{userId}")]
+        [HttpGet("agents-details/{userId}")]
         public ActionResult<List<AgentDetailsModel>> GetAgentsByDepartment(int userId)
         {
             var agents = _employeeService.GetAgentsByDepartment(userId);
             return Ok(agents);
         }
 
-        [HttpGet("SLATicketInfo/{TicketId}")]
+        [HttpGet("sla-info/{TicketId}")]
         public ActionResult GetSlaInfo(int TicketId)
         {
             var slaTicketInfo = _slaService.GetTicketSLA(TicketId);
             return Ok(slaTicketInfo);
         }
 
-        [HttpPost("EditTicketSLA")]
+        [HttpPost("edit-sla")]
         public IActionResult EditTicketSla([FromBody] EditTicketSLAInfo request)
         {
             try
