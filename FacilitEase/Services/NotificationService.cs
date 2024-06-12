@@ -8,7 +8,7 @@ using System.Net.Mail;
 
 namespace FacilitEase.Services
 {
-    public class NotificationService : INotificationService, IHostedService
+    public class NotificationService : INotificationService
     {
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly IServiceScopeFactory _scopeFactory;
@@ -19,22 +19,6 @@ namespace FacilitEase.Services
         {
             _hubContext = hubContext;
             _scopeFactory = scopeFactory;
-        }
-
-        public Task StartAsync(CancellationToken cancellationToken)
-        {
-            return Task.Factory.StartNew(async () =>
-     {
-         using (var scope = _scopeFactory.CreateScope())
-         {
-             await MonitorTicketChanges(cancellationToken);
-         }
-     }, TaskCreationOptions.LongRunning);
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -81,7 +65,7 @@ namespace FacilitEase.Services
                             foreach (var changedTicket in changedTickets)
                             {
                                 // Determine the messages to send based on the new status and controller
-                                var messages = GetMessagesForStatusAndController(changedTicket.Value.StatusId, changedTicket.Value.ControllerId, changedTicket.Key);
+                                var messages = GetMessagesForStatusAndController(changedTicket.Value.StatusId, changedTicket.Value.ControllerId, changedTicket.Key, unitOfWork);
 
                                 // Send a notification to the user and controller
                                 foreach (var message in messages)
@@ -188,16 +172,13 @@ namespace FacilitEase.Services
         /// <param name="controllerId">The controller ID of the ticket.</param>
         /// <param name="ticketId">The ID of the ticket for which messages are generated.</param>
         /// <returns>A list of messages related to the ticket status and controller.</returns>
-
-        private List<Message> GetMessagesForStatusAndController(int? statusId, int? controllerId, int ticketId)
+        public List<Message> GetMessagesForStatusAndController(int? statusId, int? controllerId, int ticketId, IUnitOfWork unitOfWork)
         {
-            IUnitOfWork unitOfWork;
             List<TBL_USER> users = null;
             List<TBL_EMPLOYEE> employees = null;
 
             using (var scope = _scopeFactory.CreateScope())
             {
-                unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
                 try
                 {
                     users = unitOfWork.User.GetAll().ToList();
@@ -285,6 +266,43 @@ namespace FacilitEase.Services
             }
         }
 
+        public async Task HandleTicketStatusChangedAsync(TBL_TICKET ticket, IUnitOfWork unitOfWork)
+        {
+            var messages = GetMessagesForStatusAndController(ticket.StatusId, ticket.ControllerId, ticket.Id, unitOfWork);
+
+            foreach (var message in messages)
+            {
+                // Connecting with the client and sending the data.
+                await _hubContext.Clients.All.SendAsync("ReceiveNotification", new { UserId = message.UserId, Text = message.Text });
+
+                // Create a new notification in the database
+                var notification = new TBL_NOTIFICATION
+                {
+                    Content = $"TicketId: {ticket.Id}, {message.Text}",
+                    TicketId = ticket.Id,
+                    Receiver = message.UserId,
+                    NotificationTimestamp = DateTime.Now
+                };
+                unitOfWork.Notification.Add(notification);
+            }
+
+            // Save the changes to the database
+            await unitOfWork.CompleteAsync();
+        }
+
+        public async void OnTicketStatusChanged(object sender, EventArgs e)
+        {
+            var ticket = sender as TBL_TICKET;
+            if (ticket != null)
+            {
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                    await HandleTicketStatusChangedAsync(ticket, unitOfWork);
+                }
+            }
+        }
+
     }
 
     public class Message
@@ -292,4 +310,5 @@ namespace FacilitEase.Services
         public int UserId { get; set; }
         public string Text { get; set; }
     }
+
 }

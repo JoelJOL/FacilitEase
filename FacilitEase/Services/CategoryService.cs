@@ -17,31 +17,6 @@ namespace FacilitEase.Services
             _context = context;
         }
 
-        public IEnumerable<CategoryDto> GetCategory()
-        {
-            var category = _unitOfWork.Category.GetAll();
-            return MapToCategoryDtoList(category);
-        }
-
-        private IEnumerable<CategoryDto> MapToCategoryDtoList(IEnumerable<TBL_CATEGORY> departments)
-        {
-            return departments.Select(MapToCategoryDto);
-        }
-
-        private CategoryDto MapToCategoryDto(TBL_CATEGORY category)
-        {
-            return new CategoryDto
-            {
-                Id = category.Id,
-                CategoryName = category.CategoryName,
-                DepartmentId = category.DepartmentId,
-                CreatedBy = category.CreatedBy,
-                CreatedDate = category.CreatedDate,
-                UpdatedBy = category.UpdatedBy,
-                UpdatedDate = category.UpdatedDate,
-            };
-        }
-
         /// <summary>
         /// To get the categories of particular department
         /// </summary>

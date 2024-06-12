@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FacilitEase.Controllers
 {
+    [Route("api")]
     public class AssetController : ControllerBase
     {
         private readonly IAssetService _assetService;
@@ -20,17 +21,17 @@ namespace FacilitEase.Controllers
             return Ok(assets);
         }
 
-        [HttpGet("assets/unassigned-assets")]
+        [HttpGet("unassigned-assets")]
         public IActionResult GetUnassignedAssets(string sortField, string sortOrder, int pageIndex, int pageSize, string searchQuery)
         {
             var unassignedAssets = _assetService.GetUnassignedAssets(sortField, sortOrder, pageIndex, pageSize, searchQuery);
             return Ok(unassignedAssets);
         }
 
-        [HttpGet("assets/unassigned-asset-details/{unassignedAssetId}")]
-        public ActionResult<Asset> GetUnassignedAssetDetails(int unassignedAssetId)
+        [HttpGet("unassigned-asset/{assetId}")]
+        public ActionResult<Asset> GetUnassignedAssetDetails(int assetId)
         {
-            var assetDetails = _assetService.GetUnassignedAssetDetails(unassignedAssetId);
+            var assetDetails = _assetService.GetUnassignedAssetDetails(assetId);
 
             if (assetDetails == null)
             {
@@ -40,10 +41,10 @@ namespace FacilitEase.Controllers
             return Ok(assetDetails);
         }
 
-        [HttpGet("assets/asset-history/{unassignedAssetId}")]
-        public ActionResult<AssetHistory> GetDetailsForUnassignedAsset(int unassignedAssetId)
+        [HttpGet("asset-history/{assetId}")]
+        public ActionResult<AssetHistory> GetDetailsForUnassignedAsset(int assetId)
         {
-            var assetHistory = _assetService.GetDetailsForUnassignedAsset(unassignedAssetId);
+            var assetHistory = _assetService.GetDetailsForUnassignedAsset(assetId);
 
             if (assetHistory == null)
             {

@@ -35,7 +35,34 @@ namespace FacilitEase.Data
         public DbSet<TBL_ASSET_EMPLOYEE_MAPPING> TBL_ASSET_EMPLOYEE_MAPPING { get; set; }
         public DbSet<TBL_COMMENT> TBL_COMMENT { get; set; }
         public DbSet<TBL_NOTIFICATION> TBL_NOTIFICATION { get; set; }
-
         public DbSet<TBL_SLA> TBL_SLA { get; set; }
+        public override int SaveChanges()
+        {
+            DetectStatusChanges();
+            return base.SaveChanges();
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            DetectStatusChanges();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void DetectStatusChanges()
+        {
+            foreach (var entry in ChangeTracker.Entries<TBL_TICKET>())
+            {
+                if (entry.State == EntityState.Modified)
+                {
+                    var originalStatus = entry.OriginalValues.GetValue<int>("StatusId");
+                    var currentStatus = entry.CurrentValues.GetValue<int>("StatusId");
+
+                    if (originalStatus != currentStatus)
+                    {
+                        entry.Entity.OnStatusChanged();
+                    }
+                }
+            }
+        }
     }
 }

@@ -11,12 +11,6 @@ namespace FacilitEase.Contracts.ServiceContracts
 
         IEnumerable<AgentDetailsModel> GetAgentsByDepartment(int userId);
 
-        void AddEmployees(IEnumerable<EmployeeInputModel> employeeInputs1, params EmployeeInputModel[] employeeInputs);
-
-        //void AddEmployees(IEnumerable<EmployeeInputModel> employeeInputs, params EmployeeInputModel[] additionalEmployeeInputs);
-
-        void DeleteEmployee(int id);
-
         public IEnumerable<TBL_LOCATION> GetLocations();
 
         public IEnumerable<TBL_POSITION> GetPositions();
