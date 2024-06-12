@@ -43,6 +43,7 @@ namespace FacilitEase.Services
                 // Set status based on IsApproved flag
                 var newStatusId = request.IsApproved ? 2 : 5;
 
+                ticket.StatusChanged += _notificationService.OnTicketStatusChanged;
                 ticket.StatusId = newStatusId;
 
                 // Set ControllerId based on IsApproved flag
@@ -329,6 +330,7 @@ namespace FacilitEase.Services
             }
             else
             {
+                ticket.StatusChanged += _notificationService.OnTicketStatusChanged;
                 ticket.StatusId = statusId;
                 if (statusId == 2)
                 {
@@ -412,6 +414,7 @@ namespace FacilitEase.Services
                            where sla.CategoryId == ticketDto.CategoryId
                            select sla.Time)
                    .FirstOrDefault();
+
             var ticketEntity = new TBL_TICKET
             {
                 TicketName = categoryName,
@@ -428,8 +431,10 @@ namespace FacilitEase.Services
                 EscalationTime = DateTime.UtcNow.AddDays(slaTime)
             };
 
+            ticketEntity.SubscribeToStatusChanged(_notificationService.OnTicketStatusChanged);
+
             _context.Add(ticketEntity);
-            _context.SaveChanges();
+            _context.SaveChangesAsync();
 
             if (file != null && file.Length > 0)
             {
@@ -456,7 +461,7 @@ namespace FacilitEase.Services
                 _context.SaveChanges();
             }
             UpdateTicketTracking(ticketEntity.Id, 1, null, null, DateTime.Now, ticketEntity.CreatedBy);
-            ticketEntity.StatusChanged += _notificationService.OnTicketStatusChanged;
+            ticketEntity.OnStatusChanged();
         }
 
         /// <summary>
