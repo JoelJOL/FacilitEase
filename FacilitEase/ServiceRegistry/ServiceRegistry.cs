@@ -154,6 +154,7 @@ namespace FacilitEase.ServiceRegistry
             services.AddScoped<IEmailToTicketProcessor, EmailToTicketProcessor>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<TicketService>();
+            services.AddScoped<IUserPermissionsService, UserPermissionsService>();
         }
         #endregion
 
@@ -174,7 +175,7 @@ namespace FacilitEase.ServiceRegistry
             app.UseCors("AllowAngularDev");
             app.MapControllers();
             app.MapHub<NotificationHub>("/notificationHub").RequireCors("AllowAngularDev");
-            app.UseTokenValidationMiddleware(applicationAuthority, applicationAudience);
+            //app.UseTokenValidationMiddleware(applicationAuthority, applicationAudience);
             app.UseAuthentication();
             app.UseAuthorization();
             //app.UseMiddleware<LogMiddleware>();

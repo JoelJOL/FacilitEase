@@ -36,6 +36,8 @@ namespace FacilitEase.Data
         public DbSet<TBL_COMMENT> TBL_COMMENT { get; set; }
         public DbSet<TBL_NOTIFICATION> TBL_NOTIFICATION { get; set; }
         public DbSet<TBL_SLA> TBL_SLA { get; set; }
+        public DbSet<TBL_PERMISSION> TBL_PERMISSION { get; set; }
+        public DbSet<TBL_USER_PERMISSION> TBL_USER_PERMISSION { get; set; }
         public override int SaveChanges()
         {
             DetectStatusChanges();
