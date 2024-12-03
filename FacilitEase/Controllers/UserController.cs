@@ -1,6 +1,7 @@
 ﻿using DotNetEnv;
 using FacilitEase.Contracts.ServiceContracts;
 using FacilitEase.Models.ApiModels;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -12,6 +13,7 @@ namespace FacilitEase.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [EnableCors("AllowAngularDev")]
     public class UserController : ControllerBase
     {
         private readonly string _authority = Env.GetString("Application_Authority");

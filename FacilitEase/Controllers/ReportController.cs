@@ -1,6 +1,7 @@
 ﻿using FacilitEase.Contracts.ServiceContracts;
 using FacilitEase.Models.ApiModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 
@@ -8,6 +9,7 @@ namespace FacilitEase.Controllers
 {
     [Authorize(Roles="L2Admin")]
     [ApiController]
+    [EnableCors("AllowAngularDev")]
     public class ReportController : ControllerBase
     {
         private readonly IReportService _reportService;

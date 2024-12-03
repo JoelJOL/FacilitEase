@@ -1,4 +1,5 @@
 ﻿using FacilitEase.Services;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http; 
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,6 +7,7 @@ namespace FacilitEase.Controllers
 {
     [Route("api")]
     [ApiController]
+    [EnableCors("AllowAngularDev")]
     public class InvoiceController : ControllerBase
     {
         private readonly InvoiceService _invoiceService;

@@ -1,11 +1,13 @@
 ﻿using FacilitEase.Contracts.ServiceContracts;
 using FacilitEase.Models.ApiModels;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FacilitEase.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [EnableCors("AllowAngularDev")]
     public class RoleAssignmentController : ControllerBase
     {
         private readonly IL1AdminService _l1adminService;
