@@ -1,10 +1,12 @@
 ﻿using FacilitEase.Contracts.ServiceContracts;
 using FacilitEase.Models.ApiModels;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FacilitEase.Controllers
 {
     [Route("api")]
+    [EnableCors("AllowAngularDev")]
     public class AssetController : ControllerBase
     {
         private readonly IAssetService _assetService;

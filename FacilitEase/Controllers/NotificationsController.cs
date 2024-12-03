@@ -24,7 +24,7 @@ public class NotificationsController : ControllerBase
 
             return Ok(notifications);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Handle exceptions appropriately (e.g., log them)
             return StatusCode(500, "Internal Server Error");

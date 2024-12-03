@@ -191,7 +191,7 @@ namespace FacilitEase.ServiceRegistry
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             return app;
         }

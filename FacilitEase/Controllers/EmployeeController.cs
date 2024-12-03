@@ -1,12 +1,14 @@
 using FacilitEase.Contracts.ServiceContracts;
 using FacilitEase.Models.ApiModels;
 using FacilitEase.Models.EntityModels;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FacilitEase.Controllers
 {
     [ApiController]
     [Route("api")]
+    [EnableCors("AllowAngularDev")]
     public class EmployeeController : ControllerBase
     {
         private readonly IDepartmentService _departmentService;
@@ -139,7 +141,7 @@ namespace FacilitEase.Controllers
                 var comments = _commentService.GetCommentsByTicketId(ticketId);
                 return Ok(comments);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest("Error retrieving comments. Please try again later.");
             }
@@ -185,7 +187,7 @@ namespace FacilitEase.Controllers
 
                 return Ok(employeesByProject);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Log the exception or handle it appropriately
                 return StatusCode(500, "An error occurred while processing your request.");

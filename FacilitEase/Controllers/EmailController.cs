@@ -1,11 +1,13 @@
 ﻿using FacilitEase.Models.ApiModels;
 using FacilitEase.Services;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FacilitEase.Controllers
 {
     [Route("api/email")]
     [ApiController]
+    [EnableCors("AllowAngularDev")]
     public class EmailController : ControllerBase
     {
         private readonly MailJetService _mailjetService;
